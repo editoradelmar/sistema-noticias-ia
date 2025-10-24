@@ -1,0 +1,377 @@
+"""
+Router de Autenticación
+Endpoints: register, login, me, refresh
+"""
+from fastapi import APIRouter, HTTPException, status, Depends, Form
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+from datetime import datetime
+from typing import Optional
+
+from core.database import get_db
+from models import orm_models
+from models.schemas import (
+    UsuarioCreate,
+    Usuario,
+    LoginRequest,
+    TokenResponse,
+    ResponseModel,
+    RoleEnum
+)
+from utils.security import (
+    verify_password,
+    get_password_hash,
+    create_token_response,
+    decode_access_token
+)
+
+router = APIRouter()
+
+# OAuth2 scheme para obtener el token del header
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+
+# ==================== DEPENDENCIAS ====================
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> orm_models.Usuario:
+    """
+    Obtener usuario actual desde el token JWT
+    
+    Args:
+        token: Token JWT del header Authorization
+        db: Sesión de base de datos
+        
+    Returns:
+        Usuario: Usuario autenticado
+        
+    Raises:
+        HTTPException: Si el token es inválido o el usuario no existe
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    # Decodificar token
+    payload = decode_access_token(token)
+    if payload is None:
+        raise credentials_exception
+    
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        raise credentials_exception
+    
+    # Buscar usuario en BD
+    user = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.id == int(user_id)
+    ).first()
+    
+    if user is None:
+        raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo"
+        )
+    
+    return user
+
+
+async def get_current_active_user(
+    current_user: orm_models.Usuario = Depends(get_current_user)
+) -> orm_models.Usuario:
+    """
+    Verificar que el usuario esté activo
+    """
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo"
+        )
+    return current_user
+
+
+async def require_role(
+    required_roles: list[str],
+    current_user: orm_models.Usuario = Depends(get_current_user)
+) -> orm_models.Usuario:
+    """
+    Verificar que el usuario tenga uno de los roles requeridos
+    """
+    if current_user.role not in required_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Requiere uno de estos roles: {', '.join(required_roles)}"
+        )
+    return current_user
+
+
+# ==================== ENDPOINTS ====================
+
+@router.post("/register", response_model=Usuario, status_code=status.HTTP_201_CREATED)
+async def register(
+    user_data: UsuarioCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Registrar un nuevo usuario
+    
+    - **email**: Email único del usuario
+    - **username**: Nombre de usuario único
+    - **password**: Contraseña (mínimo 6 caracteres)
+    - **nombre_completo**: Nombre completo (opcional)
+    - **role**: Rol del usuario (default: viewer)
+    """
+    # Verificar si el email ya existe
+    existing_email = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.email == user_data.email.lower()
+    ).first()
+    
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El email ya está registrado"
+        )
+    
+    # Verificar si el username ya existe
+    existing_username = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.username == user_data.username.lower()
+    ).first()
+    
+    if existing_username:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El username ya está en uso"
+        )
+    
+    # Crear nuevo usuario
+    hashed_password = get_password_hash(user_data.password)
+    
+    new_user = orm_models.Usuario(
+        email=user_data.email.lower(),
+        username=user_data.username.lower(),
+        hashed_password=hashed_password,
+        nombre_completo=user_data.nombre_completo,
+        role=user_data.role.value,
+        is_active=True,
+        is_superuser=False
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    return new_user
+
+
+@router.post("/login", response_model=TokenResponse)
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+):
+    """
+    Iniciar sesión y obtener token JWT
+    
+    Acepta OAuth2 form data para compatibilidad con Swagger UI.
+    El campo 'username' debe contener el email del usuario.
+    
+    - **username**: Email del usuario (sí, aunque diga username, usa el email)
+    - **password**: Contraseña
+    
+    Returns:
+        Token JWT con información del usuario
+    """
+    # Buscar usuario por email (form_data.username contiene el email)
+    user = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.email == form_data.username.lower()
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Verificar contraseña
+    if not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Verificar que esté activo
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo"
+        )
+    
+    # Actualizar último login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    # Crear y retornar token
+    token_response = create_token_response(
+        user_id=user.id,
+        email=user.email,
+        username=user.username,
+        role=user.role,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        created_at=user.created_at,
+        last_login=user.last_login,
+        nombre_completo=user.nombre_completo
+    )
+    
+    return token_response
+
+
+@router.get("/me", response_model=Usuario)
+async def get_me(
+    current_user: orm_models.Usuario = Depends(get_current_active_user)
+):
+    """
+    Obtener información del usuario actual
+    
+    Requiere autenticación con token JWT
+    """
+    return current_user
+
+
+@router.post("/login/json", response_model=TokenResponse)
+async def login_json(
+    login_data: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Iniciar sesión con JSON (alternativa al OAuth2 form)
+    
+    - **email**: Email del usuario
+    - **password**: Contraseña
+    
+    Returns:
+        Token JWT con información del usuario
+    """
+    # Buscar usuario por email
+    user = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.email == login_data.email.lower()
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Verificar contraseña
+    if not verify_password(login_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Verificar que esté activo
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo"
+        )
+    
+    # Actualizar último login
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    # Crear y retornar token
+    token_response = create_token_response(
+        user_id=user.id,
+        email=user.email,
+        username=user.username,
+        role=user.role,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        created_at=user.created_at,
+        last_login=user.last_login,
+        nombre_completo=user.nombre_completo
+    )
+    
+    return token_response
+
+
+@router.post("/logout", response_model=ResponseModel)
+async def logout(
+    current_user: orm_models.Usuario = Depends(get_current_active_user)
+):
+    """
+    Cerrar sesión (invalidar token)
+    
+    Nota: En JWT stateless, el token expira automáticamente.
+    Este endpoint es más para consistencia en el frontend.
+    """
+    return ResponseModel(
+        success=True,
+        message="Sesión cerrada correctamente"
+    )
+
+
+@router.post("/create-admin", response_model=Usuario)
+async def create_admin(
+    admin_data: UsuarioCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Crear usuario administrador
+    
+    ⚠️ SOLO PARA DESARROLLO - En producción esto debe estar protegido
+    """
+    # Verificar si ya existe un admin
+    admin_exists = db.query(orm_models.Usuario).filter(
+        orm_models.Usuario.role == 'admin'
+    ).first()
+    
+    if admin_exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya existe un usuario administrador. Usa /register para usuarios normales."
+        )
+    
+    # Verificar email/username únicos
+    existing = db.query(orm_models.Usuario).filter(
+        (orm_models.Usuario.email == admin_data.email.lower()) |
+        (orm_models.Usuario.username == admin_data.username.lower())
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email o username ya existe"
+        )
+    
+    # Crear admin
+    hashed_password = get_password_hash(admin_data.password)
+    
+    admin_user = orm_models.Usuario(
+        email=admin_data.email.lower(),
+        username=admin_data.username.lower(),
+        hashed_password=hashed_password,
+        nombre_completo=admin_data.nombre_completo,
+        role='admin',
+        is_active=True,
+        is_superuser=True
+    )
+    
+    db.add(admin_user)
+    db.commit()
+    db.refresh(admin_user)
+    
+    return admin_user

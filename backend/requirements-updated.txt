@@ -1,0 +1,55 @@
+
+# Sistema de Noticias con IA - Dependencias Actualizadas
+# Python 3.11+
+
+# Framework Web
+fastapi==0.118.0
+uvicorn[standard]==0.37.0
+python-multipart==0.0.20
+
+# Base de Datos
+SQLAlchemy==2.0.44
+psycopg2-binary==2.9.11
+alembic==1.13.1
+
+# Autenticación y Seguridad
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+cryptography==46.0.2
+
+# Configuración
+pydantic==2.11.9
+pydantic-settings==2.11.0
+python-dotenv==1.1.1
+
+# IA - Anthropic (Claude)
+anthropic==0.69.0
+
+# Utilidades
+httpx==0.28.1
+pyyaml==6.0.3
+
+# Validación y Tipos
+pydantic-core==2.33.2
+typing-extensions==4.15.0
+annotated-types==0.7.0
+
+# Dependencias de Sistema
+certifi==2025.8.3
+idna==3.10
+sniffio==1.3.1
+anyio==4.11.0
+h11==0.16.0
+click==8.3.0
+colorama==0.4.6
+
+# Servidor ASGI
+starlette==0.48.0
+watchfiles==1.1.0
+websockets==15.0.1
+
+# Otros
+greenlet==3.2.4
+distro==1.9.0
+jiter==0.11.0

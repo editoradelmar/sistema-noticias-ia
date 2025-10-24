@@ -1,0 +1,287 @@
+"""
+Router de IA - Integración con Claude/OpenAI
+Endpoints para chat, resúmenes y análisis con IA
+"""
+from fastapi import APIRouter, HTTPException, status, Depends
+from typing import Dict, List
+import httpx
+import json
+import uuid
+from models.schemas import (
+    ChatRequest,
+    ChatResponse,
+    AnalisisIARequest,
+    AnalisisIAResponse,
+    ResumenIAResponse,
+    TipoAnalisisIA
+)
+
+router = APIRouter()
+
+# Almacenamiento de conversaciones en memoria
+conversaciones: Dict[str, List[dict]] = {}
+
+# Configuración de API (en producción usar variables de entorno)
+ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
+
+# ==================== HELPERS ====================
+
+def obtener_noticia_por_id(noticia_id: int) -> dict:
+    """Obtener noticia del almacenamiento (importar desde noticias.py)"""
+    from routers.noticias import get_noticia_by_id
+    noticia = get_noticia_by_id(noticia_id)
+    if not noticia:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Noticia con ID {noticia_id} no encontrada"
+        )
+    return noticia
+
+async def llamar_claude(messages: List[dict], max_tokens: int = 1000) -> dict:
+    """
+    Llamar a la API de Claude
+    
+    IMPORTANTE: En producción, usar API key desde variables de entorno
+    Para este ejemplo, la API key se gestiona del lado del cliente
+    """
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                ANTHROPIC_API_URL,
+                headers={
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": CLAUDE_MODEL,
+                    "max_tokens": max_tokens,
+                    "messages": messages
+                }
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Error al comunicarse con Claude API: {response.text}"
+                )
+            
+            return response.json()
+    
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Timeout al comunicarse con Claude API"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error inesperado: {str(e)}"
+        )
+
+# ==================== ENDPOINTS ====================
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat_con_ia(request: ChatRequest):
+    """
+    Chat conversacional con IA (Claude)
+    
+    - **mensaje**: Mensaje del usuario
+    - **conversacion_id**: ID de conversación existente (opcional)
+    - **contexto**: Contexto adicional para la IA (opcional)
+    """
+    # Generar o recuperar conversación
+    conv_id = request.conversacion_id or str(uuid.uuid4())
+    
+    if conv_id not in conversaciones:
+        conversaciones[conv_id] = []
+    
+    # Preparar historial de mensajes
+    historial = conversaciones[conv_id].copy()
+    
+    # Agregar contexto si existe
+    mensaje_usuario = request.mensaje
+    if request.contexto:
+        mensaje_usuario = f"Contexto: {request.contexto}\n\nPregunta: {request.mensaje}"
+    
+    historial.append({
+        "role": "user",
+        "content": mensaje_usuario
+    })
+    
+    # Llamar a Claude
+    respuesta_claude = await llamar_claude(historial, max_tokens=2000)
+    
+    # Extraer respuesta
+    respuesta_texto = respuesta_claude.get("content", [{}])[0].get("text", "")
+    tokens_usados = respuesta_claude.get("usage", {}).get("input_tokens", 0) + \
+                    respuesta_claude.get("usage", {}).get("output_tokens", 0)
+    
+    # Guardar en historial
+    historial.append({
+        "role": "assistant",
+        "content": respuesta_texto
+    })
+    conversaciones[conv_id] = historial
+    
+    return ChatResponse(
+        respuesta=respuesta_texto,
+        conversacion_id=conv_id,
+        tokens_usados=tokens_usados
+    )
+
+
+@router.post("/analizar", response_model=AnalisisIAResponse)
+async def analizar_noticia(request: AnalisisIARequest):
+    """
+    Analizar una noticia con IA según el tipo de análisis
+    
+    - **noticia_id**: ID de la noticia a analizar
+    - **tipo_analisis**: resumen | sentiment | keywords | traduccion
+    - **idioma_destino**: Para traducción (es, en, fr, de, it, pt)
+    """
+    # Obtener noticia
+    noticia = obtener_noticia_por_id(request.noticia_id)
+    
+    # Preparar prompt según tipo de análisis
+    prompts = {
+        TipoAnalisisIA.RESUMEN: f"""Resume la siguiente noticia en 3-4 oraciones concisas:
+
+Título: {noticia['titulo']}
+Contenido: {noticia['contenido']}
+
+Proporciona solo el resumen, sin explicaciones adicionales.""",
+        
+        TipoAnalisisIA.SENTIMENT: f"""Analiza el sentimiento de esta noticia y proporciona:
+1. Sentimiento general (positivo/neutral/negativo)
+2. Score de 0 a 1 (donde 0 es muy negativo y 1 muy positivo)
+3. Justificación breve
+
+Título: {noticia['titulo']}
+Contenido: {noticia['contenido']}
+
+Responde en formato JSON.""",
+        
+        TipoAnalisisIA.KEYWORDS: f"""Extrae las 5 palabras clave más importantes de esta noticia:
+
+Título: {noticia['titulo']}
+Contenido: {noticia['contenido']}
+
+Responde solo con las palabras clave separadas por comas.""",
+        
+        TipoAnalisisIA.TRADUCCION: f"""Traduce esta noticia completa al idioma: {request.idioma_destino or 'en'}
+
+Título: {noticia['titulo']}
+Contenido: {noticia['contenido']}
+
+Proporciona título y contenido traducidos."""
+    }
+    
+    prompt = prompts.get(request.tipo_analisis)
+    
+    # Llamar a Claude
+    messages = [{"role": "user", "content": prompt}]
+    respuesta_claude = await llamar_claude(messages, max_tokens=1500)
+    
+    resultado = respuesta_claude.get("content", [{}])[0].get("text", "")
+    
+    # Actualizar noticia si es resumen
+    if request.tipo_analisis == TipoAnalisisIA.RESUMEN:
+        noticia['resumen_ia'] = resultado
+    elif request.tipo_analisis == TipoAnalisisIA.KEYWORDS:
+        noticia['keywords'] = [k.strip() for k in resultado.split(',')]
+    
+    return AnalisisIAResponse(
+        noticia_id=request.noticia_id,
+        tipo_analisis=request.tipo_analisis,
+        resultado=resultado,
+        metadata={
+            "titulo_noticia": noticia['titulo'],
+            "timestamp": noticia['fecha']
+        }
+    )
+
+
+@router.post("/resumir/{noticia_id}", response_model=ResumenIAResponse)
+async def generar_resumen_detallado(noticia_id: int):
+    """
+    Generar un resumen detallado de una noticia con puntos clave
+    """
+    # Obtener noticia
+    noticia = obtener_noticia_por_id(noticia_id)
+    
+    prompt = f"""Analiza esta noticia y proporciona:
+1. Un resumen conciso (3-4 oraciones)
+2. Los 3 puntos clave más importantes
+
+Título: {noticia['titulo']}
+Contenido: {noticia['contenido']}
+
+Formato de respuesta:
+RESUMEN: [tu resumen aquí]
+
+PUNTOS CLAVE:
+- [punto 1]
+- [punto 2]
+- [punto 3]"""
+    
+    messages = [{"role": "user", "content": prompt}]
+    respuesta_claude = await llamar_claude(messages, max_tokens=1000)
+    
+    resultado = respuesta_claude.get("content", [{}])[0].get("text", "")
+    
+    # Parsear resultado
+    partes = resultado.split("PUNTOS CLAVE:")
+    resumen = partes[0].replace("RESUMEN:", "").strip()
+    
+    puntos_clave = []
+    if len(partes) > 1:
+        puntos_texto = partes[1].strip()
+        puntos_clave = [
+            p.strip().lstrip('-').strip() 
+            for p in puntos_texto.split('\n') 
+            if p.strip()
+        ][:3]
+    
+    # Actualizar noticia
+    noticia['resumen_ia'] = resumen
+    
+    return ResumenIAResponse(
+        noticia_id=noticia_id,
+        resumen=resumen,
+        puntos_clave=puntos_clave,
+        longitud_original=len(noticia['contenido']),
+        longitud_resumen=len(resumen)
+    )
+
+
+@router.get("/conversaciones/{conversacion_id}")
+async def obtener_conversacion(conversacion_id: str):
+    """
+    Obtener historial de una conversación específica
+    """
+    if conversacion_id not in conversaciones:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Conversación {conversacion_id} no encontrada"
+        )
+    
+    return {
+        "conversacion_id": conversacion_id,
+        "mensajes": conversaciones[conversacion_id],
+        "total_mensajes": len(conversaciones[conversacion_id])
+    }
+
+
+@router.delete("/conversaciones/{conversacion_id}")
+async def eliminar_conversacion(conversacion_id: str):
+    """
+    Eliminar una conversación del almacenamiento
+    """
+    if conversacion_id in conversaciones:
+        del conversaciones[conversacion_id]
+        return {"success": True, "message": "Conversación eliminada"}
+    
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Conversación {conversacion_id} no encontrada"
+    )

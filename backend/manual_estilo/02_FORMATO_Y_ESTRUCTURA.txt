@@ -1,0 +1,521 @@
+═══════════════════════════════════════════════════════════════════
+                    FORMATO Y ESTRUCTURA OBLIGATORIA
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ TEMPLATE DE RESPUESTA - CUMPLIR EXACTAMENTE                    │
+└─────────────────────────────────────────────────────────────────┘
+
+Tu respuesta DEBE tener exactamente esta estructura:
+
+═══════════════════════════════════════════════════════════════════
+Título SEO:
+[AQUÍ VA EL TÍTULO - Máximo 70 caracteres]
+
+Título para Redes Sociales:
+[AQUÍ VA EL TÍTULO PARA REDES - Máximo 70 caracteres]
+
+Sumario:
+[AQUÍ VA EL SUMARIO - Máximo 150 caracteres]
+
+Cuerpo del Texto:
+[AQUÍ VA EL TEXTO COMPLETO - Mínimo 400 palabras]
+
+Copy para Redes Sociales:
+[AQUÍ VA EL COPY - Máximo 90 caracteres]
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 1: TÍTULO SEO                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESPECIFICACIONES TÉCNICAS]
+• Extensión máxima: 70 caracteres (incluidos espacios)
+• Debe incluir palabras clave principales
+• Optimizado para posicionamiento en buscadores
+• Sin emojis ni caracteres especiales
+
+[ESTRUCTURA RECOMENDADA]
+Formato: [ACCIÓN] + [SUJETO] + [CONTEXTO RELEVANTE]
+
+Ejemplos CORRECTOS:
+✅ "Nueva vía pavimentada en Cartagena mejora movilidad en El Pozón" (67 caracteres)
+✅ "Colombia incluye nuevas vacunas en el plan nacional de inmunización" (69 caracteres)
+✅ "Dólar alcanza máximo histórico frente a monedas de América Latina" (68 caracteres)
+✅ "Artista colombiano lanza álbum que combina ritmos urbanos y caribeños" (70 caracteres)
+
+Ejemplos INCORRECTOS:
+❌ "¡Increíble noticia para Cartagena! 🎉" (emojis, vago, 38 caracteres)
+❌ "Alcaldía de Cartagena hace importante anuncio" (poco específico)
+❌ "Se realizó una importante inauguración de obras en la ciudad ayer" (72 caracteres, voz pasiva)
+❌ "Hoy anuncian buenas noticias" (demasiado vago)
+
+[ERRORES COMUNES A EVITAR]
+❌ Iniciar con: "Hoy", "Ayer", "En Cartagena" (redundante)
+❌ Usar verbos pasivos: "fue inaugurado", "será realizado"
+❌ Exceder 70 caracteres
+❌ Incluir información redundante
+❌ Usar adjetivos calificativos: "importante", "gran", "increíble"
+
+[PALABRAS CLAVE QUE FUNCIONAN]
+✅ Verbs de acción: anuncia, lanza, entrega, presenta, aprueba
+✅ Beneficios: mejora, reduce, aumenta, facilita, conecta
+✅ Ubicación: Cartagena, Colombia, barrio específico
+✅ Tiempo: cuando sea relevante: "desde octubre", "este año"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 2: TÍTULO PARA REDES SOCIALES                          │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESPECIFICACIONES TÉCNICAS]
+• Extensión máxima: 70 caracteres (incluidos espacios)
+• SIN emojis ni caracteres especiales ($%#@)
+• Debe ser directo y enfocado al interés del ciudadano
+• Más atractivo y conversacional que el SEO
+
+[DIFERENCIAS CON TÍTULO SEO]
+Título SEO: Enfoque descriptivo y keywords
+Título Redes: Enfoque emocional y beneficio al lector
+
+Ejemplos COMPARATIVOS:
+
+EJEMPLO 1:
+Título SEO: "Nueva vía pavimentada en Cartagena mejora movilidad en El Pozón"
+Título Redes: "Cartagena estrena vía que transforma la movilidad en El Pozón"
+
+EJEMPLO 2:
+Título SEO: "Colombia incluye nuevas vacunas en el plan nacional de inmunización"
+Título Redes: "Buenas noticias: nuevas vacunas disponibles gratis en Colombia"
+
+EJEMPLO 3:
+Título SEO: "Dólar alcanza máximo histórico frente a monedas de América Latina"
+Título Redes: "El dólar se dispara y así impacta tu bolsillo en Colombia"
+
+EJEMPLO 4:
+Título SEO: "Festival gratuito de teatro callejero llega a Cartagena este fin de semana"
+Título Redes: "Plan gratis: teatro en vivo en las calles de Cartagena"
+
+[FÓRMULAS EFECTIVAS]
+✅ [BENEFICIO] + [PARA QUIÉN]
+   "Nueva ruta de transporte ahorra 30 minutos a residentes del Sur"
+
+✅ [CAMBIO] + [IMPACTO]
+   "Cartagena estrena parque que beneficia a 15 mil familias"
+
+✅ [PROBLEMA RESUELTO]
+   "Por fin: reparan vía que llevaba 5 años dañada"
+
+✅ [PREGUNTA DIRECTA]
+   "Cómo acceder a las nuevas ayudas del Gobierno"
+
+✅ [URGENCIA/NOVEDAD]
+   "Desde hoy: nuevas medidas de movilidad en Centro Histórico"
+
+[ERRORES COMUNES]
+❌ Usar emojis (aunque sean relevantes)
+❌ Copiar exactamente el título SEO
+❌ Lenguaje institucional: "La Alcaldía informa que..."
+❌ Ser vago: "Gran noticia para la ciudad"
+❌ Clickbait engañoso: "No vas a creer lo que pasó..."
+
+[PALABRAS QUE GENERAN CLICS]
+✅ Gratis, nuevo, ahorra, facilita, descubre
+✅ Por fin, desde hoy, este fin de semana
+✅ Cómo, qué, dónde, cuándo
+✅ Alerta, atención (solo si realmente urgente)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 3: SUMARIO                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESPECIFICACIONES TÉCNICAS]
+• Extensión máxima: 150 caracteres (incluidos espacios)
+• Debe ser atractivo e incitar a la lectura
+• NO revelar los detalles más importantes (crear intriga)
+• Complementar el título, no repetirlo
+
+[FUNCIÓN DEL SUMARIO]
+El sumario es el "anzuelo" que hace que el lector haga clic.
+Debe responder: ¿Por qué debería leer esto?
+
+[ESTRUCTURA RECOMENDADA]
+Formato: [CONTEXTO BREVE] + [DATO INTRIGANTE] + [PROMESA DE INFORMACIÓN]
+
+Ejemplos CORRECTOS:
+
+EJEMPLO 1:
+"La Alcaldía entregó la pavimentación de 2 km de vía en El Pozón. Beneficia a miles de familias." (106 caracteres)
+
+EJEMPLO 2:
+"El Ministerio anunció que desde octubre estarán disponibles más dosis en hospitales públicos." (97 caracteres)
+
+EJEMPLO 3:
+"El dólar subió en mercados internacionales y presiona el costo de importaciones." (84 caracteres)
+
+EJEMPLO 4:
+"El festival incluye 20 presentaciones en diferentes plazas de la ciudad. La entrada es completamente gratis." (109 caracteres)
+
+Ejemplos INCORRECTOS:
+
+❌ "Una nueva vía fue inaugurada hoy en Cartagena en el sector de El Pozón por parte del alcalde William Dau en ceremonia oficial" (127 caracteres - voz pasiva, excesivo, revelador)
+
+❌ "Gran noticia para todos los cartageneros" (41 caracteres - vago, no dice nada)
+
+❌ "La obra costó $5.000 millones, tardó 8 meses, incluyó pavimento rígido, andenes y rampas de acceso" (muy técnico, revela todo)
+
+[QUÉ INCLUIR]
+✅ Quién hizo el anuncio (fuente)
+✅ Un dato relevante (pero no el más importante)
+✅ A quién beneficia (cuando aplique)
+✅ Cuándo (si es relevante)
+
+[QUÉ NO INCLUIR]
+❌ Toda la información importante (reservar para el cuerpo)
+❌ Opiniones personales
+❌ Adjetivos calificativos
+❌ Detalles técnicos excesivos
+
+[ERRORES COMUNES]
+❌ Exceder 150 caracteres
+❌ Revelar toda la información clave
+❌ Repetir textualmente el título
+❌ Usar lenguaje institucional
+❌ No generar curiosidad
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 4: CUERPO DEL TEXTO                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESPECIFICACIONES TÉCNICAS]
+• Extensión mínima: 400 palabras
+• Debe incluir AL MENOS UN subtítulo H2
+• El H2 NO puede aparecer antes del cuarto párrafo
+• El H2 debe responder intención de búsqueda secundaria
+
+[ESTRUCTURA OBLIGATORIA]
+
+═══════════════════════════════════════════════════════════════════
+PÁRRAFO 1 (LEAD):
+═══════════════════════════════════════════════════════════════════
+
+El lead es el párrafo más importante de toda la nota.
+
+Características:
+• 2-3 oraciones máximo (40-60 palabras)
+• Responde: ¿Qué?, ¿Quién?, ¿Dónde?, ¿Cuándo?
+• Incluye atribución de fuente
+• Voz activa obligatoria
+• Debe poder leerse independientemente
+
+Ejemplo CORRECTO:
+"Los habitantes de El Pozón ya cuentan con 2 kilómetros de vía totalmente
+pavimentada que reduce el tiempo de viaje hasta el centro de la ciudad
+en 30 minutos. La obra fue entregada este martes por la Alcaldía de
+Cartagena."
+
+Ejemplo INCORRECTO:
+"Hoy fue un gran día para Cartagena porque finalmente después de mucho
+tiempo y de múltiples solicitudes de la comunidad, la Alcaldía Distrital
+logró cumplir con su compromiso de entregar una importante obra que
+beneficiará a muchas familias." (Demasiado largo, vago, sin datos)
+
+═══════════════════════════════════════════════════════════════════
+PÁRRAFOS 2-3: AMPLIACIÓN DE INFORMACIÓN
+═══════════════════════════════════════════════════════════════════
+
+Función:
+• Amplían información del lead
+• Datos específicos: cifras, fechas, lugares
+• Incluir primera cita textual relevante
+
+Ejemplo:
+Párrafo 2:
+"La nueva vía, ubicada en la calle 40 entre transversales 55 y 57, beneficia
+directamente a más de 15.000 familias que habitan en los barrios Villa
+Gloria, Villa Estrella y Las Gaviotas."
+
+Párrafo 3:
+"'Esta obra cambia la vida de miles de cartageneros que durante años
+sufrieron el mal estado de esta vía', dijo el alcalde William Dau durante
+la entrega."
+
+═══════════════════════════════════════════════════════════════════
+PÁRRAFO 4+: CONTEXTO Y DATOS COMPLEMENTARIOS
+═══════════════════════════════════════════════════════════════════
+
+Función:
+• Contexto o antecedentes
+• Información adicional útil
+• Datos técnicos si son relevantes
+
+Ejemplo:
+"La inversión alcanzó los $5.000 millones y se ejecutó en ocho meses.
+Incluye pavimento rígido, andenes peatonales, rampas para personas con
+discapacidad y señalización vial."
+
+═══════════════════════════════════════════════════════════════════
+SUBTÍTULO H2
+═══════════════════════════════════════════════════════════════════
+
+[ESPECIFICACIONES]
+• Debe aparecer DESPUÉS del párrafo 4 (nunca antes)
+• Máximo 70 caracteres
+• Debe ser pregunta o frase descriptiva
+• Responde duda secundaria del lector
+• Optimizado para búsquedas relacionadas (SEO)
+
+Ejemplos CORRECTOS:
+✅ "¿Dónde conseguir las nuevas vacunas?"
+✅ "Qué rutas de transporte se benefician"
+✅ "Impacto en el bolsillo de las familias"
+✅ "Cómo acceder al programa de ayudas"
+✅ "Horarios y lugares del festival"
+
+Ejemplos INCORRECTOS:
+❌ "Más información" (demasiado vago)
+❌ "La comunidad está feliz" (no es pregunta ni dato útil)
+❌ "Declaraciones del alcalde" (poco específico)
+
+[TIPOS DE H2 EFECTIVOS]
+✅ Preguntas prácticas: "¿Cómo...?", "¿Dónde...?", "¿Cuándo...?"
+✅ Información complementaria: "Requisitos para aplicar"
+✅ Contexto adicional: "Antecedentes del problema"
+✅ Datos de interés: "Cifras del proyecto"
+
+═══════════════════════════════════════════════════════════════════
+DESPUÉS DEL H2: DESARROLLO
+═══════════════════════════════════════════════════════════════════
+
+Función:
+• Continuar desarrollando subtemas
+• Información práctica para el ciudadano
+• Más citas o datos relevantes
+• Cerrar con contexto adicional si aplica
+
+[PRINCIPIOS DE REDACCIÓN]
+
+[1. VOZ ACTIVA]
+✅ Sujeto → Verbo → Complemento
+"La Policía capturó a tres personas"
+
+[2. CLARIDAD]
+✅ Oraciones cortas (máximo 20-25 palabras por oración)
+✅ Párrafos de 3-4 oraciones
+✅ Un concepto por párrafo
+
+[3. OBJETIVIDAD]
+❌ NO usar adjetivos calificativos:
+   "importante", "increíble", "hermoso", "espectacular"
+   
+✅ SÍ usar adjetivos descriptivos:
+   "amplio", "nuevo", "principal", "renovado"
+
+Ejemplo:
+❌ "La hermosa obra beneficia a la población"
+✅ "La nueva obra beneficia a 15.000 habitantes"
+
+[4. UTILIDAD PARA EL CIUDADANO]
+Priorizar información tipo:
+✅ ¿Cómo me afecta?
+✅ ¿Dónde acceder?
+✅ ¿Cuánto cuesta?
+✅ ¿Cuándo inicia/termina?
+✅ ¿Qué requisitos necesito?
+✅ ¿A quién contactar?
+
+[5. ENFOQUE PERIODÍSTICO]
+❌ NO centrar en institución:
+   "La Alcaldía logró entregar..."
+   "La Gobernación cumple con..."
+   
+✅ SÍ centrar en ciudadano:
+   "Los habitantes de El Pozón ya cuentan con..."
+   "Las familias beneficiadas recibirán..."
+
+[6. INFORMACIÓN PRÁCTICA EN LISTAS]
+Cuando haya datos de acceso, usar listas con viñetas:
+
+Ejemplo:
+"Los ciudadanos pueden solicitar el servicio en:
+• Sede de la Alcaldía (Centro, calle de la Soledad)
+• Horario: lunes a viernes, 8:00 a.m. - 5:00 p.m.
+• Requisitos: cédula, recibo de servicio público
+• Costo: gratuito
+• Información: (605) 6501010"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 5: COPY PARA REDES SOCIALES                            │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESPECIFICACIONES TÉCNICAS]
+• Extensión máxima: 90 caracteres (incluidos espacios y emojis)
+• DEBE incluir emojis relevantes (1-2 máximo)
+• Tono conversacional y cercano
+• OBLIGATORIO: Omitir palabras de lista prohibida
+
+[FUNCIÓN DEL COPY]
+Texto breve y atractivo para compartir en Facebook, Twitter, Instagram.
+Debe generar clics y compartidos.
+
+[ESTRUCTURA RECOMENDADA]
+Formato: [GANCHO EMOCIONAL] + [BENEFICIO] + [EMOJI]
+
+Ejemplos CORRECTOS:
+
+✅ "Una obra que cambia el día a día en El Pozón 🚶‍♂️🚗" (58 caracteres)
+✅ "Vacunas gratuitas, más protección para las familias colombianas 👨‍👩‍👧‍👦" (71 caracteres)
+✅ "El dólar sigue subiendo: mira cómo afecta tus compras diarias 🛒" (68 caracteres)
+✅ "Teatro gratis en las calles este fin de semana 🎭" (54 caracteres)
+✅ "Nueva ruta de Transcaribe que facilita tu viaje diario 🚌" (61 caracteres)
+
+Ejemplos INCORRECTOS:
+
+❌ "La Alcaldía de Cartagena entregó pavimentación 🏗️" (institucional, frío)
+❌ "Gran noticia 🎉🎊🎈" (vago, exceso de emojis)
+❌ "Nueva vía en El Pozón mejora movilidad" (sin emoji, muy formal)
+❌ "Increíble lo que está pasando en Cartagena, debes verlo 😱😱" (clickbait, exceso emojis)
+
+[EMOJIS RECOMENDADOS POR TEMA]
+
+🏥 💉 Salud y vacunas
+💰 💵 Economía y finanzas
+🚗 🚌 🚶‍♂️ Movilidad y transporte
+🏫 📚 Educación
+⚖️ 👮 Justicia y seguridad
+🏠 🏗️ Vivienda y construcción
+🎭 🎨 🎵 Cultura y entretenimiento
+⚽ 🏀 Deportes
+🌳 🌊 Medio ambiente
+👨‍👩‍👧‍👦 👶 Familia y niños
+🍽️ 🥗 Alimentación
+💼 📊 Negocios y empleo
+🎓 Educación superior
+🚨 Urgente/Alerta
+✅ Confirmación/Buenas noticias
+
+[FÓRMULAS EFECTIVAS]
+
+✅ Beneficio directo + emoji
+   "Ahorra 30 minutos en tu viaje diario 🕐"
+
+✅ Urgencia/Novedad + emoji
+   "Desde hoy: vacunas gratis para mayores de 60 💉"
+
+✅ Pregunta provocativa + emoji
+   "Ya viste cómo quedó la nueva vía de El Pozón 👀"
+
+✅ Transformación + emoji
+   "El cambio que El Pozón esperaba hace 5 años 🛣️"
+
+✅ Llamado a la acción + emoji
+   "Descubre dónde conseguir las nuevas ayudas 📍"
+
+[ERRORES COMUNES]
+❌ Superar 90 caracteres
+❌ No incluir emojis
+❌ Usar más de 2 emojis
+❌ Tono institucional
+❌ Usar palabras prohibidas
+❌ Ser demasiado formal
+❌ Clickbait engañoso
+
+[TONO CORRECTO]
+✅ Conversacional: "Ya puedes...", "Descubre...", "Mira cómo..."
+✅ Cercano: "Tu nuevo...", "Para ti...", "En tu barrio..."
+✅ Directo: "Desde hoy...", "Atención...", "Importante..."
+
+┌─────────────────────────────────────────────────────────────────┐
+│ EJEMPLO COMPLETO DE ESTRUCTURA                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+Título SEO:
+Nueva vía pavimentada en Cartagena mejora movilidad en El Pozón
+
+Título para Redes Sociales:
+Cartagena estrena vía que transforma la movilidad en El Pozón
+
+Sumario:
+La Alcaldía entregó la pavimentación de 2 km de vía en El Pozón. Beneficia a miles de familias.
+
+Cuerpo del Texto:
+Los habitantes de El Pozón ya cuentan con 2 kilómetros de vía totalmente
+pavimentada que reduce el tiempo de viaje hasta el centro de la ciudad
+en 30 minutos. La obra fue entregada este martes por la Alcaldía de
+Cartagena.
+
+La nueva vía, ubicada en la calle 40 entre transversales 55 y 57, beneficia
+directamente a más de 15.000 familias que habitan en los barrios Villa
+Gloria, Villa Estrella y Las Gaviotas.
+
+"Esta obra cambia la vida de miles de cartageneros que durante años
+sufrieron el mal estado de esta vía", dijo el alcalde William Dau durante
+la entrega.
+
+La inversión alcanzó los $5.000 millones y se ejecutó en ocho meses.
+Incluye pavimento rígido, andenes peatonales, rampas para personas con
+discapacidad y señalización vial.
+
+¿Qué rutas de transporte se benefician?
+
+Las líneas de buses que transitan por la nueva vía son: Ruta 15 (Pozón-Centro),
+Ruta 22 (Pozón-Bocagrande) y Ruta 8 (Pozón-Manga). Los usuarios reportan
+que el viaje ahora es más rápido y cómodo.
+
+La comunidad llevaba cinco años solicitando esta obra, desde que las
+lluvias de 2019 deterioraron completamente el pavimento anterior.
+
+Copy para Redes Sociales:
+Una obra que cambia el día a día en El Pozón 🚶‍♂️🚗
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CHECKLIST FINAL DE FORMATO                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+Antes de entregar, verificar que TODOS los elementos existan:
+
+ESTRUCTURA COMPLETA:
+□ Título SEO existe y ≤70 caracteres
+□ Título Redes existe y ≤70 caracteres
+□ Sumario existe y ≤150 caracteres
+□ Cuerpo existe y ≥400 palabras
+□ Copy Redes existe y ≤90 caracteres
+□ Las 5 secciones están claramente separadas
+
+TÍTULO SEO:
+□ Sin emojis ni caracteres especiales
+□ Incluye palabras clave
+□ Voz activa
+□ Específico y claro
+
+TÍTULO REDES:
+□ Sin emojis ni caracteres especiales
+□ Diferente del título SEO
+□ Enfocado en beneficio ciudadano
+□ Directo y atractivo
+
+SUMARIO:
+□ No revela toda la información
+□ Complementa el título
+□ Genera curiosidad
+□ Incluye dato relevante
+
+CUERPO:
+□ Lead en primer párrafo (2-3 oraciones)
+□ Atribución en primer párrafo
+□ H2 después del párrafo 4
+□ H2 responde intención secundaria
+□ Voz activa en 90% del texto
+□ Información práctica presente
+□ Enfoque ciudadano, no institucional
+
+COPY REDES:
+□ Incluye 1-2 emojis relevantes
+□ Tono conversacional
+□ No usa palabras prohibidas
+□ Genera deseo de clic
+
+═══════════════════════════════════════════════════════════════════
+                    FIN DE FORMATO Y ESTRUCTURA
+═══════════════════════════════════════════════════════════════════

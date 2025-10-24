@@ -1,0 +1,62 @@
+
+# Sistema de Noticias con IA - .gitignore
+
+# Entorno virtual Python
+backend/venv/
+
+# Archivos de entorno y configuración local
+*.env
+*.env.*
+backend/.env
+frontend/.env
+
+# Archivos de base de datos temporales
+*.sqlite3
+*.db
+__pycache__/
+
+# Archivos de logs y caché
+*.log
+*.cache
+*.pyc
+
+# Archivos de migraciones generados
+backend/alembic/versions/*.pyc
+backend/alembic/versions/__pycache__/
+
+# Node modules y dependencias JS
+frontend/node_modules/
+node_modules/
+
+# Build y dist
+frontend/dist/
+frontend/build/
+backend/__pycache__/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de subida
+backend/uploads/
+
+# Archivos temporales de editor
+.vscode/
+.idea/
+*.swp
+
+# Docker y contenedores
+*.pid
+docker-compose.override.yml
+
+# Otros
+*.bak
+*.orig
+*.tmp
+
+# Ignorar archivos de prompts y ejemplos si no son definitivos
+prompts/*.tmp
+backend/ejemplos_referencia/
+
+# Ignorar archivos de pruebas locales
+frontend/src/main-test.jsx

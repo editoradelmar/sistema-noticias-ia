@@ -1,0 +1,489 @@
+═══════════════════════════════════════════════════════════════════
+                    GUÍA DE REDACCIÓN Y ESTILO
+═══════════════════════════════════════════════════════════════════
+
+Este documento complementa las reglas críticas con normas de gramática,
+puntuación y estilo periodístico.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. PUNTUACIÓN                                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+[LA COMA]
+
+Usos correctos:
+✅ Separar elementos de una serie:
+   "En el mercado compré papas, tomates, lechugas y pepinos"
+
+✅ Intercalar oraciones explicativas:
+   "Cristóbal Colón, descubridor de América, murió en Valladolid"
+
+✅ Después de oración subordinada al inicio:
+   "Si no llueve mañana, iremos al campo"
+
+ERROR CRÍTICO - COMA CRIMINAL:
+❌ NUNCA separar sujeto y predicado:
+   Incorrecto: "La Junta Directiva del Banco, se reunió"
+   Correcto: "La Junta Directiva del Banco se reunió"
+
+[EL PUNTO Y COMA]
+
+Usos:
+✅ Separar oraciones relacionadas:
+   "Al contrario, vivo muy cerca; este es mi distrito"
+
+✅ Evitar confusiones en series complejas:
+   "La primera parte era interesante; la segunda, insípida; la tercera, aburrida"
+
+[DOS PUNTOS]
+
+Usos:
+✅ Antes de enumeración:
+   "Tres nombres sobresalen: Juan Ramón Jiménez, Antonio Machado y Federico García Lorca"
+
+✅ Antes de consecuencia:
+   "No me pueden criticar: proclamar la verdad no es delito"
+
+✅ Antes de cita textual:
+   "Al entrar me dijo: 'Tenemos que apurarnos'"
+
+REGLA: Después de dos puntos va minúscula, EXCEPTO:
+• Si sigue un nombre propio
+• Si sigue una cita textual
+
+Ejemplos:
+✅ "Tres ciudades son bellas: Cartagena, Bucaramanga y Medellín"
+✅ "Me dijo: 'Si quieres, te vas'"
+✅ "Tenía un problema: no había dinero" (minúscula)
+
+[PUNTOS SUSPENSIVOS]
+
+Usos:
+✅ Expresar pausa, duda, interrupción:
+   "Sí, lo respeto mucho, pero..."
+
+✅ Reemplazar "etcétera":
+   "Muchos han sido caudillos: Julio César, Napoleón, Bismarck..."
+
+[SIGNOS DE INTERROGACIÓN Y EXCLAMACIÓN]
+
+Reglas:
+✅ Siempre abrir y cerrar: ¿? ¡!
+✅ No llevan punto después (pero sí otros signos):
+   "¿Desde cuándo lo conoces?, le preguntó Pablo"
+
+✅ Si la pregunta no inicia la frase, usar minúscula:
+   "Siempre se plantea la misma duda: ¿qué comer?"
+
+[COMILLAS]
+
+Usos:
+✅ Citas textuales:
+   "'Esta obra cambia la vida de miles', dijo el alcalde"
+
+✅ Énfasis irónico:
+   "Nunca he visto tal despliegue de 'inteligencia'"
+
+✅ Palabras en otros idiomas o términos técnicos nuevos
+
+Tipos:
+• Comillas dobles: " " → Para citas principales
+• Comillas simples: ' ' → Para citas dentro de citas
+
+Ejemplo:
+"Yo estaba caminando y un turista me dijo: 'Esta ciudad es muy bonita', pero yo seguí caminando"
+
+[GUIONES Y PARÉNTESIS]
+
+Guion corto (-):
+✅ Unir términos: "Alianza Colombo-Francesa", "Guerra árabe-israelí"
+
+Guion largo (—):
+✅ Separar elementos intercalados con mayor énfasis que las comas:
+   "Hombres, mujeres y niños —los había para todos los gustos— se apelotonaban"
+
+Paréntesis ( ):
+✅ Separar elementos con máximo grado de separación:
+   "El general Santander (nacido en 1792) fue un fanático de las leyes"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 2. ACENTUACIÓN Y TILDES                                        │
+└─────────────────────────────────────────────────────────────────┘
+
+[REGLAS GENERALES]
+
+✅ Agudas: Terminadas en vocal, n o s
+   Ejemplos: café, jamás, león
+
+✅ Graves: Terminadas en consonante que NO sea n o s
+   Ejemplos: árbol, cárcel, mártir
+
+✅ Esdrújulas: TODAS llevan tilde
+   Ejemplos: rápido, público, teléfono
+
+[CASOS ESPECIALES]
+
+Palabras interrogativas/exclamativas SIEMPRE con tilde:
+✅ cuál, quién, cómo, dónde, cuándo, cuánto, qué
+
+Ejemplos:
+"¿Cómo estás?" (interrogativo)
+"No sé cómo hacerlo" (interrogativo indirecto)
+
+Sin tilde cuando no son interrogativos:
+"Llegó cuando pudo" (no interrogativo)
+
+[AÚN vs AUN]
+
+✅ "aún" (con tilde) = "todavía"
+   "Aún no ha llegado"
+
+✅ "aun" (sin tilde) = "incluso", "hasta"
+   "Aun así, no lo logró"
+
+[MONOSÍLABOS]
+
+Solo llevan tilde diacrítica para diferenciar significados:
+
+Con tilde:
+✅ sé (verbo saber): "Yo sé la respuesta"
+✅ sí (afirmativo): "Sí, acepto"
+✅ té (bebida): "Quiero té"
+✅ tú (pronombre): "Tú sabes"
+✅ mí (pronombre): "Para mí"
+✅ dé (verbo dar): "Espero que me dé"
+✅ más (cantidad): "Quiero más"
+
+Sin tilde:
+✅ se (reflexivo): "Se fue"
+✅ si (condicional): "Si vienes"
+✅ te (pronombre): "Te quiero"
+✅ tu (posesivo): "Tu casa"
+✅ mi (posesivo): "Mi libro"
+✅ de (preposición): "La casa de Juan"
+✅ mas (pero): "Quiero, mas no puedo"
+
+Monosílabos verbales SIN tilde:
+✅ fue, fui, dio, vio (sin tilde)
+
+[SOLO]
+
+✅ "solo" SIEMPRE sin tilde (nueva norma RAE)
+   Como adjetivo: "Está solo en casa"
+   Como adverbio: "Solo quiero dormir"
+
+[NOMBRES EXTRANJEROS]
+
+✅ Sin tilde: Washington, New York
+✅ Con tilde si están castellanizados: París, Berlín
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 3. MAYÚSCULAS Y MINÚSCULAS                                     │
+└─────────────────────────────────────────────────────────────────┘
+
+[MAYÚSCULAS OBLIGATORIAS]
+
+✅ Nombres propios de personas, lugares, instituciones:
+   "Pedro de Heredia", "Cartagena", "Alcaldía de Cartagena"
+
+✅ Atributos divinos:
+   "Creador", "Redentor", "Virgen"
+
+✅ Inicio de cita textual después de dos puntos:
+   "Me dijo: 'Vamos ahora'"
+
+✅ Títulos de obras (solo primera palabra):
+   "Cien años de soledad", "El cantar de los cantares"
+
+✅ Partidos políticos:
+   "Partido Conservador", "Centro Democrático"
+
+✅ Puntos cardinales como zonas geopolíticas:
+   "Medio Oriente", "Occidente"
+
+[MINÚSCULAS OBLIGATORIAS]
+
+✅ Cargos: presidente, ministro, alcalde, papa, juez
+   "El alcalde de Cartagena" (NO "El Alcalde")
+
+✅ Estaciones, meses, días:
+   "enero", "lunes", "verano"
+
+✅ Puntos cardinales como orientación:
+   "Viajó al norte" (NO "Viajó al Norte")
+
+✅ Tratamientos:
+   "don", "señor", "doctor" (salvo excepciones)
+
+[CASOS ESPECIALES]
+
+Instituciones vs. Cargos:
+✅ "La Alcaldía de Cartagena informó" (institución - mayúscula)
+✅ "El alcalde William Dau anunció" (cargo - minúscula)
+
+✅ "La Gobernación de Bolívar" (institución)
+✅ "El gobernador de Bolívar" (cargo)
+
+✅ "El Gobierno nacional" (institución, G mayúscula)
+✅ "El presidente de Colombia" (cargo, minúscula)
+
+Iglesias:
+✅ "Iglesia católica" (solo I mayúscula)
+✅ "Iglesia anglicana", "Iglesia ortodoxa"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 4. NÚMEROS                                                      │
+└─────────────────────────────────────────────────────────────────┘
+
+[CON LETRAS]
+
+✅ Del cero al nueve: "cinco personas"
+✅ Múltiplos de diez hasta cien: "veinte", "treinta"
+✅ Miles y millones redondos: "cinco millones de dólares"
+✅ Al iniciar párrafo o frase: "Quince personas asistieron"
+
+[CON CIFRAS]
+
+✅ Del 10 en adelante: "15 personas"
+✅ Cifras complejas: "5.347 habitantes"
+✅ Fechas: "15 de octubre de 2025"
+✅ Horas: "6:00 p.m." o "6 p. m."
+✅ Edades: "tiene 25 años"
+✅ Direcciones: "calle 40 #55-23"
+✅ Resultados deportivos: "3-2"
+✅ Temperaturas: "35 grados"
+✅ Porcentajes: "75%"
+
+[FORMATOS ESPECÍFICOS]
+
+Años:
+✅ 2025 (SIN punto: nunca 2.025)
+
+Decimales:
+✅ 1,57 (con coma, no punto)
+
+Miles:
+✅ 13.000 (con punto separador)
+✅ NO escribir "13 mil" en cifras
+
+Millones:
+✅ 1'141.748 (comilla simple para millones)
+✅ O "1.141.748" (punto también aceptado)
+
+Dinero:
+✅ "$5.000 millones" (pesos colombianos)
+✅ "US$500" (dólares estadounidenses)
+
+Porcentajes:
+✅ "75%" (pegado al número)
+
+Horas:
+✅ "6:00 p.m." o "6 p. m."
+✅ "las 12 del día" o "las 12 m." (mediodía)
+✅ "las 12 a. m." (medianoche)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 5. SIGLAS Y ACRÓNIMOS                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+[DIFERENCIAS]
+
+SIGLAS: Se forman con iniciales y se deletrean
+✅ ONU, OEA, ONG, FBI, CIA (todo mayúsculas)
+
+ACRÓNIMOS: Se forman con sílabas y se leen como palabras
+✅ Sena, Avianca, Fedegán, Dadis (solo inicial mayúscula)
+
+[REGLAS DE ESCRITURA]
+
+Siglas (hasta 3 letras o si se deletrean):
+✅ TODO MAYÚSCULAS: ONU, OEA, FBI, DANE
+
+Acrónimos (4+ letras que se leen como palabras):
+✅ Solo inicial mayúscula: Dane, Dian, Dadis, Sena
+
+Grupos armados (convención editorial):
+✅ Farc, Eln, Auc (solo inicial)
+
+[PRIMERA MENCIÓN]
+
+Regla: Primera vez → Nombre completo + (Sigla)
+
+Ejemplo:
+"La Organización de las Naciones Unidas (ONU) informó..."
+
+Excepciones (siglas muy conocidas):
+✅ ONU, OEA, OMS → No requieren explicación inicial
+
+[TILDES]
+
+✅ Siglas: NUNCA llevan tilde
+   "CIA" (nunca "CÍA")
+
+✅ Acrónimos: SÍ llevan tilde según reglas
+   "Fedegán", "Bancóldex"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 6. RELATIVOS Y PRONOMBRES                                      │
+└─────────────────────────────────────────────────────────────────┘
+
+[EL PRONOMBRE RELATIVO "QUE"]
+
+Evitar uso excesivo:
+
+❌ Recargado:
+"Le envié un cachorro con mi hermano, que tiene las orejas largas"
+(¿Quién tiene orejas largas, el perro o el hermano?)
+
+✅ Claro:
+"Le envié un cachorro de orejas largas con mi hermano"
+
+[SUSTITUCIÓN DE RELATIVOS]
+
+En lugar de "que", usar:
+
+✅ Sustantivo en aposición:
+"El general que liberó la ciudad" → "El general, libertador de la ciudad"
+
+✅ Adjetivo:
+"Dos movimientos que se producen al mismo tiempo" → "Dos movimientos simultáneos"
+
+✅ Preposiciones:
+"Los árboles que hay en el bosque" → "Los árboles del bosque"
+
+[NUNCA USAR "QUE" EN LUGAR DE "DONDE"]
+
+❌ Incorrecto: "Allí fue que lo conocí"
+✅ Correcto: "Allí fue donde lo conocí"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 7. EL GERUNDIO                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+[REGLA GENERAL]
+Usar gerundios con moderación. Un texto con muchos gerundios es poco elegante.
+
+[USOS CORRECTOS]
+
+✅ Complementando al sujeto (entre pausas):
+"El presidente, comprobando que no había quórum, levantó la sesión"
+
+✅ Con verbos de percepción:
+"El artista la pintó cabalgando un caballo"
+"Lo vi corriendo por la calle"
+
+[USOS INCORRECTOS]
+
+❌ Gerundio de posterioridad (acción posterior):
+Incorrecto: "Se cayó una casa, muriendo tres personas"
+Correcto: "Se cayó una casa. Tres personas fallecieron"
+
+Incorrecto: "El alcalde viajó a Bogotá, asistiendo a un congreso"
+Correcto: "El alcalde viajó a Bogotá para asistir a un congreso"
+
+❌ Como participio de presente (típico de boletines):
+Incorrecto: "El presidente expidió normas regulando los aranceles"
+Correcto: "El presidente expidió normas para regular los aranceles"
+
+❌ Con complementos que no sean sujeto o CD:
+Incorrecto: "Pudimos hablar con el profesor, enterándonos de los progresos"
+Correcto: "Pudimos hablar con el profesor y nos enteramos de los progresos"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 8. VOZ ACTIVA VS. VOZ PASIVA                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+[REGLA GENERAL]
+Preferir VOZ ACTIVA en el 90% del texto.
+
+[ESTRUCTURA]
+
+Voz activa:
+Sujeto + Verbo + Objeto
+"La Policía capturó a tres sospechosos"
+
+Voz pasiva:
+Objeto + Verbo auxiliar + Participio + Agente
+"Tres sospechosos fueron capturados por la Policía"
+
+[CUÁNDO USAR CADA UNA]
+
+✅ VOZ ACTIVA (preferida):
+• Cuando el sujeto es conocido
+• Para mayor dinamismo
+• Para claridad
+
+✅ VOZ PASIVA (ocasional):
+• Cuando el sujeto es una cosa:
+  "Se compró el trago necesario" (mejor que "Ha sido comprado")
+• Cuando el foco es el objeto, no el sujeto:
+  "Cartagena fue fundada en 1533" (al hablar de Cartagena)
+
+[TRANSFORMACIONES]
+
+❌ Voz pasiva: "Tres sospechosos fueron capturados por la Policía"
+✅ Voz activa: "La Policía capturó a tres sospechosos"
+
+❌ Voz pasiva: "El proyecto ha sido aprobado por el Concejo"
+✅ Voz activa: "El Concejo aprobó el proyecto"
+
+❌ Voz pasiva: "Los recursos serán entregados por el Gobierno"
+✅ Voz activa: "El Gobierno entregará los recursos"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 9. EVITAR IMPRECISIONES                                        │
+└─────────────────────────────────────────────────────────────────┘
+
+[NO USAR "COSA"]
+
+❌ Impreciso: "El detenido llevaba varias cosas"
+✅ Específico: "El detenido llevaba varios electrodomésticos"
+
+❌ Impreciso: "La envidia es una cosa despreciable"
+✅ Específico: "La envidia es un sentimiento despreciable"
+
+[NO USAR "ALGO" (cuando se puede ser más específico)]
+
+❌ Vago: "Esa película tiene algo trágico"
+✅ Específico: "Esa película tiene un argumento trágico"
+
+[SUSTITUIR "ESTO" Y "ESO"]
+
+❌ Poco elegante: "José bebe demasiado. Eso lo matará"
+✅ Elegante: "José bebe demasiado. Ese vicio lo matará"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 10. SINÓNIMOS DE "DECIR"                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+[REGLA]
+Es mejor repetir "dijo" que usar sinónimos inexactos.
+
+[SIGNIFICADOS ESPECÍFICOS]
+
+• Aclarar: Poner en claro, esclarecer
+• Admitir: Reconocer, aceptar, dar la razón
+• Asegurar: Infundir confianza, dar certeza
+• Aseverar: Afirmar con certeza
+• Declarar: Manifestar lo oculto
+• Enfatizar: Expresarse con énfasis
+• Informar: Enterar, dar noticia
+• Manifestar: Declarar, dar a conocer
+• Puntualizar: Referir con todos los detalles
+• Recalcar: Decir con fuerza expresiva
+• Reiterar: Volver a decir
+• Sostener: Sustentar, defender una opinión
+
+[USO CORRECTO]
+
+✅ "dijo" → Uso general
+✅ "explicó" → Cuando realmente explica algo
+✅ "aseguró" → Cuando da certeza de algo
+✅ "reiteró" → Cuando repite algo ya dicho
+✅ "aclaró" → Cuando clarifica una confusión
+
+❌ NO usar "expresó", "manifestó", "puntualizó" solo para evitar repetir "dijo"
+
+═══════════════════════════════════════════════════════════════════
+                        FIN DE GUÍA DE REDACCIÓN
+═══════════════════════════════════════════════════════════════════

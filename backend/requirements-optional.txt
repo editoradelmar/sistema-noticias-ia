@@ -1,0 +1,33 @@
+
+# Dependencias Opcionales - Sistema de Noticias con IA
+
+# IA Opcional
+openai==1.58.1
+google-generativeai==0.8.3
+
+# Análisis avanzado
+numpy==1.26.4
+pandas==2.2.3
+
+# Procesamiento de texto
+nltk==3.9.1
+spacy==3.8.3
+
+# Scraping web
+beautifulsoup4==4.12.3
+requests==2.32.3
+
+# Generación de documentos
+python-docx==1.1.2
+reportlab==4.2.5
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.2
+pytest-cov==6.0.0
+httpx==0.28.1
+
+# Análisis de código
+black==24.10.0
+flake8==7.1.1
+mypy==1.14.0

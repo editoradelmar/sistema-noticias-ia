@@ -1,0 +1,344 @@
+═══════════════════════════════════════════════════════════════════
+                    REGLAS CRÍTICAS - CUMPLIMIENTO OBLIGATORIO
+═══════════════════════════════════════════════════════════════════
+
+Este documento contiene las 25 reglas más importantes que NUNCA pueden violarse.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 1: PALABRAS Y EXPRESIONES PROHIBIDAS                    │
+└─────────────────────────────────────────────────────────────────┘
+
+[PROHIBIDO - NUNCA USAR]
+Las siguientes palabras están TOTALMENTE PROHIBIDAS en cualquier contenido:
+
+VIOLENCIA Y DELITOS:
+❌ asesinar, asesino, balacera, balear, decapitar, degollar, desmembrar
+❌ disparos, golpear, golpiza, herida, herido, homicidio, matar, muerto
+❌ raptar, secuestro, sicario, tiroteo, torturar, violar, violación
+
+DROGAS:
+❌ cocaína, drogas, marihuana, sobredosis
+
+SALUD:
+❌ cáncer, sida, VIH
+
+TÉRMINOS SENSIBLES:
+❌ crimen pasional, prostitución infantil, suicidio (evitar en títulos)
+❌ desnuda, desnudez, desnudo, pornografía, porno, OnlyFans
+
+IDEOLOGÍAS:
+❌ fascista, nazi, terrorismo, terrorista
+
+OTROS:
+❌ catástrofe, genocidio, masacre, sangre, sangriento, tragedia
+
+[ALTERNATIVAS CORRECTAS]
+✅ "asesinar" → "dar muerte", "quitar la vida"
+✅ "prostitución infantil" → "explotación sexual de menores"
+✅ "crimen pasional" → "feminicidio", "violencia de género"
+✅ "drogadicto" → "persona con adicción"
+✅ "muerto" → "fallecido", "víctima mortal", "persona sin vida"
+✅ "herido" → "persona lesionada", "persona afectada"
+✅ "sicario" → "agresor armado", "persona capturada"
+✅ "secuestro" → "privación de la libertad", "retención ilegal"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 2: PRINCIPIOS ÉTICOS INNEGOCIABLES                     │
+└─────────────────────────────────────────────────────────────────┘
+
+[PROTECCIÓN DE MENORES - LEY 1098 DE 2006]
+🔒 NUNCA publicar:
+   • Nombres de menores víctimas o victimarios
+   • Fotografías que permitan identificación
+   • Datos del entorno que ayuden a identificar
+   • Descripciones morbosas o pornográficas
+   
+✅ SIEMPRE:
+   • Usar "menor de edad" o iniciales ficticias
+   • Pixelar rostros completamente
+   • Priorizar protección sobre noticia
+
+[ENFOQUE EN GÉNERO Y VÍCTIMAS]
+❌ NUNCA culpabilizar a la víctima:
+   "Estaba en zona peligrosa", "Vestía provocativamente"
+   
+✅ SIEMPRE enfocar en agresor:
+   "Hombre capturado por feminicidio" NO "Mujer murió en hecho confuso"
+
+❌ NO usar: "crimen pasional" (implica justificación)
+✅ SÍ usar: "feminicidio", "violencia de género"
+
+[LENGUAJE INCLUYENTE]
+✅ Usar sustantivos colectivos: ciudadanía, población, personal
+✅ Mencionar explícitamente grupos: "hombres y mujeres", "niños y niñas"
+❌ NO usar genéricos masculinos cuando hay mixto
+
+Ejemplos:
+✅ "El personal médico" (no "los médicos")
+✅ "La ciudadanía cartagenera" (no "los cartageneros")
+✅ "Profesionales de la salud" (no "doctores")
+
+[RESPETO A LA IDENTIDAD]
+✅ Si la persona se identifica con pronombres específicos, usarlos
+✅ Usar el nombre con el que la persona se identifica
+❌ NO mencionar orientación sexual a menos que sea relevante y la fuente lo solicite
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 3: REGLAS DE VOZ Y ATRIBUCIÓN                          │
+└─────────────────────────────────────────────────────────────────┘
+
+[VOZ ACTIVA OBLIGATORIA]
+La voz activa es OBLIGATORIA en el 90% del texto.
+
+✅ Correcto: "La Policía capturó a tres sospechosos"
+❌ Incorrecto: "Tres sospechosos fueron capturados"
+
+✅ Correcto: "El alcalde anunció nuevas medidas"
+❌ Incorrecto: "Nuevas medidas fueron anunciadas"
+
+✅ Correcto: "El Concejo aprobó el proyecto"
+❌ Incorrecto: "El proyecto fue aprobado"
+
+[ATRIBUCIÓN DE FUENTES]
+🔴 SIEMPRE atribuir en el primer párrafo
+
+❌ NO usar:
+   • "según supo El Universal"
+   • "fuentes bien informadas"
+   • "fuentes dignas de crédito"
+   • "trascendió que"
+
+✅ SÍ usar:
+   • "según informó la Alcaldía"
+   • "confirmó la Policía"
+   • "según fuentes de la Gobernación"
+   • "informó la Secretaría de Salud"
+
+[CITAS TEXTUALES]
+• Entre comillas SOLO cuando sean EXACTAS palabra por palabra
+• Sin comillas cuando se resumen ideas
+• Siempre: "dijo", evitar sinónimos rebuscados
+
+Ejemplo CORRECTO de cita textual:
+"Vamos a recuperar el espacio público cueste lo que cueste", afirmó el alcalde.
+
+Ejemplo CORRECTO de paráfrasis (sin comillas):
+El alcalde aseguró que recuperará el espacio público sin importar las dificultades.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 4: TRATAMIENTO Y DIGNIDADES                            │
+└─────────────────────────────────────────────────────────────────┘
+
+[CARGOS Y TÍTULOS]
+✅ Cargo en minúscula: presidente, ministro, alcalde, gobernador, papa
+✅ Institución en mayúscula: Alcaldía, Gobernación, Ministerio, Presidencia
+❌ NO usar: don, señor, doctor (excepto casos específicos)
+
+Ejemplo correcto:
+"El alcalde William Dau anunció..." (NO "El Alcalde")
+"La Alcaldía de Cartagena informó..." (SÍ "Alcaldía" en mayúscula)
+"El presidente de la República..." (NO "El Presidente")
+"La Presidencia emitió un comunicado..." (SÍ "Presidencia" en mayúscula)
+
+[PRIMERA Y SEGUNDA MENCIÓN]
+Primera mención:
+"El alcalde William Dau anunció..."
+
+Segunda mención (usar apellido):
+"Dau explicó que..."
+
+NUNCA:
+"El mandatario local", "el burgomaestre", "el primer mandatario distrital"
+
+[PROFESIONES]
+Las profesiones tienen concordancia de género:
+✅ la arquitecta, la jueza, la médica, la abogada, la vicepresidenta
+✅ el arquitecto, el juez, el médico, el abogado, el vicepresidente
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 5: ERRORES GRAMATICALES CRÍTICOS                       │
+└─────────────────────────────────────────────────────────────────┘
+
+[COMA CRIMINAL]
+❌ NUNCA separar sujeto y predicado con coma
+
+Incorrecto: "La Junta Directiva del Banco, se reunió"
+Correcto: "La Junta Directiva del Banco se reunió"
+
+Incorrecto: "El alcalde de Cartagena, William Dau, anunció"
+Correcto: "El alcalde de Cartagena, William Dau, anunció" (esta SÍ está correcta porque las comas encierran un inciso explicativo)
+
+[HABER IMPERSONAL]
+✅ Siempre en singular: "había muchas personas"
+❌ Nunca en plural: "habían muchas personas"
+
+✅ "Hay varios proyectos"
+❌ "Hubieron varios proyectos"
+
+[GERUNDIO DE POSTERIORIDAD]
+El gerundio NUNCA puede expresar una acción posterior a la principal.
+
+❌ PROHIBIDO: "Se cayó una casa, muriendo tres personas"
+✅ CORRECTO: "Se cayó una casa. Tres personas fallecieron"
+
+❌ PROHIBIDO: "El alcalde viajó a Bogotá, asistiendo a un congreso"
+✅ CORRECTO: "El alcalde viajó a Bogotá para asistir a un congreso"
+
+[DEQUEÍSMO Y QUEÍSMO]
+❌ Dequeísmo: "Pienso de que..." (INCORRECTO)
+✅ Correcto: "Pienso que..."
+
+❌ Queísmo: "Estoy seguro que..." (INCORRECTO)
+✅ Correcto: "Estoy seguro de que..."
+
+Truco: Si puedes reemplazar con "eso", necesitas "de":
+"Estoy seguro de eso" → "Estoy seguro de que..."
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 6: NÚMEROS Y CIFRAS                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+[REGLAS DE ESCRITURA]
+✅ Con letras: Del 1 al 9, decenas hasta 100, miles/millones redondos
+✅ Con cifras: Desde 10 en adelante, cifras complejas, fechas, edades
+
+Ejemplos:
+✅ "cinco personas" (1-9 en letras)
+✅ "15 personas" (10+ en cifras)
+✅ "cinco mil millones" (redondo en letras)
+✅ "5.347 millones" (complejo en cifras)
+
+[FORMATOS ESPECÍFICOS]
+• Años sin punto: 2025 (NO 2.025)
+• Decimales con coma: 1,57 metros
+• Miles con punto: 13.000 (NO 13 mil en cifras)
+• Millones con comilla: 1'141.748 km²
+• Porcentaje pegado: 75% (NO 75 %)
+• Dólar: US$500 (NO $500, NO 500 USD)
+
+[FECHAS Y HORAS]
+✅ "15 de octubre de 2025"
+✅ "las 6:00 p.m." o "las 6 p. m."
+✅ "las 12 del día" o "las 12 m." (mediodía)
+✅ "las 12 a. m." (medianoche)
+
+❌ NO: "las 12:00 p.m." (redundante)
+❌ NO: "15/10/2025" (formato numérico en texto narrativo)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 7: EXPRESIONES PROHIBIDAS                              │
+└─────────────────────────────────────────────────────────────────┘
+
+[MULETILLAS Y RELLENO]
+❌ ELIMINAR completamente:
+   • por consiguiente
+   • cabe recordar
+   • hay que pensar
+   • no hay que olvidar
+   • es evidente
+   • es obvio
+   • no cabe duda
+   • según supo El Universal
+   • vale la pena mencionar
+   • es importante destacar
+
+[EUFEMISMOS RIDÍCULOS]
+❌ NO usar: "el vital líquido", "el preciado líquido" 
+✅ SÍ usar: "agua"
+
+❌ NO usar: "el occiso", "el cuerpo sin vida"
+✅ SÍ usar: "el cadáver", "la víctima mortal", "el fallecido"
+
+❌ NO usar: "hacer uso de la palabra"
+✅ SÍ usar: "hablar", "intervenir"
+
+[FRASES DE CAJÓN]
+❌ EVITAR expresiones gastadas:
+   • investigación exhaustiva
+   • envolvente operativo
+   • una verdad a gritos
+   • intensa labor
+   • se prendió la fiesta
+   • hizo un enérgico llamado
+   • dio un ultimátum
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 8: NOMBRES Y LUGARES DE CARTAGENA                      │
+└─────────────────────────────────────────────────────────────────┘
+
+[ESCRITURA CORRECTA]
+✅ Marialabaja (una palabra)
+✅ Tierrabomba (una palabra)
+✅ Cañó de Loro (Cañó con tilde)
+✅ Bocachica (una palabra)
+✅ Bocagrande (una palabra)
+✅ Castillogrande (una palabra)
+✅ Vía del Mar (carretera Cartagena-Barranquilla)
+✅ Convento de La Popa (C, L y P mayúsculas)
+✅ cerro de La Popa (cerro en minúscula)
+✅ Castillo de San Felipe (todas las palabras principales en mayúscula)
+✅ plaza de Bolívar (plaza en minúscula)
+✅ El Carmen de Bolívar
+
+[ABREVIATURAS PERMITIDAS EN TÍTULOS]
+Solo cuando el título sea muy largo:
+• Cartagena → C/gena
+• Barranquilla → B/quilla
+• Castillogrande → C/grande
+• Bocagrande → B/grande
+• Aeropuerto Rafael Núñez → R. Núñez
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 9: MAYÚSCULAS Y MINÚSCULAS ESPECÍFICAS                 │
+└─────────────────────────────────────────────────────────────────┘
+
+[CASOS ESPECIALES]
+✅ Gobierno nacional (G mayúscula)
+✅ administración distrital (todo minúscula)
+✅ Iglesia católica (solo I mayúscula)
+✅ Internet o internet (ambas aceptadas)
+✅ Farc (guerrilla), FARC (partido político)
+✅ Eln (guerrilla)
+✅ papa Francisco (papa en minúscula)
+✅ Policía Nacional (ambas en mayúscula)
+✅ Ejército Nacional (ambas en mayúscula)
+
+[INSTITUCIONES]
+Siempre en mayúscula:
+✅ Alcaldía de Cartagena
+✅ Gobernación de Bolívar
+✅ Concejo Distrital
+✅ Asamblea Departamental
+✅ Fiscalía General de la Nación
+✅ Procuraduría General
+
+[DEPENDENCIAS]
+✅ Secretaría de Infraestructura
+✅ Ministerio de Salud
+✅ Departamento Administrativo
+
+┌─────────────────────────────────────────────────────────────────┐
+│ SECCIÓN 10: CHECKLIST DE VALIDACIÓN OBLIGATORIA                │
+└─────────────────────────────────────────────────────────────────┘
+
+Antes de entregar CUALQUIER texto, verificar:
+
+□ No contiene ninguna palabra de la lista prohibida
+□ No hay coma entre sujeto y predicado (coma criminal)
+□ Todas las citas textuales están entre comillas
+□ La fuente está atribuida en el primer párrafo
+□ No culpabiliza a víctimas
+□ No revela identidad de menores
+□ Usa voz activa en 90% del texto
+□ Cargos en minúscula, instituciones en mayúscula
+□ Números escritos según reglas
+□ No usa gerundio de posterioridad
+□ No usa "haber" impersonal en plural
+□ No usa muletillas ni frases de cajón
+□ Lenguaje incluyente aplicado
+□ Nombres de lugares de Cartagena correctos
+□ Formato de US$ para dólares
+
+═══════════════════════════════════════════════════════════════════
+                            FIN DE REGLAS CRÍTICAS
+═══════════════════════════════════════════════════════════════════

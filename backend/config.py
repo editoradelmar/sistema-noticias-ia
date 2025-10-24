@@ -1,0 +1,88 @@
+"""
+Configuración centralizada de la aplicación
+Usar variables de entorno en producción
+"""
+from pydantic_settings import BaseSettings
+from typing import Optional
+import os
+
+class Settings(BaseSettings):
+    """Configuración de la aplicación"""
+    
+    # Configuración general
+    APP_NAME: str = "Sistema de Noticias con IA"
+    VERSION: str = "2.0.0"  # Actualizado con PostgreSQL
+    DEBUG: bool = True
+    
+    # Base de Datos PostgreSQL
+    DATABASE_URL: str = "postgresql://openpg:openpgpwd@localhost:5432/noticias_ia"
+    # Formato: postgresql://usuario:password@host:puerto/nombre_db
+    # Ejemplo producción: postgresql://user:pass@db.example.com:5432/prod_db
+    
+    # Seguridad y JWT
+    SECRET_KEY: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+    # IMPORTANTE: En producción, generar con: openssl rand -hex 32
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # API Keys (IMPORTANTE: Obtener desde variables de entorno)
+    ANTHROPIC_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
+    
+    # CORS - Como string separada por comas
+    ALLOWED_ORIGINS: str = (
+        "http://localhost:5173,"
+        "http://localhost:3000,"
+        "http://127.0.0.1:5173,"
+        "http://127.0.0.1:3000,"
+        "http://172.17.100.64:5173,"
+        "http://192.168.0.100:5173,"
+        "http://192.168.1.100:5173"
+    )
+    
+    # Límites de la API
+    MAX_TOKENS_IA: int = 2000
+    MAX_NOTICIAS_POR_PAGINA: int = 100
+    
+    # Claude API
+    CLAUDE_MODEL: str = "claude-sonnet-4-20250514"
+    CLAUDE_API_URL: str = "https://api.anthropic.com/v1/messages"
+    
+    # Almacenamiento de archivos
+    UPLOAD_DIR: str = "./uploads"
+    MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
+    
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+# Instancia global
+settings = Settings()
+
+# Crear directorio de uploads si no existe
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+
+# Validar configuración
+if settings.ANTHROPIC_API_KEY:
+    print(f"""
+    ╔══════════════════════════════════════════╗
+    ║  {settings.APP_NAME:^38}  ║
+    ║  v{settings.VERSION:^36}   ║
+    ╠══════════════════════════════════════════╣
+    ║  ✅ API Key Configurada                  ║
+    ║  🤖 Claude API: ACTIVA                   ║
+    ║  🗄️  PostgreSQL: CONECTADA               ║
+    ║  📡 Modo: PRODUCCIÓN                     ║
+    ╚══════════════════════════════════════════╝
+    """)
+else:
+    print(f"""
+    ╔══════════════════════════════════════════╗
+    ║  {settings.APP_NAME:^38}  ║
+    ║  v{settings.VERSION:^36}  ║
+    ╠══════════════════════════════════════════╣
+    ║  ⚠️  API Key NO Configurada              ║
+    ║  🤖 Claude API: MODO SIMULADO            ║
+    ║  🗄️  PostgreSQL: CONECTADA               ║
+    ║  📡 Modo: DESARROLLO                     ║
+    ╚══════════════════════════════════════════╝
+    """)
