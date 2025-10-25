@@ -65,25 +65,12 @@ export default function PromptForm({ prompt = null, onSave, onCancel }) {
       } else {
         result = await promptService.create(payload);
       }
-      // Si se creó, refrescar el estado con el nuevo prompt (incluyendo id)
-      if (result && result.id) {
-        // Recargar items del nuevo prompt
-        const items = await promptItemService.getByPrompt(result.id);
-        setForm({
-          nombre: result.nombre || '',
-          descripcion: result.descripcion || '',
-          contenido: result.contenido || '',
-          variables: (result.variables && Array.isArray(result.variables)) ? result.variables : [],
-          activo: result.activo ?? true,
-          items: Array.isArray(items) ? items.map((item, idx) => ({
-            ...item,
-            orden: item.orden ?? idx + 1
-          })) : []
-        });
-        // Opcional: podrías llamar a onSave(result) para que el padre reciba el nuevo prompt
-        if (onSave) onSave(result);
-      } else {
-        if (onSave) onSave(true);
+      if (result) {
+        if (onSave) {
+          // Llamar a onSave con el resultado y cerrar el formulario
+          onSave(result);
+          onCancel(false); // Esto cerrará el formulario
+        }
       }
     } catch (err) {
       const message = err.response?.data?.detail || err.message || 'Error desconocido';
@@ -96,17 +83,21 @@ export default function PromptForm({ prompt = null, onSave, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={() => onCancel(false)} />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{prompt ? 'Editar Prompt' : 'Nuevo Prompt'}</h3>
-          <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900">
-            <X className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-          </button>
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl flex flex-col h-[90vh] border border-slate-200 dark:border-slate-700">
+        {/* Header Fijo */}
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{prompt ? 'Editar Prompt' : 'Nuevo Prompt'}</h3>
+            <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900">
+              <X className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          </div>
+          {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
         </div>
 
-        {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
-
-        <div className="grid grid-cols-1 gap-4">
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="grid grid-cols-1 gap-4">
           <input type="text" placeholder="Nombre" value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100" />
 
           {/* Campo de categoría eliminado */}
@@ -120,8 +111,8 @@ export default function PromptForm({ prompt = null, onSave, onCancel }) {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-slate-700 dark:text-slate-200">ITEMS</span>
                 <label
-                  className={`p-2 bg-blue-600 text-white rounded-lg flex items-center justify-center transition-all ${(!prompt || !prompt.id) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 cursor-pointer'}`}
-                  title={(!prompt || !prompt.id) ? 'Guarda el prompt antes de agregar items' : 'Agregar item'}
+                  className="p-2 bg-blue-600 text-white rounded-lg flex items-center justify-center transition-all hover:bg-blue-700 cursor-pointer"
+                  title="Agregar item"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                   <input
@@ -129,50 +120,34 @@ export default function PromptForm({ prompt = null, onSave, onCancel }) {
                     accept=".txt"
                     multiple
                     style={{ display: 'none' }}
-                    disabled={!prompt || !prompt.id}
                     onChange={async e => {
                       const files = Array.from(e.target.files);
-                      if (!prompt || !prompt.id) {
-                        e.target.value = '';
-                        return;
-                      }
                       for (const file of files) {
                         const text = await file.text();
-                        // Filtrar solo campos válidos
-                        const itemPayload = {
-                          prompt_id: prompt.id,
+                        const newItem = {
                           nombre_archivo: file.name,
                           contenido: text,
                           orden: (form.items?.length || 0) + 1
                         };
-                        await promptItemService.create(itemPayload);
-                        // Refrescar items
-                        const items = await promptItemService.getByPrompt(prompt.id);
-                        setForm(prev => ({ ...prev, items }));
+                        setForm(prev => ({
+                          ...prev,
+                          items: [...(prev.items || []), newItem]
+                        }));
                       }
                       e.target.value = '';
                     }}
                   />
                 </label>
-              {(!prompt || !prompt.id) && (
-                <div className="mb-2 text-sm text-yellow-700 bg-yellow-100 rounded p-2">
-                  Guarda el prompt antes de poder agregar items.
-                </div>
-              )}
               </div>
               <ul className="space-y-2">
                 {form.items && form.items.length > 0 ? form.items.map((item, idx) => (
                   <li key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded shadow-sm border border-slate-200 dark:border-slate-700">
                     <span className="font-mono text-sm text-slate-700 dark:text-slate-200">{item.orden}: {item.nombre_archivo}</span>
-                    <button type="button" onClick={async () => {
-                      if (item.id) {
-                        await promptItemService.delete(item.id);
-                        // Refrescar items
-                        if (prompt && prompt.id) {
-                          const items = await promptItemService.getByPrompt(prompt.id);
-                          setForm(prev => ({ ...prev, items }));
-                        }
-                      }
+                    <button type="button" onClick={() => {
+                      setForm(prev => ({
+                        ...prev,
+                        items: prev.items.filter((_, i) => i !== idx)
+                      }));
                     }} className="p-2 text-blue-600 hover:text-white bg-blue-100 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 transition-all" title="Eliminar item">
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>
                     </button>
@@ -184,16 +159,17 @@ export default function PromptForm({ prompt = null, onSave, onCancel }) {
             </div>
           </div>
 
-          
-
           <div className="flex items-center gap-3">
             <input id="activo" type="checkbox" checked={form.activo} onChange={(e) => setForm({...form, activo: e.target.checked})} />
             <label htmlFor="activo" className="text-sm text-slate-700 dark:text-slate-300">Activo</label>
           </div>
 
-          
+          </div>
+        </div>
 
-          <div className="flex justify-end gap-3 mt-2">
+        {/* Botones Fijos Abajo */}
+        <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex justify-end gap-3">
             <button onClick={() => onCancel(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg">Cancelar</button>
             <button onClick={submit} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white rounded-lg">
               <Save className="w-4 h-4" />

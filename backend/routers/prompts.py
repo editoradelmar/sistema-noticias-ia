@@ -50,13 +50,23 @@ async def crear_prompt(prompt: PromptMaestroCreate, db: Session = Depends(get_db
     db.commit()
     db.refresh(db_prompt)
     # Persistir items
-    for idx, item in enumerate(items_data):
-        db_item = PromptItem(
-            prompt_id=db_prompt.id,
-            nombre_archivo=item["nombre_archivo"],
-            contenido=item.get("contenido", ""),
-            orden=item.get("orden", idx+1)
-        )
+    for idx, item_data in enumerate(items_data):
+        # Si es un diccionario, usar directamente
+        if isinstance(item_data, dict):
+            db_item = PromptItem(
+                prompt_id=db_prompt.id,
+                nombre_archivo=item_data.get("nombre_archivo"),
+                contenido=item_data.get("contenido", ""),
+                orden=item_data.get("orden", idx+1)
+            )
+        # Si es un objeto Pydantic, acceder a sus atributos
+        else:
+            db_item = PromptItem(
+                prompt_id=db_prompt.id,
+                nombre_archivo=item_data.nombre_archivo,
+                contenido=item_data.contenido if hasattr(item_data, 'contenido') else "",
+                orden=item_data.orden if hasattr(item_data, 'orden') else idx+1
+            )
         db.add(db_item)
     db.commit()
     db.refresh(db_prompt)
@@ -76,13 +86,23 @@ async def actualizar_prompt(prompt_id: int, prompt_update: PromptMaestroUpdate, 
         # Eliminar items previos
         db.query(PromptItem).filter(PromptItem.prompt_id == prompt_id).delete()
         # Agregar nuevos items
-        for idx, item in enumerate(prompt_update.items):
-            db_item = PromptItem(
-                prompt_id=prompt_id,
-                nombre_archivo=item["nombre_archivo"],
-                contenido=item.get("contenido", ""),
-                orden=item.get("orden", idx+1)
-            )
+        for idx, item_data in enumerate(prompt_update.items):
+            # Si es un diccionario, usar directamente
+            if isinstance(item_data, dict):
+                db_item = PromptItem(
+                    prompt_id=prompt_id,
+                    nombre_archivo=item_data.get("nombre_archivo"),
+                    contenido=item_data.get("contenido", ""),
+                    orden=item_data.get("orden", idx+1)
+                )
+            # Si es un objeto Pydantic, acceder a sus atributos
+            else:
+                db_item = PromptItem(
+                    prompt_id=prompt_id,
+                    nombre_archivo=item_data.nombre_archivo,
+                    contenido=item_data.contenido if hasattr(item_data, 'contenido') else "",
+                    orden=item_data.orden if hasattr(item_data, 'orden') else idx+1
+                )
             db.add(db_item)
     db.commit()
     db.refresh(db_prompt)

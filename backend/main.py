@@ -58,9 +58,10 @@ app.include_router(estilos.router)
 app.include_router(secciones.router)
 app.include_router(salidas.router)
 app.include_router(generacion.router)  # 🎉 Nuevo - Generación IA
-# Nuevo router para manejo de items de Prompt
-from routers import prompt_items
+# Routers para manejo de items
+from routers import prompt_items, estilo_items
 app.include_router(prompt_items.router)
+app.include_router(estilo_items.router)
 
 # Endpoint raíz
 @app.get("/")

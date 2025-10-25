@@ -46,24 +46,30 @@ export default function EstiloForm({ estilo = null, onSave, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={() => onCancel(false)} />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{estilo ? 'Editar Estilo' : 'Nuevo Estilo'}</h3>
-          <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900"><X className="w-5 h-5 text-slate-700 dark:text-slate-300" /></button>
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl flex flex-col h-[90vh] border border-slate-200 dark:border-slate-700">
+        {/* Header Fijo */}
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{estilo ? 'Editar Estilo' : 'Nuevo Estilo'}</h3>
+            <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900">
+              <X className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          </div>
+          {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
         </div>
 
-        {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
-
-        <div className="grid grid-cols-1 gap-4">
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="grid grid-cols-1 gap-4">
           <input value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} placeholder="Nombre" className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900" />
           <select value={form.tipo_estilo} onChange={(e) => setForm({...form, tipo_estilo: e.target.value})} className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900">
             <option value="">-- Tipo de estilo --</option>
             {TIPOS_ESTILO.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
-          <textarea value={form.descripcion} onChange={(e) => setForm({...form, descripcion: e.target.value})} placeholder="Descripción" rows={2} className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900" />
+          <textarea value={form.descripcion} onChange={(e) => setForm({...form, descripcion: e.target.value})} placeholder="Descripción" rows={2} className="w-full p-2 border-2 rounded-lg bg-white dark:bg-slate-900" />
 
           <div>
-            <label className="block text-sm text-slate-700 dark:text-slate-300 mb-2">Configuración (JSON)</label>
+            <label className="block text-sm text-slate-700 dark:text-slate-300 mb-1">Configuración (JSON)</label>
             <textarea
               value={JSON.stringify(form.configuracion, null, 2)}
               onChange={e => {
@@ -84,14 +90,14 @@ export default function EstiloForm({ estilo = null, onSave, onCancel }) {
                   setError('Configuración debe ser JSON válido.');
                 }
               }}
-              rows={3}
-              className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900"
+              rows={2}
+              className="w-full p-2 border-2 rounded-lg bg-white dark:bg-slate-900"
             />
           </div>
 
           {/* Gestión de items de estilo - diseño igual a PromptForm */}
-          <div className="mb-8">
-            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">ITEMS</label>
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">ITEMS</label>
             <div className="bg-white dark:bg-slate-900 border border-green-400 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-slate-700 dark:text-slate-200">ITEMS</span>
@@ -100,11 +106,33 @@ export default function EstiloForm({ estilo = null, onSave, onCancel }) {
                   <input type="file" accept=".txt" multiple style={{ display: 'none' }} onChange={async e => {
                     const files = Array.from(e.target.files);
                     for (const file of files) {
-                      const text = await file.text();
-                      setForm(prev => ({
-                        ...prev,
-                        items: [...(prev.items || []), { texto: text, nombre_archivo: file.name, orden: (prev.items?.length || 0) + 1 }]
-                      }));
+                      try {
+                        const text = await file.text();
+                        console.log('Archivo leído:', {
+                          nombre: file.name,
+                          contenido: text.slice(0, 100) + '...' // Log solo los primeros 100 caracteres
+                        });
+                        
+                        setForm(prev => {
+                          const newItem = {
+                            nombre_archivo: file.name,
+                            contenido: text,
+                            orden: (prev.items?.length || 0) + 1
+                          };
+                          console.log('Nuevo item a agregar:', newItem);
+                          
+                          const updatedItems = [...(prev.items || []), newItem];
+                          console.log('Items actualizados:', updatedItems);
+                          
+                          return {
+                            ...prev,
+                            items: updatedItems
+                          };
+                        });
+                      } catch (error) {
+                        console.error('Error al procesar archivo:', file.name, error);
+                        setError(`Error al procesar archivo ${file.name}: ${error.message}`);
+                      }
                     }
                     e.target.value = '';
                   }} />
@@ -113,15 +141,17 @@ export default function EstiloForm({ estilo = null, onSave, onCancel }) {
               <ul className="space-y-2">
                 {form.items && form.items.length > 0 ? form.items.map((item, idx) => (
                   <li key={idx} className="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded shadow-sm border border-slate-200 dark:border-slate-700">
-                    <span className="font-mono text-sm text-slate-700 dark:text-slate-200">{item.orden}: {item.nombre_archivo}</span>
-                    <button type="button" onClick={() => {
-                      setForm(prev => ({
-                        ...prev,
-                        items: prev.items.filter((_, i) => i !== idx)
-                      }));
-                    }} className="p-2 text-blue-600 hover:text-white bg-blue-100 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 transition-all" title="Eliminar item">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>
-                    </button>
+                      <span className="font-mono text-sm text-slate-700 dark:text-slate-200">
+                        {item.orden}: {item.nombre_archivo}
+                      </span>
+                      <button type="button" onClick={() => {
+                        setForm(prev => ({
+                          ...prev,
+                          items: prev.items.filter((_, i) => i !== idx)
+                        }));
+                      }} className="p-2 text-blue-600 hover:text-white bg-blue-100 dark:bg-blue-900/20 rounded-lg hover:bg-blue-600 transition-all" title="Eliminar item">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>
+                      </button>
                   </li>
                 )) : (
                   <li className="text-slate-400 italic">No hay items aún.</li>
@@ -129,11 +159,16 @@ export default function EstiloForm({ estilo = null, onSave, onCancel }) {
               </ul>
             </div>
           </div>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             <input id="activo_estilo" type="checkbox" checked={form.activo} onChange={(e) => setForm({...form, activo: e.target.checked})} />
             <label htmlFor="activo_estilo" className="text-sm text-slate-700 dark:text-slate-300">Activo</label>
           </div>
-          <div className="flex justify-end gap-3 mt-2">
+          </div>
+        </div>
+
+        {/* Botones Fijos Abajo */}
+        <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex justify-end gap-3">
             <button onClick={() => onCancel(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-900 rounded-lg">Cancelar</button>
             <button onClick={submit} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white rounded-lg">
               <Save className="w-4 h-4" /> {loading ? 'Guardando...' : 'Guardar'}

@@ -283,9 +283,34 @@ class EstiloMaestro(Base):
     
     # Relaciones
     secciones = relationship('Seccion', back_populates='estilo')
+    items = relationship('EstiloItem', back_populates='estilo', cascade='all, delete-orphan')
     
     def __repr__(self):
         return f"<EstiloMaestro(id={self.id}, nombre='{self.nombre}')>"
+
+
+class EstiloItem(Base):
+    """
+    Item asociado a un EstiloMaestro
+    Contiene fragmentos de configuración o reglas de estilo
+    """
+    __tablename__ = 'estilo_item'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    estilo_id = Column(Integer, ForeignKey('estilo_maestro.id', ondelete='CASCADE'), nullable=False, index=True)
+    nombre_archivo = Column(String(200), nullable=False)
+    contenido = Column(Text, nullable=True)
+    orden = Column(Integer, nullable=False, default=1)
+    
+    # Metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relaciones
+    estilo = relationship('EstiloMaestro', back_populates='items')
+    
+    def __repr__(self):
+        return f"<EstiloItem(id={self.id}, nombre_archivo='{self.nombre_archivo}')>"
 
 
 class Seccion(Base):

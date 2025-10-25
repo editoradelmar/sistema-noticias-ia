@@ -43,19 +43,24 @@ export default function SeccionForm({ seccion = null, onSave, onCancel, isOpen =
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={() => onCancel(false)} />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{seccion ? 'Editar Sección' : 'Nueva Sección'}</h3>
-          <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900"><X className="w-5 h-5 text-slate-700 dark:text-slate-300" /></button>
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl flex flex-col h-[90vh] border border-slate-200 dark:border-slate-700">
+        {/* Header Fijo */}
+        <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{seccion ? 'Editar Sección' : 'Nueva Sección'}</h3>
+            <button onClick={() => onCancel(false)} className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-900">
+              <X className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          </div>
+          {!token && (
+            <div className="mt-4 text-sm text-red-600">Debe iniciar sesión para visualizar y asociar Prompts y Estilos.</div>
+          )}
+          {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
         </div>
 
-        {!token && (
-          <div className="mb-4 text-sm text-red-600">Debe iniciar sesión para visualizar y asociar Prompts y Estilos.</div>
-        )}
-
-  {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
-
-        <div className="grid grid-cols-1 gap-4">
+        {/* Contenido Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="grid grid-cols-1 gap-4">
           <input value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} placeholder="Nombre de la sección" className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900" />
           <input value={form.icono} onChange={(e) => setForm({...form, icono: e.target.value})} placeholder="Icono (emoji o texto)" className="w-full p-3 border-2 rounded-lg bg-white dark:bg-slate-900" />
           <input type="color" value={form.color} onChange={(e) => setForm({...form, color: e.target.value})} className="w-24 h-10 p-1 border-2 rounded-lg" />
@@ -79,8 +84,12 @@ export default function SeccionForm({ seccion = null, onSave, onCancel, isOpen =
             <input id="activo_seccion" type="checkbox" checked={form.activo} onChange={(e) => setForm({...form, activo: e.target.checked})} />
             <label htmlFor="activo_seccion" className="text-sm text-slate-700 dark:text-slate-300">Sección activa</label>
           </div>
+          </div>
+        </div>
 
-          <div className="flex justify-end gap-3 mt-2">
+        {/* Botones Fijos Abajo */}
+        <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+          <div className="flex justify-end gap-3">
             <button onClick={() => onCancel(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-900 rounded-lg">Cancelar</button>
             <button onClick={submit} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white rounded-lg">
               <Save className="w-4 h-4" /> {loading ? 'Guardando...' : 'Guardar'}

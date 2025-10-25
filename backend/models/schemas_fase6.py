@@ -148,6 +148,7 @@ class PromptMaestroUpdate(BaseModel):
     variables: Optional[List[str]] = None
     ejemplos: Optional[str] = None
     activo: Optional[bool] = None
+    items: Optional[List[PromptItem]] = Field(default_factory=list, description="Lista de items asociados")
 
 
 class PromptMaestro(PromptMaestroBase):
@@ -155,12 +156,41 @@ class PromptMaestro(PromptMaestroBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+    items: Optional[List[PromptItem]] = Field(default_factory=list, description="Lista de items asociados")
     
     class Config:
         from_attributes = True
 
 
 # ==================== ESTILO MAESTRO ====================
+
+class EstiloItemBase(BaseModel):
+    """Schema base para EstiloItem"""
+    nombre_archivo: str = Field(..., description="Nombre del archivo")
+    contenido: Optional[str] = Field(None, description="Contenido del archivo")
+    orden: int = Field(default=1, description="Orden de procesamiento")
+
+class EstiloItemCreate(EstiloItemBase):
+    """Schema para crear EstiloItem"""
+    estilo_id: int = Field(..., description="ID del estilo al que pertenece")
+
+class EstiloItemUpdate(EstiloItemBase):
+    """Schema para actualizar EstiloItem"""
+    estilo_id: Optional[int] = None
+    nombre_archivo: Optional[str] = None
+    contenido: Optional[str] = None
+    orden: Optional[int] = None
+
+class EstiloItem(EstiloItemBase):
+    """Schema para EstiloItem"""
+    id: int
+    estilo_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 
 class EstiloMaestroBase(BaseModel):
     """Schema base para Estilo Maestro"""
@@ -170,6 +200,7 @@ class EstiloMaestroBase(BaseModel):
     configuracion: Dict[str, Any] = Field(..., description="Configuración del estilo (JSON)")
     ejemplos: Optional[str] = Field(None, description="Ejemplos del estilo")
     activo: bool = Field(default=True, description="¿Está activo el estilo?")
+    items: Optional[List[EstiloItem]] = Field(default_factory=list, description="Lista de items asociados")
     
     @validator('configuracion')
     def validate_configuracion(cls, v):
@@ -186,12 +217,25 @@ class EstiloMaestroCreate(EstiloMaestroBase):
 
 class EstiloMaestroUpdate(BaseModel):
     """Schema para actualizar Estilo Maestro (campos opcionales)"""
-    nombre: Optional[str] = Field(None, min_length=3, max_length=100)
-    descripcion: Optional[str] = None
-    tipo_estilo: Optional[TipoEstilo] = None
-    configuracion: Optional[Dict[str, Any]] = None
-    ejemplos: Optional[str] = None
-    activo: Optional[bool] = None
+    nombre: Optional[str] = Field(None, min_length=3, max_length=100, description="Nombre del estilo")
+    descripcion: Optional[str] = Field(None, description="Descripción del estilo")
+    tipo_estilo: Optional[TipoEstilo] = Field(None, description="Tipo de estilo: tono, formato, estructura, longitud")
+    configuracion: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Configuración del estilo en formato JSON",
+        example={"tono": "periodistico", "enfasis": "local"}
+    )
+    ejemplos: Optional[str] = Field(None, description="Ejemplos de uso del estilo")
+    activo: Optional[bool] = Field(None, description="Estado del estilo")
+    items: Optional[List[EstiloItemBase]] = Field(
+        default_factory=list,
+        description="Lista de items asociados",
+        example=[{
+            "nombre_archivo": "ejemplo.txt",
+            "contenido": "Contenido del archivo",
+            "orden": 1
+        }]
+    )
 
 
 class EstiloMaestro(EstiloMaestroBase):

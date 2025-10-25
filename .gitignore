@@ -1,62 +1,63 @@
 
 # Sistema de Noticias con IA - .gitignore
 
-# Entorno virtual Python
-backend/venv/
+# Node
+node_modules/
+frontend/node_modules/
 
-# Archivos de entorno y configuración local
-*.env
-*.env.*
-backend/.env
-frontend/.env
-
-# Archivos de base de datos temporales
-*.sqlite3
-*.db
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+backend/venv/
+backend/.env
 
-# Archivos de logs y caché
+# VSCode
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
 *.cache
-*.pyc
 
-# Archivos de migraciones generados
-backend/alembic/versions/*.pyc
-backend/alembic/versions/__pycache__/
-
-# Node modules y dependencias JS
-frontend/node_modules/
-node_modules/
-
-# Build y dist
+# Build
 frontend/dist/
 frontend/build/
 backend/__pycache__/
 
-# Archivos de sistema
-.DS_Store
-Thumbs.db
-
-# Archivos de subida
+# Uploads y datos temporales
 backend/uploads/
-
-# Archivos temporales de editor
-.vscode/
-.idea/
-*.swp
-
-# Docker y contenedores
-*.pid
-docker-compose.override.yml
+ChatsHistorial/
 
 # Otros
+*.env
+*.env.*
+*.sqlite3
+*.db
 *.bak
 *.orig
 *.tmp
+*.swp
+*.swo
 
-# Ignorar archivos de prompts y ejemplos si no son definitivos
+# Alembic
+backend/alembic/versions/*.pyc
+backend/alembic/versions/__pycache__/
+
+# Test
+coverage/
+htmlcov/
+frontend/src/main-test.jsx
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Prompts y ejemplos temporales
 prompts/*.tmp
 backend/ejemplos_referencia/
-
-# Ignorar archivos de pruebas locales
-frontend/src/main-test.jsx

@@ -126,12 +126,32 @@ export const estiloService = {
   },
 
   create: async (estiloData) => {
+    // Asegurarse de que los items tengan los campos correctos
+    if (estiloData.items) {
+      estiloData.items = estiloData.items.map((item, idx) => ({
+        nombre_archivo: item.nombre_archivo,
+        contenido: item.contenido,
+        orden: item.orden || idx + 1
+      }));
+    }
     const { data } = await api.post('/estilos/', estiloData);
     return data;
   },
 
   update: async (id, estiloData) => {
+    // Asegurarse de que los items tengan los campos correctos
+    if (estiloData.items) {
+      console.log('Items antes de procesar:', estiloData.items);
+      estiloData.items = estiloData.items.map((item, idx) => ({
+        nombre_archivo: item.nombre_archivo,
+        contenido: item.contenido || '',
+        orden: item.orden || idx + 1
+      }));
+      console.log('Items procesados:', estiloData.items);
+    }
+    console.log('Datos completos a enviar:', estiloData);
     const { data } = await api.put(`/estilos/${id}`, estiloData);
+    console.log('Respuesta del servidor:', data);
     return data;
   },
 
