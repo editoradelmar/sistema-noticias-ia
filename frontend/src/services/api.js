@@ -5,7 +5,7 @@ import axios from 'axios';
 // Permite alternar entre ngrok, localhost y IP local según entorno
 const API_BASE =
   import.meta.env.VITE_API_BASE ||
-  'https://credible-kodiak-one.ngrok-free.app/api';
+  'http://172.17.100.64:8000/api';
 
 // Ejemplo para desarrollo local:
 // VITE_API_BASE=http://localhost:8000/api

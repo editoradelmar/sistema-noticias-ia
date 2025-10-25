@@ -362,6 +362,20 @@ class NoticiaSalida(NoticiaSalidaBase):
         from_attributes = True
 
 
+class NoticiaSalidaTemporal(BaseModel):
+    """Schema para salidas temporales (sin guardar en BD)"""
+    id: Optional[int] = Field(None, description="ID temporal (None para temporales)")
+    noticia_id: Optional[int] = Field(None, description="ID de noticia (None para temporales)")
+    salida_id: int = Field(..., description="ID de la salida")
+    titulo: str = Field(..., min_length=5, max_length=200, description="Título de la salida")
+    contenido_generado: str = Field(..., min_length=10, description="Contenido generado para esta salida")
+    tokens_usados: Optional[int] = Field(None, ge=0, description="Tokens consumidos")
+    tiempo_generacion_ms: Optional[int] = Field(None, ge=0, description="Tiempo de generación en ms")
+    generado_en: str = Field(..., description="Timestamp de generación")
+    nombre_salida: Optional[str] = None
+    temporal: Optional[bool] = Field(True, description="Marca que es temporal")
+
+
 class NoticiaSalidaConRelaciones(NoticiaSalida):
     """Schema de Noticia-Salida con relaciones cargadas"""
     salida: Optional[SalidaMaestro] = None
@@ -369,19 +383,48 @@ class NoticiaSalidaConRelaciones(NoticiaSalida):
 
 # ==================== GENERACIÓN IA ====================
 
+class DatosNoticiaTemporal(BaseModel):
+    """Datos de noticia temporal para generación sin BD"""
+    id: Optional[int] = Field(None, description="ID si existe, None para temporal")
+    titulo: str = Field(..., min_length=5, description="Título de la noticia")
+    contenido: str = Field(..., min_length=10, description="Contenido de la noticia")
+    seccion_id: int = Field(..., description="ID de la sección")
+    proyecto_id: Optional[int] = Field(None, description="ID del proyecto")
+
+
 class GenerarSalidasRequest(BaseModel):
     """Request para generar salidas de una noticia"""
-    noticia_id: int = Field(..., description="ID de la noticia")
+    noticia_id: Optional[int] = Field(None, description="ID de la noticia (None para modo temporal)")
     salidas_ids: List[int] = Field(..., min_items=1, description="IDs de las salidas a generar")
     llm_id: int = Field(..., description="ID del LLM a usar")
-        # prompt_id y estilo_id eliminados: ahora se heredan siempre de la sección
     regenerar: bool = Field(default=False, description="¿Regenerar si ya existe?")
+    
+    # Campos para modo temporal
+    temporal: bool = Field(default=False, description="Modo temporal (no guardar en BD)")
+    datosNoticia: Optional[DatosNoticiaTemporal] = Field(None, description="Datos temporales si temporal=True")
+
+
+class GenerarSalidasTemporalRequest(BaseModel):
+    """Request para generar salidas sin crear noticia en BD"""
+    datosNoticia: DatosNoticiaTemporal = Field(..., description="Datos de la noticia temporal")
+    salidas_ids: List[int] = Field(..., min_items=1, description="IDs de las salidas a generar")
+    llm_id: int = Field(..., description="ID del LLM a usar")
+    regenerar: bool = Field(default=True, description="Siempre regenerar para temporal")
 
 
 class GenerarSalidasResponse(BaseModel):
     """Response de generación de salidas"""
     noticia_id: int
     salidas_generadas: List[NoticiaSalida]
+    total_tokens: int
+    tiempo_total_ms: int
+    errores: List[str] = []
+
+
+class GenerarSalidasTemporalResponse(BaseModel):
+    """Response de generación de salidas temporales"""
+    noticia_id: Optional[int] = Field(None, description="ID de noticia (None para temporales)")
+    salidas_generadas: List[NoticiaSalidaTemporal]
     total_tokens: int
     tiempo_total_ms: int
     errores: List[str] = []

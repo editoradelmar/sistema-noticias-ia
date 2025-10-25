@@ -62,22 +62,6 @@ export default function NoticiasList() {
     }
   };
 
-  const regenerarResumen = async (noticia) => {
-    setLoading(true);
-    try {
-      if (!noticia.llm_id) {
-        alert('No se puede regenerar: la noticia no tiene un modelo LLM asignado.');
-        return;
-      }
-      await generacionService.regenerarTodo(noticia.id, noticia.llm_id);
-      await fetchNoticias();
-    } catch (err) {
-      console.error("Error al regenerar salidas:", err);
-      alert('Error al regenerar salidas: ' + (err?.response?.data?.detail || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleEditar = async noticia => {
     setLoadingEdit(true);
@@ -244,7 +228,14 @@ export default function NoticiasList() {
                   );
                 })()}
                 <span className="text-xs text-slate-400 font-mono tracking-tight">
-                  {(new Date(noticia.fecha)).toLocaleDateString()}
+                  {(new Date(noticia.fecha)).toLocaleString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })}
                 </span>
               </div>
               <p className="text-slate-700 dark:text-slate-200 mb-2 text-lg leading-relaxed line-clamp-3 drop-shadow-sm">
@@ -260,14 +251,6 @@ export default function NoticiasList() {
                 </div>
               )}
               <div className="flex items-center gap-2 mt-1">
-                <button
-                  className="flex items-center gap-2 w-[230px] py-2 px-0 bg-blue-600 dark:bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 text-base transition-all shadow-md dark:shadow-glow-sm justify-center"
-                  onClick={() => regenerarResumen(noticia)}
-                  type="button"
-                >
-                  <RefreshCw className="w-5 h-5" />
-                  <span className="font-bold">Regenerar</span>
-                </button>
                 <div className="flex items-center gap-2 ml-auto">
                   {/* Cambiar estado */}
                   {canEdit() && (
@@ -305,7 +288,6 @@ export default function NoticiasList() {
           </div>
         ))}
       </div>
-// Etiqueta colorida para categoría
     </div>
   );
 }

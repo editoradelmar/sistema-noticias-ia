@@ -12,6 +12,15 @@ export const generacionService = {
   },
 
   /**
+   * Generar contenido temporal (sin guardar noticia en BD)
+   * @param {Object} data - { datosNoticia, salidas_ids[], llm_id, regenerar? }
+   */
+  generarSalidasTemporal: async (data) => {
+    const response = await api.post('/generar/salidas-temporal', data);
+    return response.data;
+  },
+
+  /**
    * Generar contenido para una sola salida
    */
   generarSalidaIndividual: async (params) => {
