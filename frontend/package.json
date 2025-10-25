@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Sistema de Noticias con IA - Frontend React",
-  "author": "hromero",
+  "author": "Hector Romero <hromero@eluniversal.com.co> (Editor del Mar SA)",
   "license": "MIT",
   "scripts": {
     "dev": "vite",

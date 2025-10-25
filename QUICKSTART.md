@@ -1,76 +1,106 @@
 
-# 🐙 Integración rápida con Git/GitHub
+# ⚡ Guía de Inicio Rápido - Sistema de Noticias con IA v2.3.0
 
-```bash
-git init
-git remote add origin https://github.com/<usuario>/<repositorio>.git
-git add .
-git commit -m "init: estructura base"
-git branch -M main
-git push -u origin main
-```
+> **🎯 Objetivo:** Tener el sistema completo funcionando en **menos de 10 minutos**
 
-Para cada nueva funcionalidad, crea una rama y abre un Pull Request siguiendo la [Guía de Contribución](./CONTRIBUTING.md).
-
-
-Guía ultra-rápida para poner el proyecto en marcha en **5 minutos**.
+Guía ultra-optimizada para poner el proyecto en marcha rápidamente con todas las funcionalidades de la **Fase 6 completada**.
 
 ---
 
 ## 🎯 Lo que vas a construir
 
-Sistema completo de noticias con:
-- ✅ CRUD de noticias
-- 🤖 Resúmenes automáticos con Claude IA
-- 💬 Chat inteligente
-- 📊 Categorización y búsqueda
-- 🎨 UI moderna y responsive
+Sistema completo de noticias con tecnología de vanguardia:
+- ✅ **CRUD avanzado** de noticias con proyectos y secciones
+- 🤖 **IA Multi-Proveedor** (Gemini 2.0, Claude 3.5, GPT-4)
+- 📤 **Generación Multi-Salida** (Web, Impreso, Redes Sociales)
+- 💬 **Chat inteligente** con contexto persistente
+- 🎨 **Interfaz moderna** responsive con modo oscuro
+- 🔐 **Autenticación JWT** con sistema de roles
+- 📊 **Sistema de Maestros** para configuración IA
 
-**Stack:** FastAPI + React + Claude + Vite + Tailwind CSS
+**Stack:** FastAPI + React + PostgreSQL + Multi-LLM + Tailwind CSS
 
 ---
 
-## 🚀 Instalación Express (Linux/Mac)
+## 🚀 Instalación Ultra-Rápida (5 minutos)
 
+### Prerrequisitos
 ```bash
-# 1. Clonar/crear estructura
-mkdir sistema-noticias-ia && cd sistema-noticias-ia
-
-# 2. Backend
-mkdir backend && cd backend
-python3 -m venv venv
-source venv/bin/activate
-pip install fastapi uvicorn pydantic anthropic httpx python-dotenv pydantic-settings
-
-# 3. Frontend  
-cd .. && npx create-vite@latest frontend --template react
-cd frontend
-npm install
-npm install lucide-react
-
-# 4. Listo! Ahora copia los archivos proporcionados
+✅ Python 3.11+
+✅ Node.js 18+ 
+✅ PostgreSQL 12+
+✅ Git
 ```
 
-## 🪟 Instalación Express (Windows)
+### 🐧 Linux/Mac - Instalación Completa
 
-```powershell
-# 1. Crear estructura
-mkdir sistema-noticias-ia
+```bash
+# 1. Clonar repositorio
+git clone <repository-url>
 cd sistema-noticias-ia
 
-# 2. Backend
-mkdir backend
+# 2. Configurar PostgreSQL
+sudo -u postgres createdb noticias_ia
+sudo -u postgres psql -c "CREATE USER openpg WITH PASSWORD 'openpgpwd';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE noticias_ia TO openpg;"
+
+# 3. Backend (Terminal 1)
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# Configurar .env (ver sección siguiente)
+python -m alembic upgrade head
+python create_admin.py
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# 4. Frontend (Terminal 2)
+cd frontend
+npm install
+cp .env.example .env
+# Configurar .env (ver sección siguiente)
+npm run dev
+```
+
+### 🪟 Windows PowerShell - Instalación Completa
+
+```powershell
+# 1. Clonar repositorio
+git clone <repository-url>
+cd sistema-noticias-ia
+
+# 2. Configurar PostgreSQL
+psql -U postgres -c "CREATE DATABASE noticias_ia;"
+psql -U postgres -c "CREATE USER openpg WITH PASSWORD 'openpgpwd';"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE noticias_ia TO openpg;"
+
+# 3. Backend (Terminal 1)
 cd backend
 python -m venv venv
 .\venv\Scripts\activate
-pip install fastapi uvicorn pydantic anthropic httpx python-dotenv pydantic-settings
+pip install -r requirements.txt
+copy .env.example .env
+# Configurar .env (ver sección siguiente)
+python -m alembic upgrade head
+python create_admin.py
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# 3. Frontend
-cd ..
-npx create-vite@latest frontend --template react
+# 4. Frontend (Terminal 2)
 cd frontend
 npm install
-npm install lucide-react
+copy .env.example .env
+# Configurar .env (ver sección siguiente)
+npm run dev
+```
+
+### ✅ Verificación Exitosa
+
+```bash
+✅ Backend: http://localhost:8000/docs (Swagger UI)
+✅ Frontend: http://localhost:5173 (React App)
+✅ Login: admin@sistema.com / admin123
+✅ Health: http://localhost:8000/api/health
 ```
 
 ---
@@ -328,56 +358,188 @@ git clone repo && cd repo && make install
 # Iniciar todo
 make dev
 
-# Docker todo-en-uno
-docker-compose up --build
+---
 
-# Tests completos
-make test
+## 🔑 Configuración de Variables de Entorno
 
-# Limpiar todo
-make clean
+### Backend (.env)
+```bash
+# Base de datos
+DATABASE_URL=postgresql://openpg:openpgpwd@localhost/noticias_ia
 
-# Backup
-make backup
+# Seguridad JWT
+SECRET_KEY=tu_secret_key_super_segura_aqui
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# IA APIs (Configurar al menos una)
+GEMINI_API_KEY=tu_gemini_api_key_aqui          # GRATIS - Recomendado
+ANTHROPIC_API_KEY=sk-ant-api-key-aqui          # PAGO - Opcional
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+```
+
+### Frontend (.env)
+```bash
+# Backend URL
+VITE_API_BASE=http://localhost:8000/api
+
+# IA por defecto
+VITE_DEFAULT_LLM_PROVEEDOR=Google
+VITE_DEFAULT_LLM_MODELO_ID=gemini-2.0-flash-exp
+VITE_DEFAULT_LLM_URL_API=https://generativelanguage.googleapis.com/v1beta/models
 ```
 
 ---
 
-## ⚡ Next Steps
+## 🤖 Configuración de APIs de IA
 
-1. ✅ Terminar instalación
-2. ✅ Ejecutar proyecto
-3. 📝 Revisar código en archivos marcados con ⭐
-4. 🎨 Personalizar UI
-5. 🚀 Agregar features
-6. 🌐 Deploy a producción
+### 1. Google Gemini (GRATIS - Recomendado)
+```bash
+# 1. Ir a: https://ai.google.dev/
+# 2. Crear cuenta y obtener API Key
+# 3. Agregar a backend/.env:
+GEMINI_API_KEY=tu_api_key_aqui
+
+# 4. Configurar en el sistema:
+#    - Ir a "Maestros" → "LLM Maestro" 
+#    - Crear nuevo modelo con los datos del README
+```
+
+### 2. Anthropic Claude (PAGO - Opcional)
+```bash
+# 1. Ir a: https://console.anthropic.com/
+# 2. Crear cuenta y obtener API Key  
+# 3. Agregar a backend/.env:
+ANTHROPIC_API_KEY=sk-ant-api-key-aqui
+```
 
 ---
 
-## 🆘 Ayuda Rápida
+## � Primeros Pasos Después de la Instalación
 
-**¿Algo no funciona?**
+### 1. **Configurar Modelos LLM** (Obligatorio)
+```bash
+# Acceder al sistema con admin@sistema.com / admin123
+# Ir a "Maestros" → "LLM Maestro" → "Crear Nuevo"
+# Usar los datos JSON del README principal
+```
 
-1. Verificar que Python 3.8+ y Node 18+ estén instalados
-2. Revisar logs en ambas terminales
-3. Verificar que todos los archivos estén en su lugar
-4. Consultar README.md completo
-5. Abrir issue en GitHub
+### 2. **Crear Contenido de Prueba**
+```bash
+# 1. Crear un proyecto: "Mi Primer Proyecto"
+# 2. Crear secciones: "Tecnología", "Deportes", etc.
+# 3. Configurar prompts y estilos personalizados
+# 4. Crear tu primera noticia con IA
+```
+
+### 3. **Probar Funcionalidades**
+```bash
+✅ Crear noticias manualmente
+✅ Generar contenido con IA 
+✅ Probar generación multi-salida
+✅ Usar el chat inteligente
+✅ Cambiar entre modo claro/oscuro
+```
 
 ---
 
-## ✨ Features para Implementar
+## ⚡ Comandos Útiles de Desarrollo
 
-Ideas para extender el proyecto:
+```bash
+# Backend - Desarrollo
+cd backend
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-- [ ] Autenticación JWT
-- [ ] Base de datos PostgreSQL
-- [ ] Upload de imágenes
-- [ ] Exportar a PDF
-- [ ] Notificaciones push
-- [ ] Sistema de comentarios
-- [ ] Analytics dashboard
-- [ ] Tests E2E con Playwright
+# Frontend - Desarrollo  
+cd frontend
+npm run dev
+
+# Tests Backend
+cd backend
+pytest -v
+
+# Tests Frontend
+cd frontend
+npm test
+
+# Backup de base de datos
+pg_dump noticias_ia > backup.sql
+
+# Restaurar base de datos
+psql noticias_ia < backup.sql
+```
+
+---
+
+## 🚀 Next Steps - Personalización
+
+### 1. **Configuración Avanzada**
+- [ ] Configurar múltiples modelos LLM
+- [ ] Personalizar prompts por sección
+- [ ] Configurar estilos de escritura
+- [ ] Ajustar límites de tokens
+
+### 2. **Desarrollo**
+- [ ] Revisar código fuente marcado con ⭐
+- [ ] Personalizar componentes UI
+- [ ] Agregar nuevos endpoints
+- [ ] Implementar funcionalidades específicas
+
+### 3. **Producción**
+- [ ] Configurar HTTPS
+- [ ] Usar base de datos en la nube
+- [ ] Configurar CI/CD
+- [ ] Monitoreo y logs
+
+---
+
+## 🆘 Resolución de Problemas
+
+### Problemas Comunes
+
+**❌ Error de conexión a PostgreSQL**
+```bash
+# Verificar que PostgreSQL esté corriendo
+sudo systemctl status postgresql   # Linux
+brew services list                  # Mac
+```
+
+**❌ Error "No module named 'something'"**
+```bash
+# Verificar entorno virtual activado
+which python  # Debe apuntar a venv
+pip install -r requirements.txt
+```
+
+**❌ Frontend no se conecta al backend**
+```bash
+# Verificar CORS en backend/.env
+ALLOWED_ORIGINS=http://localhost:5173
+
+# Verificar URL en frontend/.env
+VITE_API_BASE=http://localhost:8000/api
+```
+
+**❌ APIs de IA no funcionan**
+```bash
+# Verificar API keys en backend/.env
+# Probar con: http://localhost:8000/docs → Endpoints /api/ai/
+```
+
+### 🔍 **Recursos de Ayuda**
+- 📚 [README Completo](./README.md) - Documentación detallada
+- 📐 [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitectura técnica
+- 🐛 [GitHub Issues](https://github.com/editoradelmar/sistema-noticias-ia/issues)
+- 💬 [Discussions](https://github.com/editoradelmar/sistema-noticias-ia/discussions)
+
+---
+
+**🎉 ¡Listo! Tu sistema de noticias con IA está funcionando**
+
+**📅 Última actualización:** 2025-10-25  
+**🔖 Versión:** v2.3.0 (Fase 6 Completada)  
+**⚡ Tiempo estimado:** 5-10 minutos
 - [ ] CI/CD con GitHub Actions
 - [ ] Modo oscuro
 

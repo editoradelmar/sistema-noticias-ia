@@ -658,5 +658,5 @@ Al contribuir, aceptas que tus contribuciones serán licenciadas bajo la misma [
 
 ---
 
-**📅 Última actualización:** 2025-10-14  
-**✍️ Mantenido por:** @hromero
+**📅 Última actualización:** 2025-10-25  
+**✍️ Mantenido por:** Hector Romero (@hromero) - Editor del Mar SA
