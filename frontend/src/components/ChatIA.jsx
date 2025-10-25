@@ -19,6 +19,32 @@ export default function ChatIA() {
   const [error, setError] = useState(null);
   const [llms, setLlms] = useState([]);
   const [llmId, setLlmId] = useState('');
+  const [lastTokensUsed, setLastTokensUsed] = useState(0);
+  const [currentDateTime, setCurrentDateTime] = useState('');
+
+  // Actualizar fecha y hora cada segundo
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+      const fecha = now.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+      const hora = now.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      setCurrentDateTime(`${fecha} - ${hora}`);
+    };
+
+    updateDateTime(); // Actualizar inmediatamente
+    const interval = setInterval(updateDateTime, 1000); // Actualizar cada segundo
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     llmService.getActivos().then(data => {
@@ -31,15 +57,27 @@ export default function ChatIA() {
         setLlmId(byModelo?.id || byProveedor?.id || lista[0].id);
       }
     });
-    // Si hay conversacionId previa, restaurar historial
+    
+    // Restaurar conversación desde localStorage como backup
+    const savedConversacion = localStorage.getItem(`conversacion_${conversacionId}`);
+    if (savedConversacion) {
+      try {
+        setConversacion(JSON.parse(savedConversacion));
+      } catch (e) {
+        console.warn('Error al cargar conversación guardada:', e);
+      }
+    }
+    
+    // Si hay conversacionId previa, restaurar historial del backend
     if (conversacionId) {
       api.getHistorialChat(conversacionId).then(historial => {
-        setConversacion(
-          (historial || []).map(msg => ({
-            rol: msg.role === 'user' ? 'usuario' : 'ia',
-            texto: msg.content
-          }))
-        );
+        const conversacionBackend = (historial || []).map(msg => ({
+          rol: msg.role === 'user' ? 'usuario' : 'ia',
+          texto: msg.content
+        }));
+        setConversacion(conversacionBackend);
+        // Guardar en localStorage como backup
+        localStorage.setItem(`conversacion_${conversacionId}`, JSON.stringify(conversacionBackend));
       });
     }
   }, []);
@@ -49,6 +87,7 @@ export default function ChatIA() {
     if (!mensaje.trim() || !llmId) return;
     setLoading(true);
     setError(null);
+    
     // Mostrar mensaje del usuario de inmediato (optimista)
     setConversacion(prev => ([
       ...prev,
@@ -59,17 +98,20 @@ export default function ChatIA() {
       // Enviar mensaje y obtener conversacionId actualizado
       const respuesta = await api.chatIA(mensaje, conversacionId, llmId);
       if (respuesta?.conversacion_id) nextConversacionId = respuesta.conversacion_id;
+      if (respuesta?.tokens_usados) setLastTokensUsed(respuesta.tokens_usados);
       setConversacionId(nextConversacionId);
       localStorage.setItem('conversacionId', nextConversacionId);
       setMensaje('');
       // Obtener historial real del backend y mapearlo
       const historial = await api.getHistorialChat(nextConversacionId);
-      setConversacion(
-        (historial || []).map(msg => ({
-          rol: msg.role === 'user' ? 'usuario' : 'ia',
-          texto: msg.content
-        }))
-      );
+      const nuevaConversacion = (historial || []).map(msg => ({
+        rol: msg.role === 'user' ? 'usuario' : 'ia',
+        texto: msg.content
+      }));
+      setConversacion(nuevaConversacion);
+      
+      // Guardar en localStorage como backup
+      localStorage.setItem(`conversacion_${nextConversacionId}`, JSON.stringify(nuevaConversacion));
     } catch (err) {
       setError('Error al comunicarse con el modelo IA. ' + (err?.message || ''));
     } finally {
@@ -105,34 +147,54 @@ export default function ChatIA() {
             )}
           </div>
           <button
-            className="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-4 py-2 rounded font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+            className="bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-4 py-2 rounded font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition text-sm"
             onClick={() => {
               setConversacion([]);
               setMensaje('');
+              if (conversacionId) {
+                localStorage.removeItem(`conversacion_${conversacionId}`);
+              }
               setConversacionId(null);
               localStorage.removeItem('conversacionId');
             }}
+            title={`Limpiar conversación (${conversacion.length} mensajes)`}
           >
-            Limpiar
+            Limpiar {conversacion.length > 0 && `(${conversacion.length})`}
           </button>
         </div>
         <div className="p-8">
           <div
-            className="mb-6 h-[48vh] min-h-[350px] overflow-y-auto border rounded-lg p-6 bg-slate-800 flex flex-col gap-4 justify-center items-center"
+            className="mb-6 h-[48vh] min-h-[350px] overflow-y-auto border rounded-lg p-6 pr-4 bg-slate-800 flex flex-col gap-4 justify-center items-center"
             id="chat-scroll"
             ref={chatRef}
+            style={{ paddingRight: '1.5rem' }}
           >
             {conversacion.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full w-full">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 text-blue-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11v2m0 4h.01M12 7h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <h3 className="text-2xl font-bold text-slate-100 mb-2">Asistente IA Listo</h3>
                 <p className="text-slate-400">Consulte sobre noticias, análisis o preguntas generales.</p>
+                <p className="text-slate-500 text-xs mt-2">💡 El historial se mantiene durante toda la sesión</p>
+              </div>
+            )}
+            {conversacion.length > 20 && (
+              <div className="w-full text-center mb-4">
+                <div className="inline-block px-3 py-1 bg-yellow-600/20 text-yellow-300 rounded-full text-xs">
+                  ⚠️ Conversación larga: Solo los últimos 20 mensajes van al LLM para optimizar respuestas
+                </div>
+              </div>
+            )}
+            {conversacion.length > 50 && (
+              <div className="w-full text-center mb-2">
+                <div className="inline-block px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-xs">
+                  💾 Historial guardado localmente • {conversacion.length} mensajes totales
+                </div>
               </div>
             )}
             {conversacion.map((msg, idx) => (
               <div
                 key={idx}
-                className={`w-full flex ${msg.rol === 'usuario' ? 'justify-end' : 'justify-start'} items-end`}
+                className={`w-full flex ${msg.rol === 'usuario' ? 'justify-end' : 'justify-start'} items-end pr-2`}
               >
                 {msg.rol === 'ia' && (
                   <div className="flex-shrink-0 mr-2 hidden sm:block">
@@ -156,7 +218,7 @@ export default function ChatIA() {
               </div>
             ))}
             {loading && (
-              <div className="w-full flex justify-start">
+              <div className="w-full flex justify-start pr-2">
                 <div className="px-4 py-3 rounded-lg max-w-lg bg-slate-700 text-blue-300 opacity-70 animate-pulse">
                   <span>Pensando...</span>
                 </div>
@@ -178,6 +240,15 @@ export default function ChatIA() {
               disabled={loading || !mensaje.trim()}
             >Enviar</button>
           </form>
+          <div className="flex justify-between items-center mt-2 text-xs text-slate-500">
+            <div className="flex gap-4">
+              {lastTokensUsed > 0 && <span>🎯 Última respuesta: {lastTokensUsed} tokens</span>}
+              <span className="text-blue-400">📅 {currentDateTime}</span>
+            </div>
+            <div>
+              {conversacion.length > 0 && <span>💬 {conversacion.length} mensajes</span>}
+            </div>
+          </div>
           {error && <div className="mt-2 text-red-600">{error}</div>}
         </div>
       </div>

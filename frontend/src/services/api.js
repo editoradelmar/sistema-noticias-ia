@@ -96,10 +96,11 @@ export const api = {
     return data;
   },
 
-  chatIA: async (mensaje, conversacionId = null, llmId = null) => {
+  chatIA: async (mensaje, conversacionId = null, llmId = null, contexto = null) => {
     const payload = { mensaje };
     if (conversacionId) payload.conversacion_id = conversacionId;
     if (llmId) payload.llm_id = llmId;
+    if (contexto) payload.contexto = contexto;
     const { data } = await axiosInstance.post('/ai/chat', payload);
     return data;
   },

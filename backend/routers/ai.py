@@ -45,21 +45,56 @@ async def chat_con_ia(request: ChatRequest, db: Session = Depends(get_db)):
     conv_id = request.conversacion_id or str(uuid.uuid4())
     if conv_id not in conversaciones:
         conversaciones[conv_id] = []
+        
+        # Agregar contexto de fecha automáticamente al inicio de cada conversación nueva
+        from datetime import datetime
+        import locale
+        
+        # Configurar locale para español (fallback si no está disponible)
+        try:
+            locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+        except:
+            try:
+                locale.setlocale(locale.LC_TIME, 'Spanish_Spain.1252')
+            except:
+                pass  # Usar locale por defecto
+        
+        ahora = datetime.now()
+        fecha_sistema = ahora.strftime("%A, %d de %B de %Y a las %H:%M:%S")
+        
+        conversaciones[conv_id].append({
+            "role": "system",
+            "content": f"Fecha y hora actual del sistema: {fecha_sistema}. Usa esta información cuando sea relevante para cálculos temporales o referencias de fecha."
+        })
 
 
     # Preparar historial de mensajes
     historial = conversaciones[conv_id].copy()
     mensaje_usuario = request.mensaje
-    if request.contexto:
-        mensaje_usuario = f"Contexto: {request.contexto}\n\nPregunta: {request.mensaje}"
     historial.append({"role": "user", "content": mensaje_usuario})
 
-    # Generar respuesta usando el modelo seleccionado, enviando el historial completo
+    # Limitar historial para evitar exceder límites de tokens del LLM
+    # Mantener los últimos N mensajes para preservar contexto reciente
+    MAX_MENSAJES_HISTORIAL = 20  # Últimos 10 intercambios (20 mensajes)
+    if len(historial) > MAX_MENSAJES_HISTORIAL:
+        # Separar mensajes de sistema de los demás
+        mensajes_sistema = [msg for msg in historial if msg.get("role") == "system"]
+        mensajes_conversacion = [msg for msg in historial if msg.get("role") != "system"]
+        
+        # Tomar los últimos mensajes de conversación
+        mensajes_recientes = mensajes_conversacion[-(MAX_MENSAJES_HISTORIAL - len(mensajes_sistema)):]
+        
+        # Combinar: sistema + conversación reciente
+        historial_truncado = mensajes_sistema + mensajes_recientes
+    else:
+        historial_truncado = historial
+
+    # Generar respuesta usando el modelo seleccionado, enviando el historial truncado
     generador = GeneradorIA(db)
     try:
         respuesta_llm = generador.generar_contenido(
             llm=llm,
-            prompt_contenido=historial,  # Enviar historial acumulado
+            prompt_contenido=historial_truncado,  # Enviar historial optimizado
             max_tokens=2000
         )
         respuesta_texto = respuesta_llm.get("contenido", "")
@@ -74,7 +109,12 @@ async def chat_con_ia(request: ChatRequest, db: Session = Depends(get_db)):
     return ChatResponse(
         respuesta=respuesta_llm,  # dict completo
         conversacion_id=conv_id,
-        tokens_usados=tokens_usados
+        tokens_usados=tokens_usados,
+        metadata={
+            "total_mensajes": len(conversaciones[conv_id]),
+            "mensajes_enviados_llm": len(historial_truncado),
+            "historial_truncado": len(historial) > MAX_MENSAJES_HISTORIAL
+        }
     )
 
 # ==================== HELPERS ====================
