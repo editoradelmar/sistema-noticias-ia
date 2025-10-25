@@ -5,7 +5,7 @@ import generacionService from '../services/generacion';
 import Toast from './Toast';
 import { api } from '../services/api';
 
-export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId }) {
+export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId, loadingGeneracion, loadingPublicacion }) {
   const salidas = [
     { key: "impreso", label: "Impreso" },
     { key: "web", label: "Web" },
@@ -70,14 +70,19 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
 
   const [copiado, setCopiado] = useState(false);
   const [toast, setToast] = useState({ show: false, message: "" });
+  const [loadingPublicar, setLoadingPublicar] = useState(false);
 
   const handlePublicar = async () => {
-    // Determinar el llm_id a usar: preferir noticiaFormData.llm_id, si no, usar llmId prop
-    let llm_id_final = noticiaFormData?.llm_id ? Number(noticiaFormData.llm_id) : (llmId ? Number(llmId) : null);
-    if (!llm_id_final || isNaN(llm_id_final)) {
-      setToast({ show: true, message: 'Debes seleccionar un modelo de IA (LLM) válido antes de publicar.' });
-      return;
-    }
+    if (loadingPublicar) return; // Evitar doble clic
+    
+    setLoadingPublicar(true);
+    try {
+      // Determinar el llm_id a usar: preferir noticiaFormData.llm_id, si no, usar llmId prop
+      let llm_id_final = noticiaFormData?.llm_id ? Number(noticiaFormData.llm_id) : (llmId ? Number(llmId) : null);
+      if (!llm_id_final || isNaN(llm_id_final)) {
+        setToast({ show: true, message: 'Debes seleccionar un modelo de IA (LLM) válido antes de publicar.' });
+        throw new Error('Modelo de IA no válido');
+      }
     // Validar que todos los títulos estén presentes para cada salida individual
     const salidasPublicadas = [];
     Object.entries(noticiasPorSalida).forEach(([key, arr]) => {
@@ -96,10 +101,12 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
     const faltanTitulos = salidasPublicadas.some(s => !s.titulo || s.titulo.trim().length === 0);
     if (faltanTitulos) {
       setToast({ show: true, message: 'Debes ingresar un título para cada salida antes de publicar.' });
+      setLoadingPublicar(false);
+      setLoadingPublicar(false);
       return;
     }
-    try {
-      let noticiaId;
+    
+    let noticiaId;
       // Si la noticia no existe, crearla primero
   if (!noticiaFormData?.id) {
         // Saneamiento de payload para evitar error 422
@@ -141,7 +148,7 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
       // Actualizar los títulos/contenidos editados
       if (!resp || !Array.isArray(resp.salidas_generadas)) {
         setToast({ show: true, message: 'Error al publicar: No se generaron salidas en el backend.' });
-        return;
+        throw new Error('No se generaron salidas en el backend');
       }
       let erroresMapeo = [];
       await Promise.all(salidasPublicadas.map(async (s) => {
@@ -167,11 +174,14 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
           erroresMapeo
         });
         setToast({ show: true, message: `Error al publicar: No se encontraron salidas generadas para salida_id(s): ${erroresMapeo.join(', ')}` });
-        return;
+        throw new Error(`No se encontraron salidas generadas para salida_id(s): ${erroresMapeo.join(', ')}`);
       }
       if (onPublicado) onPublicado();
     } catch (err) {
+      console.error("Error al publicar:", err);
       setToast({ show: true, message: 'Error al publicar: ' + (err?.message || 'Error desconocido') });
+    } finally {
+      setLoadingPublicar(false);
     }
   };
 

@@ -9,7 +9,7 @@ import SalidasCheckboxGroup from './SalidasCheckboxGroup';
 import LLMSelector from './LLMSelector';
 
 
-export default function NoticiaForm({ noticia, onClose, onGenerarNoticias, extraFields }) {
+export default function NoticiaForm({ noticia, loading, onClose, onGenerarNoticias, extraFields }) {
   // Maneja el cambio del selector de LLM
   const handleLLMChange = llmId => {
     setForm(f => ({ ...f, llm_id: llmId }));
@@ -47,7 +47,6 @@ export default function NoticiaForm({ noticia, onClose, onGenerarNoticias, extra
       });
     }
   }, [noticia]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = e => {
@@ -80,7 +79,6 @@ export default function NoticiaForm({ noticia, onClose, onGenerarNoticias, extra
       setError('La sección es obligatoria');
       return;
     }
-    setLoading(true);
     try {
       // Si es edición, sí persiste
       if (noticia && noticia.id) {
@@ -96,8 +94,6 @@ export default function NoticiaForm({ noticia, onClose, onGenerarNoticias, extra
       }
     } catch (err) {
       setError(noticia ? 'Error al actualizar noticia' : 'Error al crear noticia');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -251,7 +247,7 @@ export default function NoticiaForm({ noticia, onClose, onGenerarNoticias, extra
               {loading ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Publicando...
+                  Generando...
                 </>
               ) : (
                 <>

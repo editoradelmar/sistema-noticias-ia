@@ -31,6 +31,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
   const [noticiaId, setNoticiaId] = useState(noticiaIdProp || (isEditMode ? parseInt(editId) : null));
   const [noticiaFormData, setNoticiaFormData] = useState(null);
   const [loadingSalidas, setLoadingSalidas] = useState(false);
+  const [loadingPublicar, setLoadingPublicar] = useState(false);
   const [salidasMaestro, setSalidasMaestro] = useState([]);
   const [llms, setLlms] = useState([]);
   // El llmId real debe sincronizarse con el form y el selector
@@ -311,6 +312,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
       <div className="flex-1">
         <NoticiaForm
           noticia={noticiaFormData}
+          loading={loadingSalidas}
           onClose={() => { if (onVolverLista) onVolverLista(); }}
           onGenerarNoticias={handleGenerarNoticias}
           extraFields={
@@ -359,7 +361,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
           noticiaFormData={noticiaFormData}
           llmId={llmId}
           salidasTemporales={salidasTemporales}
-          onPublicado={() => { if (onVolverLista) onVolverLista(); }}
+          onPublicado={() => { if (onVolverLista) onVolverLista(true); }}
         />
       </div>
     </div>
