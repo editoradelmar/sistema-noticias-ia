@@ -16,28 +16,40 @@ const API_BASE =
 const axiosInstance = axios.create({
   baseURL: API_BASE,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'  // Omitir advertencia de ngrok
   }
 });
 
 // Interceptor para agregar token a todas las solicitudes
 axiosInstance.interceptors.request.use(
   (config) => {
+    console.log('🚀 API Request:', config.method?.toUpperCase(), config.url, 'Base:', config.baseURL);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔐 Token agregado');
+    } else {
+      console.log('⚠️ No hay token');
     }
+    // Asegurar header de ngrok en todas las solicitudes
+    config.headers['ngrok-skip-browser-warning'] = 'true';
     return config;
   },
   (error) => {
+    console.error('❌ Request Error:', error);
     return Promise.reject(error);
   }
 );
 
 // Interceptor para manejar errores globalmente
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', response.status, response.config.url);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error:', error.response?.status, error.response?.data, 'URL:', error.config?.url);
     if (error.response?.status === 401) {
       // Token expirado o inválido
       localStorage.removeItem('token');

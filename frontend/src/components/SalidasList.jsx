@@ -17,9 +17,9 @@ const SalidasList = () => {
   const loadSalidas = async () => {
     setLoading(true);
     try {
-  const data = await salidaService.getAll();
-  let lista = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-  setSalidas(lista);
+      const data = await salidaService.getAll();
+      let lista = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+      setSalidas(lista);
     } catch (err) {
       alert('Error cargando salidas');
     } finally {

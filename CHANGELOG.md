@@ -4,6 +4,40 @@ Todos los cambios notables del proyecto se documentan en este archivo.
 
 ---
 
+## [2.3.1] - 2025-10-25
+
+### 🌐 Added - Acceso Externo y Fixes de Conectividad
+
+#### Configuración ngrok
+- **Acceso externo**: Configuración completa para testing remoto
+- **Headers anti-advertencia**: `ngrok-skip-browser-warning: 'true'` implementado
+- **CORS actualizado**: Soporte para dominios ngrok en config.py y .env
+- **URLs demo**: Frontend y backend públicos configurados
+
+#### Fixes de Conectividad
+- **PostgreSQL**: Optimización de conexión localhost/127.0.0.1
+- **Frontend API**: Interceptors mejorados con logs de debug
+- **Autenticación**: Headers ngrok agregados al login
+- **Error handling**: Mejor manejo de errores de conexión
+
+#### Mejoras de Debugging
+- **Logs detallados**: Implementados en componentes críticos
+- **Troubleshooting**: Guía completa de resolución de problemas
+- **Validación**: Sistema completamente validado y operativo
+
+### 🛠️ Fixed
+- Frontend no mostraba datos por interferencia de ngrok
+- Advertencias de ngrok bloqueando solicitudes API
+- Problemas de CORS con dominios externos
+- Errores de codificación UTF-8 en PostgreSQL
+
+### 📚 Updated
+- **README.md**: URLs demo y estado actual del proyecto
+- **QUICKSTART.md**: Sección ngrok y troubleshooting ampliado
+- **Documentación**: Información del desarrollador actualizada
+
+---
+
 ## [2.3.0-alpha] - 2025-10-17
 
 ### 🎉 Added - Fase 6 Completada

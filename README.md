@@ -1015,9 +1015,19 @@ Seguridad:       ████████████  95% (JWT + CORS + Validac
 ---
 
 **📅 Última actualización:** 2025-10-25  
-**🔖 Versión actual:** v2.3.0 (Fase 6 Completada)  
+**🔖 Versión actual:** v2.3.1 (Acceso Externo + Fixes)  
 **🎯 Próxima versión:** v2.4.0 (Dashboard Analítico)  
 **👨‍💻 Desarrollador:** Hector Romero - Editor del Mar SA
-#   s i s t e m a - n o t i c i a s - i a 
- 
- 
+
+### 🆕 **Últimas Actualizaciones (v2.3.1)**
+- ✅ **Acceso externo via ngrok** configurado y funcional
+- ✅ **Problema CORS resuelto** para conexiones remotas
+- ✅ **Headers anti-advertencia** para ngrok implementados
+- ✅ **Conectividad PostgreSQL** optimizada (localhost/127.0.0.1)
+- ✅ **Sistema completamente operativo** y validado
+- ✅ **Documentación actualizada** con troubleshooting
+
+### 🌐 **URLs de Acceso (Demo)**
+- **Frontend**: https://woodcock-still-tetra.ngrok-free.app/
+- **Backend API**: https://credible-kodiak-one.ngrok-free.app/
+- **Documentación**: https://credible-kodiak-one.ngrok-free.app/docs

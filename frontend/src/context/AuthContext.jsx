@@ -10,12 +10,17 @@ export const AuthProvider = ({ children }) => {
 
   // Cargar usuario del localStorage al iniciar
   useEffect(() => {
+    console.log('🔐 AuthContext: Cargando usuario del localStorage...');
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
+    
+    console.log('🔐 Token guardado:', savedToken ? 'SÍ' : 'NO');
+    console.log('🔐 Usuario guardado:', savedUser ? 'SÍ' : 'NO');
     
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
+      console.log('🔐 Usuario cargado:', JSON.parse(savedUser).email);
     }
     setLoading(false);
   }, []);
@@ -32,6 +37,7 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          'ngrok-skip-browser-warning': 'true'
         },
         body: formData.toString(),
       });

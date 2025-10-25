@@ -1,11 +1,12 @@
 <!-- .github/copilot-instructions.md - Guía corta para agentes AI que trabajen en este repo -->
 # Instrucciones rápidas para agentes de codificación
 
-Objetivo: ayudar a un agente AI a ser productivo de inmediato en este repositorio "sistema-noticias-ia" (FastAPI + React + Claude).
+Objetivo: ayudar a un agente AI a ser productivo de inmediato en este repositorio "sistema-noticias-ia" (FastAPI + React + Multi-LLM).
 
-- Leer primero: `README.md`, `ARCHITECTURE.md`, `AUTH_GUIDE.md` — contienen el panorama y comandos de arranque.
-- Punto de entrada (backend): `backend/main.py`. API routers en `backend/routers/` (ej: `noticias.py`, `ai.py`, `auth.py`).
+- Leer primero: `README.md`, `QUICKSTART.md`, `ARCHITECTURE.md` — contienen el panorama y comandos de arranque.
+- Punto de entrada (backend): `backend/main.py`. API routers en `backend/routers/` (ej: `noticias.py`, `ai.py`, `auth.py`, `salidas.py`).
 - Punto de entrada (frontend): `frontend/src/main.jsx` y `frontend/src/App.jsx`. Componentes en `frontend/src/components/`.
+- **Sistema funcionando**: v2.3.1 completamente operativo con acceso externo via ngrok configurado.
 
 Reglas de estilo y componentes a seguir
 - UI: usa Tailwind CSS con clases `dark:`. Copiar patrones visuales existentes (ej: `ProyectoForm.jsx`) para nuevos formularios y botones.
@@ -40,6 +41,8 @@ Errores comunes y cómo detectarlos
 - Duplicate export/default: buscar múltiples `export default` en un archivo modificado.
 - Mismatch de contrato entre form y list: confirmar firma de `onSave` y comportamiento (ej. si `onSave` debe cerrar modal o devolver booleano).
 - Problemas CORS / Network: comprobar `backend/.env` / `config.py` ALLOWED_ORIGINS y que backend esté escuchando en `localhost:8000`.
+- **ngrok advertencias**: El proyecto ya incluye `ngrok-skip-browser-warning: 'true'` en headers para evitar pantallas de advertencia.
+- **PostgreSQL UTF-8**: Usar `localhost` o `127.0.0.1` en DATABASE_URL, evitar IPs específicas que puedan causar errores de codificación.
 
 Checklist rápido antes de crear PR
 1. Ejecutar `npm run dev` (frontend) y `uvicorn main:app --reload` (backend) localmente.
@@ -47,6 +50,7 @@ Checklist rápido antes de crear PR
 3. Reutilizar servicios en `frontend/src/services/` para llamadas HTTP.
 4. Mantener consistencia de UI con `ProyectoForm.jsx` (botones, inputs, errores, header gradient).
 5. Añadir pruebas mínimas si el cambio altera lógica (backend: pytest, frontend: jest).
+6. **Para acceso externo**: Configurar ngrok URLs en .env si es necesario para testing remoto.
 
 Si algo no está claro, preguntar al mantenedor: revisar `CONTRIBUTING.md` para contactos y el flujo de PR.
 

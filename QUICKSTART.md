@@ -494,7 +494,55 @@ psql noticias_ia < backup.sql
 
 ---
 
-## 🆘 Resolución de Problemas
+## � Acceso Externo con ngrok (Opcional)
+
+### Configuración para Testing Remoto
+
+```bash
+# 1. Instalar ngrok (https://ngrok.com/)
+# Registrarse y obtener token de autenticación
+
+# 2. Configurar ngrok
+ngrok config add-authtoken YOUR_TOKEN
+
+# 3. Exponer backend (Terminal 3)
+ngrok http 8000
+# Copiar URL: https://abc123-kodiak-one.ngrok-free.app
+
+# 4. Exponer frontend (Terminal 4)  
+ngrok http 5173
+# Copiar URL: https://def456-tetra.ngrok-free.app
+
+# 5. Actualizar configuraciones
+```
+
+### Configurar URLs de ngrok
+
+**Backend** (`backend/.env`):
+```env
+# Agregar dominios ngrok a CORS
+ALLOWED_ORIGINS=http://localhost:5173,https://abc123-kodiak-one.ngrok-free.app,https://def456-tetra.ngrok-free.app
+```
+
+**Frontend** (`frontend/.env`):
+```env
+# Usar backend de ngrok
+VITE_API_BASE=https://abc123-kodiak-one.ngrok-free.app/api
+```
+
+### Headers Anti-Advertencia (Ya configurado)
+
+El proyecto ya incluye headers para omitir advertencias de ngrok:
+```javascript
+// frontend/src/services/api.js
+headers: {
+  'ngrok-skip-browser-warning': 'true'
+}
+```
+
+---
+
+## �🆘 Resolución de Problemas
 
 ### Problemas Comunes
 
@@ -503,6 +551,9 @@ psql noticias_ia < backup.sql
 # Verificar que PostgreSQL esté corriendo
 sudo systemctl status postgresql   # Linux
 brew services list                  # Mac
+
+# Probar conexión directa
+psql -h localhost -U openpg -d noticias_ia
 ```
 
 **❌ Error "No module named 'something'"**
@@ -527,6 +578,29 @@ VITE_API_BASE=http://localhost:8000/api
 # Probar con: http://localhost:8000/docs → Endpoints /api/ai/
 ```
 
+**❌ ngrok muestra página de advertencia**
+```bash
+# Ya resuelto automáticamente con headers
+# Si persiste, verifica que las URLs en .env sean correctas
+```
+
+**❌ Base de datos muestra codificación UTF-8**
+```bash
+# Cambiar IP por localhost en DATABASE_URL
+DATABASE_URL=postgresql://openpg:openpgpwd@localhost:5432/noticias_ia
+# o usar 127.0.0.1
+DATABASE_URL=postgresql://openpg:openpgpwd@127.0.0.1:5432/noticias_ia
+```
+
+**❌ Frontend muestra datos vacíos**
+```bash
+# Verificar que el backend esté corriendo
+curl http://localhost:8000/health
+
+# Verificar autenticación en el frontend
+# F12 → Console → Buscar errores 401/403
+```
+
 ### 🔍 **Recursos de Ayuda**
 - 📚 [README Completo](./README.md) - Documentación detallada
 - 📐 [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitectura técnica
@@ -538,7 +612,7 @@ VITE_API_BASE=http://localhost:8000/api
 **🎉 ¡Listo! Tu sistema de noticias con IA está funcionando**
 
 **📅 Última actualización:** 2025-10-25  
-**🔖 Versión:** v2.3.0 (Fase 6 Completada)  
+**🔖 Versión:** v2.3.1 (Acceso Externo + Fixes)  
 **⚡ Tiempo estimado:** 5-10 minutos
 - [ ] CI/CD con GitHub Actions
 - [ ] Modo oscuro
