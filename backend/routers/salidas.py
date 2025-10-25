@@ -19,12 +19,21 @@ async def listar_salidas(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ):
+    print(f"DEBUG: listar_salidas llamado - activo={activo}, tipo_salida={tipo_salida}, skip={skip}, limit={limit}")
+    print(f"DEBUG: current_user={current_user.email if current_user else 'None'}")
+    
     query = db.query(SalidaMaestroORM)
     if activo is not None:
         query = query.filter(SalidaMaestroORM.activo == activo)
     if tipo_salida:
         query = query.filter(SalidaMaestroORM.tipo_salida == tipo_salida.value)
-    return query.offset(skip).limit(limit).all()
+    
+    results = query.offset(skip).limit(limit).all()
+    print(f"DEBUG: Encontradas {len(results)} salidas")
+    for result in results:
+        print(f"DEBUG: Salida {result.id}: {result.nombre} (activo={result.activo})")
+    
+    return results
 
 @router.get("/{salida_id}", response_model=SalidaMaestro)
 async def obtener_salida(salida_id: int, db: Session = Depends(get_db), current_user: Usuario = Depends(get_current_user)):

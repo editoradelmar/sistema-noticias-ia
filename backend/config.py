@@ -36,7 +36,9 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000,"
         "http://172.17.100.64:5173,"
         "http://192.168.0.100:5173,"
-        "http://192.168.1.100:5173"
+        "http://192.168.1.100:5173,"
+        "https://credible-kodiak-one.ngrok-free.app,"
+        "https://woodcock-still-tetra.ngrok-free.app"
     )
     
     # Límites de la API

@@ -36,7 +36,8 @@ app = FastAPI(
 )
 
 # Mostrar valor de CORS en consola para depuración
-print('CORS origins:', settings.ALLOWED_ORIGINS)
+print('CORS origins from .env:', settings.ALLOWED_ORIGINS)
+print('CORS origins as list:', [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')],
