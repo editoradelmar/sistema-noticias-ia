@@ -37,7 +37,11 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
     async function fetchSecciones() {
       const data = await seccionService.getAll({ activo: true });
       let lista = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-      setSecciones(lista);
+      // Ordenar secciones alfabéticamente por nombre
+      const seccionesOrdenadas = lista.sort((a, b) => 
+        a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+      );
+      setSecciones(seccionesOrdenadas);
     }
     fetchSecciones();
   }, []);

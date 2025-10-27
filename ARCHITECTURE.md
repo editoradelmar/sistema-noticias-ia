@@ -1,22 +1,28 @@
 
-# 🐙 Integración con Git/GitHub
+# 🏗️ Arquitectura del Sistema de Noticias con IA v2.4.0
 
-Este proyecto sigue buenas prácticas de control de versiones:
-- Estructura modular y carpetas separadas para backend y frontend.
-- Cada cambio relevante debe ser versionado con Git y documentado en el historial.
-- Se recomienda trabajar en ramas feature/fix y realizar Pull Requests siguiendo la [Guía de Contribución](./CONTRIBUTING.md).
+Documentación técnica de la arquitectura optimizada del proyecto.
 
-Ejemplo de flujo:
-```bash
-git checkout -b feature/nueva-arquitectura
-# Realiza cambios
-git add .
-git commit -m "refactor: modulariza routers y modelos"
-git push origin feature/nueva-arquitectura
-```
+---
 
+## 🚀 Mejoras de Arquitectura v2.4.0
 
-Documentación técnica de la arquitectura del proyecto.
+### 🔗 **Integridad Referencial Optimizada**
+- **usuario_id como fuente única de verdad** para relaciones usuario-noticia
+- **Eliminación del campo autor redundante** en favor de relaciones FK
+- **Índices optimizados** para consultas más eficientes
+- **Cascadas y restricciones** automatizadas por base de datos
+
+### ⚡ **Performance Mejorado**
+- **Filtros basados en integers** (usuario_id) en lugar de strings
+- **Ordenamiento alfabético** implementado en frontend para secciones
+- **Consultas SQL optimizadas** con joins eficientes
+- **Reducción de duplicación** de datos en base de datos
+
+### 🧹 **Código Limpio**
+- **Eliminación de archivos temporales** de diagnóstico y migración
+- **Consistencia en naming** y estructura de datos
+- **Simplificación de modelos ORM** sin redundancias
 
 ---
 
@@ -33,6 +39,7 @@ Documentación técnica de la arquitectura del proyecto.
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │   Noticias   │  │    Chat IA   │  │  Formularios │          │
 │  │  Component   │  │   Component  │  │   Component  │          │
+│  │ (Ord. Alfab.)│  │              │  │ (Ord. Alfab.)│          │
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘          │
 │         │                  │                  │                   │
 │         └──────────────────┴──────────────────┘                  │
@@ -151,20 +158,50 @@ Usuario → Escribe mensaje
 
 ---
 
-## 🗂️ Estructura de Datos
+## 🗂️ Estructura de Datos Optimizada (v2.4.0)
 
-### Noticia (Schema)
+### Noticia (Schema) - Arquitectura Optimizada
 ```python
 {
     "id": int,
     "titulo": str,              # 5-200 caracteres
     "contenido": str,           # mínimo 20 caracteres
-    "categoria": CategoriaNoticia,
-    "autor": str,
+    "seccion_id": int,          # FK a secciones
+    "usuario_id": int,          # FK a usuarios (fuente de verdad)
+    "autor_nombre": str,        # Calculado desde relación usuario
     "fecha": str,               # ISO format
     "resumen_ia": str | None,
     "sentiment_score": float | None,
-    "keywords": List[str] | None
+    "keywords": List[str] | None,
+    "proyecto_id": int | None,  # FK opcional
+    "llm_id": int | None,       # FK opcional
+    "estado": str               # "activo", "archivado", "eliminado"
+}
+```
+
+### Usuario (Relaciones Optimizadas)
+```python
+{
+    "id": int,                  # PK - Fuente de verdad
+    "username": str,            # Único, usado para autor_nombre
+    "email": str,               # Único
+    "nombre_completo": str,
+    "rol": str,                 # "admin", "editor", "viewer"
+    "activo": bool,
+    "noticias": List[Noticia]   # Relación 1:N optimizada
+}
+```
+
+### Sección (Con Ordenamiento)
+```python
+{
+    "id": int,
+    "nombre": str,              # Ordenado alfabéticamente en frontend
+    "descripcion": str,
+    "color": str,
+    "icono": str,
+    "activo": bool,
+    "noticias": List[Noticia]   # Relación 1:N
 }
 ```
 

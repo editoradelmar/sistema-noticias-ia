@@ -19,7 +19,13 @@ import { seccionService } from '../services/maestros';
 export default function ProyectoDetalle({ proyecto, onClose, onEditar, onActualizar }) {
   const [secciones, setSecciones] = useState([]);
   useEffect(() => {
-    seccionService.getAll({ activo: true }).then(data => setSecciones(data || []));
+    seccionService.getAll({ activo: true })
+      .then(data => {
+        const seccionesOrdenadas = (data || []).sort((a, b) => 
+          a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+        );
+        setSecciones(seccionesOrdenadas);
+      });
   }, []);
 
   function getSeccionInfo(seccion_id) {
@@ -268,7 +274,13 @@ function NoticiaCard({ noticia, onGenerarResumen, onEliminar, canDelete }) {
   const [loading, setLoading] = useState(false);
   const [secciones, setSecciones] = useState([]);
   useEffect(() => {
-    seccionService.getAll({ activo: true }).then(data => setSecciones(data || []));
+    seccionService.getAll({ activo: true })
+      .then(data => {
+        const seccionesOrdenadas = (data || []).sort((a, b) => 
+          a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+        );
+        setSecciones(seccionesOrdenadas);
+      });
   }, []);
   function getSeccionInfo(seccion_id) {
     if (!seccion_id) return { nombre: 'Sin sección', color: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' };

@@ -1,8 +1,9 @@
-# 📖 API Reference - Sistema de Noticias con IA
+# 📖 API Reference - Sistema de Noticias con IA v2.4.0
 
 ## 📋 Índice
 
 - [Información General](#información-general)
+- [Cambios v2.4.0](#cambios-v240)
 - [Autenticación](#autenticación)
 - [Endpoints de Autenticación](#endpoints-de-autenticación)
 - [Endpoints de Noticias](#endpoints-de-noticias)
@@ -33,6 +34,21 @@ Authorization: Bearer <token>
 ### Documentación Interactiva
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
+
+---
+
+## 🚀 Cambios v2.4.0
+
+### 🔗 **Estructura de Datos Optimizada**
+- **Campo `autor` eliminado** de requests y responses
+- **`usuario_id` como fuente única** para relaciones
+- **`autor_nombre` calculado** dinámicamente desde relación usuario
+- **Secciones ordenadas alfabéticamente** en frontend
+
+### ⚡ **Performance Mejorado**
+- **Filtros optimizados** usando IDs integer en lugar de strings
+- **Consultas más eficientes** con índices mejorados
+- **Integridad referencial** garantizada por foreign keys
 
 ---
 
@@ -267,14 +283,15 @@ GET /api/noticias/?categoria=tecnologia&limite=10&offset=0
     "id": 1,
     "titulo": "FastAPI supera a Flask",
     "contenido": "Según estadísticas...",
-    "categoria": "tecnologia",
-    "autor": "Sistema",
+    "seccion_id": 1,
+    "autor_nombre": "admin",
     "fecha": "2025-10-14T10:00:00Z",
     "resumen_ia": "FastAPI es ahora el framework...",
     "sentiment_score": null,
     "keywords": null,
     "usuario_id": 1,
-    "proyecto_id": null
+    "proyecto_id": null,
+    "estado": "activo"
   }
 ]
 ```
@@ -300,14 +317,15 @@ GET /api/noticias/1
   "id": 1,
   "titulo": "FastAPI supera a Flask",
   "contenido": "Según estadísticas recientes...",
-  "categoria": "tecnologia",
-  "autor": "Sistema",
+  "seccion_id": 1,
+  "autor_nombre": "admin",
   "fecha": "2025-10-14T10:00:00Z",
   "resumen_ia": "FastAPI es ahora...",
   "sentiment_score": null,
   "keywords": null,
   "usuario_id": 1,
-  "proyecto_id": null
+  "proyecto_id": null,
+  "estado": "activo"
 }
 ```
 
@@ -331,16 +349,18 @@ Content-Type: application/json
 {
   "titulo": "Mi primera noticia",
   "contenido": "Este es el contenido de la noticia con mínimo 20 caracteres.",
-  "categoria": "tecnologia",
-  "autor": "Juan Pérez"
+  "seccion_id": 1,
+  "proyecto_id": null,
+  "llm_id": null,
+  "estado": "activo"
 }
 ```
 
 **Validaciones:**
 - `titulo`: 5-200 caracteres
 - `contenido`: mínimo 20 caracteres
-- `categoria`: debe ser una categoría válida
-- `autor`: opcional, default "Sistema"
+- `seccion_id`: ID de sección válida
+- `usuario_id`: se toma automáticamente del usuario autenticado
 
 **Response 201 Created:**
 ```json
@@ -348,11 +368,12 @@ Content-Type: application/json
   "id": 5,
   "titulo": "Mi primera noticia",
   "contenido": "Este es el contenido...",
-  "categoria": "tecnologia",
-  "autor": "Juan Pérez",
+  "seccion_id": 1,
+  "autor_nombre": "juan_editor",
   "fecha": "2025-10-14T16:23:34Z",
   "resumen_ia": null,
-  "usuario_id": 1
+  "usuario_id": 1,
+  "estado": "activo"
 }
 ```
 

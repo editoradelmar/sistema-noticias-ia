@@ -12,7 +12,15 @@ export default function NoticiasList() {
   const [usuarios, setUsuarios] = useState([]); // Lista de usuarios para filtros
   
   useEffect(() => {
-    seccionService.getAll({ activo: true }).then(data => setSecciones(data || []));
+    // Cargar secciones ordenadas alfabéticamente
+    seccionService.getAll({ activo: true })
+      .then(data => {
+        const seccionesOrdenadas = (data || []).sort((a, b) => 
+          a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+        );
+        setSecciones(seccionesOrdenadas);
+      });
+    
     // Cargar usuarios para el dropdown de filtros
     api.getUsuarios(true).then(data => setUsuarios(data || [])).catch(err => {
       console.error('Error al cargar usuarios:', err);

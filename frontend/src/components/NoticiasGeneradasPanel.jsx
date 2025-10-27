@@ -6,6 +6,9 @@ import Toast from './Toast';
 import { api } from '../services/api';
 
 export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId, loadingGeneracion, loadingPublicacion }) {
+  // Variable de entorno para controlar el modo de funcionamiento
+  const simplifiedMode = import.meta.env.VITE_SIMPLIFIED_PUBLICATION_MODE === 'true';
+  
   const salidas = [
     { key: "impreso", label: "Impreso" },
     { key: "web", label: "Web" },
@@ -177,6 +180,23 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
         throw new Error(`No se encontraron salidas generadas para salida_id(s): ${erroresMapeo.join(', ')}`);
       }
       if (onPublicado) onPublicado();
+      
+      // En modo simplificado, copiar automáticamente al portapapeles
+      if (simplifiedMode && tab && noticiasPorSalida[tab] && noticiasPorSalida[tab].length > 0) {
+        const noticiaSalida = noticiasPorSalida[tab][0];
+        const titulo = typeof tituloPorSalida[noticiaSalida.id] === 'string' ? tituloPorSalida[noticiaSalida.id] : noticiaSalida.titulo;
+        const contenido = typeof contenidoPorSalida[noticiaSalida.id] === 'string' ? contenidoPorSalida[noticiaSalida.id] : noticiaSalida.contenido;
+        if (titulo && titulo.trim().length > 0 && contenido && contenido.trim().length > 0) {
+          const texto = `${titulo}\n\n${contenido}`;
+          try {
+            await navigator.clipboard.writeText(texto);
+            setCopiado(true);
+            setTimeout(() => setCopiado(false), 1800);
+          } catch (clipboardError) {
+            console.warn('No se pudo copiar al portapapeles:', clipboardError);
+          }
+        }
+      }
     } catch (err) {
       console.error("Error al publicar:", err);
       setToast({ show: true, message: 'Error al publicar: ' + (err?.message || 'Error desconocido') });
@@ -249,22 +269,24 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Título de la noticia *</label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors text-xl font-bold"
+                    className={`w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 transition-colors text-xl font-bold ${simplifiedMode ? 'cursor-not-allowed bg-slate-50 dark:bg-slate-800' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'}`}
                     value={typeof tituloPorSalida[noticiaSalida.id] === 'string' ? tituloPorSalida[noticiaSalida.id] : noticiaSalida.titulo}
-                    onChange={e => handleTituloChange(noticiaSalida.id, e.target.value)}
+                    onChange={e => !simplifiedMode && handleTituloChange(noticiaSalida.id, e.target.value)}
                     placeholder="Título de la noticia"
                     maxLength={200}
+                    readOnly={simplifiedMode}
                   />
                 </div>
                 <div className="flex flex-col flex-1">
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Contenido *</label>
                   <textarea
-                    className="w-full flex-1 px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition-colors"
+                    className={`w-full flex-1 px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 resize-none transition-colors ${simplifiedMode ? 'cursor-not-allowed bg-slate-50 dark:bg-slate-800' : 'focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'}`}
                     rows={12}
                     maxLength={2000}
                     value={typeof contenidoPorSalida[noticiaSalida.id] === 'string' ? contenidoPorSalida[noticiaSalida.id] : noticiaSalida.contenido}
-                    onChange={e => handleContenidoChange(noticiaSalida.id, e.target.value)}
+                    onChange={e => !simplifiedMode && handleContenidoChange(noticiaSalida.id, e.target.value)}
                     placeholder="Aquí aparecerá el contenido generado para esta salida..."
+                    readOnly={simplifiedMode}
                   />
                 </div>
               </div>
@@ -284,22 +306,24 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
       <div className="px-6 pb-6">
         <div className="flex gap-2 items-center mt-2 relative">
           <button
-            className={`flex-1 py-3 font-bold rounded-lg flex items-center justify-center gap-2 text-lg transition-all shadow-md dark:shadow-glow-sm ${haySalidaConContenido ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600' : 'bg-slate-300 dark:bg-slate-700 text-slate-400 cursor-not-allowed'}`}
+            className={`${simplifiedMode ? 'w-full' : 'flex-1'} py-3 font-bold rounded-lg flex items-center justify-center gap-2 text-lg transition-all shadow-md dark:shadow-glow-sm ${haySalidaConContenido ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600' : 'bg-slate-300 dark:bg-slate-700 text-slate-400 cursor-not-allowed'}`}
             onClick={handlePublicar}
             style={{ marginTop: 'auto' }}
             disabled={!haySalidaConContenido}
           >
             <Send className="w-5 h-5" />
-            Publicar Noticias
+            {simplifiedMode ? 'Publicar y Copiar' : 'Publicar Noticias'}
           </button>
-          <button
-            className={`p-3 rounded-lg transition-all shadow-md dark:shadow-glow-sm ${haySalidaConContenido ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600' : 'bg-slate-300 dark:bg-slate-700 text-slate-400 cursor-not-allowed'}`}
-            onClick={handleCopiar}
-            disabled={!(noticiasPorSalida[tab] && noticiasPorSalida[tab][0])}
-            title="Copiar al portapapeles"
-          >
-            <Copy className="w-5 h-5" />
-          </button>
+          {!simplifiedMode && (
+            <button
+              className={`p-3 rounded-lg transition-all shadow-md dark:shadow-glow-sm ${haySalidaConContenido ? 'bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600' : 'bg-slate-300 dark:bg-slate-700 text-slate-400 cursor-not-allowed'}`}
+              onClick={handleCopiar}
+              disabled={!(noticiasPorSalida[tab] && noticiasPorSalida[tab][0])}
+              title="Copiar al portapapeles"
+            >
+              <Copy className="w-5 h-5" />
+            </button>
+          )}
           {copiado && (
             <div className="absolute right-0 top-[-2.5rem] bg-blue-600 text-white text-xs px-3 py-1 rounded shadow-lg animate-fade-in-out z-20">
               ¡Copiado al portapapeles!

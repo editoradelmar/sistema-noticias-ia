@@ -4,6 +4,53 @@ Todos los cambios notables del proyecto se documentan en este archivo.
 
 ---
 
+## [2.4.0] - 2025-10-27
+
+### 🏗️ **BREAKING CHANGES - Arquitectura Optimizada**
+
+#### Refactorización de Estructura de Datos
+- **🔗 usuario_id como fuente única**: Eliminación del campo `autor` redundante
+- **⚡ Performance mejorado**: Filtros basados en índices integer en lugar de strings
+- **🔒 Integridad referencial**: Foreign keys garantizan consistencia de datos
+- **📊 Modelo ORM simplificado**: Eliminación de redundancias y propiedades optimizadas
+
+#### Mejoras de UX/UI
+- **🔤 Ordenamiento alfabético**: Secciones ordenadas en todos los dropdowns
+- **🧹 Código limpio**: Eliminación de archivos temporales y de diagnóstico
+- **📱 Consistencia visual**: Mantenimiento de la experiencia de usuario
+
+#### Cambios en API
+- **Campo `autor` eliminado** de requests y responses
+- **`autor_nombre` calculado** dinámicamente desde relación usuario
+- **Respuestas optimizadas** con estructura de datos consistente
+- **Filtros mejorados** usando usuario_id para mejor performance
+
+#### Migración de Datos
+- **Scripts de limpieza** ejecutados automáticamente
+- **Integridad preservada** durante la transición
+- **Backwards compatibility** en schemas donde sea necesario
+
+### 🔧 **Technical Improvements**
+
+#### Backend Optimizations
+- Simplificación del modelo `Noticia` en `orm_models.py`
+- Actualización de routers para usar solo `usuario_id`
+- Optimización de `generador_ia.py` con relaciones mejoradas
+- Eliminación de archivos de diagnóstico y migración temporales
+
+#### Frontend Enhancements  
+- Implementación de ordenamiento alfabético en `NoticiasList.jsx`
+- Optimización de carga de secciones en `NoticiaForm.jsx`
+- Mantenimiento de filtros existentes con mejor performance
+
+#### Documentation Updates
+- Actualización completa de `README.md` con arquitectura v2.4.0
+- Modernización de `ARCHITECTURE.md` con nuevos diagramas
+- Revisión de `API_REFERENCE.md` con ejemplos actualizados
+- Expansión de `CHANGELOG.md` con detalles técnicos
+
+---
+
 ## [2.3.2] - 2025-10-27
 
 ### 🚀 Added - Funcionalidad Drag & Drop
