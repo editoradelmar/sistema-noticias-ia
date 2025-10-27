@@ -1,4 +1,4 @@
-# 🚀 Sistema de Noticias con IA v2.3.0
+# 🚀 Sistema de Noticias con IA v2.3.2
 
 Sistema profesional de gestión de noticias con **autenticación JWT**, **PostgreSQL**, **sistema de maestros multi-LLM** e integración de inteligencia artificial avanzada usando **FastAPI + React + Gemini/Claude**.
 
@@ -46,6 +46,9 @@ Sistema profesional de gestión de noticias con **autenticación JWT**, **Postgr
 - ✅ **Indicadores de carga** y feedback visual
 - ✅ **Animaciones fluidas** y micro-interacciones
 - ✅ **Interfaz completamente en español**
+- ✅ **Drag & Drop de archivos** (PDF, TXT, DOC, DOCX) con extracción automática
+- ✅ **Generación inteligente de títulos** basada en contenido del archivo
+- ✅ **Límites extendidos** de contenido (hasta 10,000 caracteres)
 
 ---
 
@@ -512,13 +515,32 @@ El sistema incluye 3 usuarios preconfigurados:
 
 Solo visible para **Admin** y **Editor**:
 
+#### 📁 Opción 1: Subir Archivo (Nuevo)
 1. Click en pestaña "✨ Crear"
-2. Completa el formulario:
-   - **Título**: Mínimo 5 caracteres
-   - **Contenido**: Mínimo 20 caracteres
-   - **Categoría**: Selecciona una
+2. **Arrastra un archivo** a la zona de drag & drop o **haz clic para seleccionar**
+   - **Formatos soportados**: PDF, TXT, DOC, DOCX
+   - **Tamaño máximo**: 10MB
+3. ✅ **Título y contenido se llenan automáticamente**:
+   - **Título**: Extraído inteligentemente del contenido
+   - **Contenido**: Texto completo del archivo (hasta 10,000 caracteres)
+4. **Revisa y edita** los campos si es necesario
+5. Selecciona **Sección** y **configuración adicional**
+6. Click "Publicar Noticia"
+
+#### ✏️ Opción 2: Escritura Manual
+1. Click en pestaña "✨ Crear"
+2. Completa el formulario manualmente:
+   - **Título**: Mínimo 5 caracteres, máximo 200
+   - **Contenido**: Mínimo 20 caracteres, máximo 10,000
+   - **Sección**: Selecciona una (obligatorio)
 3. Click "Publicar Noticia"
 4. ✅ Noticia creada y vinculada a tu usuario
+
+**💡 Características avanzadas:**
+- **Contador de caracteres** en tiempo real
+- **Validación inteligente** de archivos
+- **Generación automática de títulos** basada en contenido
+- **Múltiples formatos** de archivo soportados
 
 ### 4. Generar Resumen con IA
 

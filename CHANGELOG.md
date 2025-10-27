@@ -4,6 +4,59 @@ Todos los cambios notables del proyecto se documentan en este archivo.
 
 ---
 
+## [2.3.2] - 2025-10-27
+
+### 🚀 Added - Funcionalidad Drag & Drop
+
+#### Subida de Archivos Inteligente
+- **Drag & Drop**: Zona visual para arrastrar y soltar archivos
+- **Formatos soportados**: PDF, TXT, DOC, DOCX (máximo 10MB)
+- **Extracción automática**: Contenido real de archivos TXT
+- **Validación robusta**: Tipos MIME y límites de tamaño
+- **Estados visuales**: Loading, success, error con iconos animados
+
+#### Generación Inteligente de Títulos
+- **Análisis de contenido**: Extrae títulos de las primeras líneas del archivo
+- **Palabras clave**: Identifica términos importantes y nombres propios
+- **Múltiples estrategias**: Fallbacks inteligentes para garantizar títulos descriptivos
+- **Límite inteligente**: Títulos optimizados entre 15-100 caracteres
+
+#### Mejoras de UX
+- **Orden reorganizado**: Drag & drop aparece antes que título/contenido
+- **Llenado automático**: Título y contenido se populan simultáneamente
+- **Límites extendidos**: Contenido hasta 10,000 caracteres (antes 2,000)
+- **Contador visual**: Indicador de caracteres con colores de advertencia
+- **Función limpiar**: Botón para resetear y subir otro archivo
+
+#### Integración con IA
+- **Títulos AI-generados**: Sistema mejorado para generar títulos únicos
+- **Parsing estructurado**: Respuestas con formato "TÍTULO:" y "CONTENIDO:"
+- **Modo simulado**: Procesamiento de archivos con backend placeholder
+- **Compatibilidad**: Funciona con el sistema multi-LLM existente
+
+### � Security - Mejoras de Seguridad
+
+#### Parametrización de Modo Desarrollo
+- **Acceso rápido**: Solo visible en modo desarrollo (`npm run dev`)
+- **Producción segura**: Botones de login rápido ocultos en `npm run build`
+- **Variable de entorno**: Usa `import.meta.env.MODE` para control automático
+- **Sin configuración manual**: Cambio automático según comando de ejecución
+
+### �🛠️ Fixed
+- Iconos faltantes en lucide-react (CloudUpload, FilePlus, FileCheck)
+- Estados duplicados en componente NoticiaForm
+- Límites de contenido que causaban truncamiento
+- Títulos genéricos reemplazados por títulos descriptivos
+- **Riesgo de seguridad**: Acceso rápido ahora oculto en producción
+
+### 📚 Updated
+- **NoticiaForm.jsx**: Reestructurado con 70+ líneas de funcionalidad drag & drop
+- **Login.jsx**: Parametrización de modo desarrollo con conditional rendering
+- **README.md**: Versión actualizada a 2.3.2 con nuevas características
+- **Documentación**: Nuevas funcionalidades y mejoras de seguridad documentadas
+
+---
+
 ## [2.3.1] - 2025-10-25
 
 ### 🌐 Added - Acceso Externo y Fixes de Conectividad

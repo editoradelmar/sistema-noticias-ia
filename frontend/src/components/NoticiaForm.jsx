@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Save, FileText, AlertCircle, X, Upload, File, Check } from 'lucide-react';
+import { Save, FileText, AlertCircle, X, Upload, File, Check, Loader2 } from 'lucide-react';
 import { api } from '../services/api';
 import { seccionService } from '../services/maestros';
 import { useAuth } from '../context/AuthContext';
@@ -23,6 +23,13 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
     salidas_ids: [],
     llm_id: ''
   });
+
+  // Estados para Drag & Drop y manejo de archivos
+  const [dragActive, setDragActive] = useState(false);
+  const [fileUploading, setFileUploading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [fileError, setFileError] = useState('');
+  const [processingFile, setProcessingFile] = useState(false);
 
   // Hook de secciones: SIEMPRE debe estar al inicio del componente
   const [secciones, setSecciones] = useState([]);
@@ -48,12 +55,6 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
     }
   }, [noticia]);
   const [error, setError] = useState('');
-
-  // Estados para drag & drop y upload de archivos
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -107,6 +108,152 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
     }
   };
 
+  // ==================== FUNCIONES DRAG & DROP ====================
+  
+  // Validación de tipos de archivo permitidos
+  const validateFile = (file) => {
+    const allowedTypes = [
+      'application/pdf',
+      'text/plain',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    if (!allowedTypes.includes(file.type)) {
+      return { valid: false, error: 'Tipo de archivo no permitido. Use PDF, TXT, DOC o DOCX.' };
+    }
+    
+    if (file.size > maxSize) {
+      return { valid: false, error: 'El archivo es demasiado grande. Máximo 10MB.' };
+    }
+    
+    return { valid: true };
+  };
+
+  // Manejo de eventos drag & drop
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDragIn = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+  }, []);
+
+  const handleDragOut = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = [...e.dataTransfer.files];
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  }, []);
+
+  // Función para generar título inteligente basado en el contenido
+  const generateSmartTitle = (content) => {
+    if (!content || content.length < 50) {
+      return 'Noticia extraída de archivo';
+    }
+
+    // Separar líneas y limpiar
+    const lines = content.split('\n').filter(line => line.trim().length > 0);
+    
+    // La primera línea no vacía suele ser el título
+    if (lines.length > 0) {
+      const firstLine = lines[0].trim();
+      
+      // Si la primera línea parece un título (no muy corta, no muy larga)
+      if (firstLine.length > 10 && firstLine.length < 200) {
+        return firstLine;
+      }
+    }
+
+    // Buscar en las primeras 3 líneas una que parezca título
+    for (let i = 0; i < Math.min(3, lines.length); i++) {
+      const line = lines[i].trim();
+      if (line.length > 15 && line.length < 150 && !line.endsWith('.') && !line.includes(':')) {
+        return line;
+      }
+    }
+
+    // Fallback: usar las primeras palabras del contenido
+    const firstWords = content.substring(0, 100).trim();
+    return firstWords + (content.length > 100 ? '...' : '');
+  };
+
+  // Procesamiento de archivo subido
+  const handleFileUpload = async (file) => {
+    setFileError('');
+    
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      setFileError(validation.error);
+      return;
+    }
+
+    setFileUploading(true);
+    setUploadedFile(file);
+
+    try {
+      let extractedText = '';
+      
+      // Leer el contenido real del archivo según su tipo
+      if (file.type === 'text/plain') {
+        // Para archivos TXT, leer directamente el texto
+        extractedText = await file.text();
+      } else if (file.type === 'application/pdf' || 
+                 file.type === 'application/msword' || 
+                 file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        // Para PDF, DOC, DOCX - por ahora simular hasta implementar backend
+        // TODO: Implementar extracción real con backend
+        extractedText = `[Contenido del archivo ${file.name}]
+
+Este archivo requiere procesamiento en el servidor para extraer el texto. 
+Por favor, implementa la funcionalidad de backend para extraer texto de archivos PDF, DOC y DOCX.
+
+Mientras tanto, puedes copiar y pegar el contenido manualmente en este campo.`;
+      } else {
+        throw new Error('Tipo de archivo no soportado');
+      }
+
+      // Generar título inteligente basado en la PRIMERA LÍNEA del contenido
+      const smartTitle = generateSmartTitle(extractedText);
+
+      // El contenido será TODO el texto extraído (incluyendo la primera línea)
+      // INVERTIR: título inteligente, contenido completo
+      setForm(f => ({ 
+        ...f, 
+        titulo: smartTitle,           // ← Título extraído de la primera línea
+        contenido: extractedText      // ← Todo el contenido del archivo
+      }));
+      
+      setFileUploading(false);
+    } catch (error) {
+      setFileError('Error al procesar el archivo: ' + error.message);
+      setFileUploading(false);
+      setUploadedFile(null);
+    }
+  };
+
+  // Manejo de selección manual de archivo
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-xl dark:shadow-glow-md overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -148,6 +295,101 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
             </div>
           )}
           */}
+
+          {/* Zona de Drag & Drop para archivos */}
+          <div className="space-y-3">
+            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">
+              Subir archivo (opcional)
+            </label>
+            
+            {/* Zona de drag & drop */}
+            <div
+              className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
+                dragActive
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                  : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
+              } ${
+                fileUploading ? 'pointer-events-none opacity-75' : 'cursor-pointer'
+              }`}
+              onDragEnter={handleDragIn}
+              onDragLeave={handleDragOut}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() => !fileUploading && document.getElementById('file-input').click()}
+            >
+              {/* Input oculto para selección manual */}
+              <input
+                id="file-input"
+                type="file"
+                accept=".pdf,.txt,.doc,.docx"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={fileUploading}
+              />
+              
+              {/* Contenido de la zona drag & drop */}
+              <div className="flex flex-col items-center justify-center text-center">
+                {fileUploading ? (
+                  <>
+                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-3" />
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Procesando archivo...
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Extrayendo contenido de {uploadedFile?.name}
+                    </p>
+                  </>
+                ) : uploadedFile && !fileUploading ? (
+                  <>
+                    <Check className="w-12 h-12 text-green-500 mb-3" />
+                    <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                      Archivo procesado exitosamente
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {uploadedFile.name} • {(uploadedFile.size / 1024).toFixed(1)} KB
+                    </p>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setUploadedFile(null);
+                        setForm(f => ({ ...f, contenido: '', titulo: '' }));
+                      }}
+                      className="mt-2 text-xs text-slate-500 hover:text-red-500 transition-colors"
+                    >
+                      Limpiar y subir otro archivo
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {dragActive ? (
+                      <Upload className="w-12 h-12 text-blue-500 mb-3" />
+                    ) : (
+                      <File className="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" />
+                    )}
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      {dragActive ? 'Suelta el archivo aquí' : 'Arrastra un archivo o haz clic para seleccionar'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Soporta PDF, TXT, DOC y DOCX (máx. 10MB)
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Mensaje de error */}
+            {fileError && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-600 dark:text-red-400">{fileError}</p>
+              </div>
+            )}
+            
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Al subir un archivo, su contenido llenará automáticamente los campos de título y contenido
+            </p>
+          </div>
 
           {/* Título */}
           <div>

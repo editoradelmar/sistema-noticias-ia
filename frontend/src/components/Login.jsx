@@ -161,36 +161,38 @@ export default function Login({ onSwitchToRegister }) {
             </p>
           </div>
 
-          {/* Quick Login (Development) */}
-          <div className="mt-6 pt-6 border-t-2 border-slate-100 dark:border-slate-800">
-            <p className="text-xs text-slate-500 dark:text-slate-500 text-center mb-3">Acceso rápido (Desarrollo)</p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => quickLogin('admin@sistema.com', 'admin123456')}
-                disabled={loading}
-                className="px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors border border-red-200 dark:border-red-800"
-              >
-                Administrador
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('editor@sistema.com', 'editor123')}
-                disabled={loading}
-                className="px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 transition-colors border border-emerald-200 dark:border-emerald-800"
-              >
-                Editor
-              </button>
-              <button
-                type="button"
-                onClick={() => quickLogin('viewer@sistema.com', 'viewer123')}
-                disabled={loading}
-                className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 disabled:opacity-50 transition-colors border border-blue-200 dark:border-blue-800"
-              >
-                Lector
-              </button>
+          {/* Quick Login (Development) - Solo visible en modo desarrollo */}
+          {import.meta.env.MODE === 'development' && (
+            <div className="mt-6 pt-6 border-t-2 border-slate-100 dark:border-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-500 text-center mb-3">Acceso rápido (Desarrollo)</p>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => quickLogin('admin@sistema.com', 'admin123456')}
+                  disabled={loading}
+                  className="px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs font-bold rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-50 transition-colors border border-red-200 dark:border-red-800"
+                >
+                  Administrador
+                </button>
+                <button
+                  type="button"
+                  onClick={() => quickLogin('editor@sistema.com', 'editor123')}
+                  disabled={loading}
+                  className="px-3 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 disabled:opacity-50 transition-colors border border-emerald-200 dark:border-emerald-800"
+                >
+                  Editor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => quickLogin('viewer@sistema.com', 'viewer123')}
+                  disabled={loading}
+                  className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-xs font-bold rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 disabled:opacity-50 transition-colors border border-blue-200 dark:border-blue-800"
+                >
+                  Lector
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}

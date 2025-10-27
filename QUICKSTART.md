@@ -1,5 +1,5 @@
 
-# ⚡ Guía de Inicio Rápido - Sistema de Noticias con IA v2.3.0
+# ⚡ Guía de Inicio Rápido - Sistema de Noticias con IA v2.3.2
 
 > **🎯 Objetivo:** Tener el sistema completo funcionando en **menos de 10 minutos**
 
@@ -185,7 +185,7 @@ docker-compose down
 
 1. **Abrir** http://localhost:5173
 2. **Cargar datos:** Click en "Cargar Ejemplos"
-3. **Crear noticia:** Click en "Crear" → llenar formulario
+3. **Crear noticia:** Click en "Crear" → **arrastrar archivo (PDF/TXT/DOC/DOCX)** o llenar formulario manualmente
 4. **Generar resumen:** Click en "Generar resumen con IA"
 5. **Chat:** Click en "Chat IA" → hacer preguntas
 
@@ -435,7 +435,7 @@ ANTHROPIC_API_KEY=sk-ant-api-key-aqui
 
 ### 3. **Probar Funcionalidades**
 ```bash
-✅ Crear noticias manualmente
+✅ Crear noticias manualmente o **subiendo archivos (drag & drop)**
 ✅ Generar contenido con IA 
 ✅ Probar generación multi-salida
 ✅ Usar el chat inteligente
