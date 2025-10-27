@@ -122,7 +122,7 @@ class GeneradorIA:
                 tiempo_ms = int((time.time() - inicio) * 1000)
                 
                 # Extraer información del prompt para simular mejor
-                titulo_extraido = "Título de la noticia"
+                titulo_original = "Título de la noticia"
                 contenido_original = "Contenido original de la noticia"
                 
                 # Intentar extraer datos reales del prompt si es posible
@@ -130,7 +130,7 @@ class GeneradorIA:
                     # Buscar patrones en el prompt
                     titulo_match = re.search(r'TÍTULO:\s*(.+)', prompt_contenido)
                     if titulo_match:
-                        titulo_extraido = titulo_match.group(1).strip()
+                        titulo_original = titulo_match.group(1).strip()
                     
                     contenido_match = re.search(r'CONTENIDO ORIGINAL:\s*(.+?)(?:\nSECCIÓN:|$)', prompt_contenido, re.DOTALL)
                     if contenido_match:
@@ -140,18 +140,31 @@ class GeneradorIA:
                 if contenido_original == "Contenido original de la noticia":
                     contenido_original = "Este es el contenido procesado por IA en modo simulado. El contenido original ha sido optimizado según el prompt y estilo configurados para esta salida."
                 
-                # Generar contenido simulado más realista
-                contenido = f"""**{titulo_extraido}**
+                # Generar título simulado DIFERENTE al original
+                prefijos_simulados = [
+                    "IA optimiza:", "Nuevo enfoque:", "Transformado:", "Actualización:", 
+                    "Versión IA:", "Mejorado:", "Adaptado:", "Rediseñado:"
+                ]
+                import random
+                titulo_simulado = f"{random.choice(prefijos_simulados)} {titulo_original[:150]}"
+                
+                # Generar respuesta simulada con formato estructurado
+                respuesta_simulada = f"""TÍTULO: {titulo_simulado}
 
+CONTENIDO:
 {contenido_original}
 
 ---
-*✨ Contenido optimizado con IA ({llm.nombre})*
-*🔧 Modo simulado - Configura API key para usar IA real*
+*✨ Contenido optimizado con IA ({llm.nombre}) - MODO SIMULADO*
+*🔧 Configura API key para usar IA real*
 *📅 Procesado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
                 
+                # Parsear la respuesta simulada para extraer título y contenido
+                resultado_parseado = self._parsear_respuesta_estructurada(respuesta_simulada)
+                
                 return {
-                    "contenido": contenido,
+                    "contenido": resultado_parseado["contenido"],
+                    "titulo": resultado_parseado["titulo"],
                     "tokens_usados": 150,  # Simulado
                     "tiempo_ms": tiempo_ms
                 }
@@ -232,8 +245,13 @@ class GeneradorIA:
             print("[DEBUG] Contenido generado por el LLM:\n", contenido)
             if not contenido or len(contenido.strip()) < 10:
                 raise Exception("El LLM devolvió un contenido vacío o muy corto. Revisa el prompt y la configuración del modelo.")
+            
+            # Parsear la respuesta estructurada para extraer título y contenido
+            resultado_parseado = self._parsear_respuesta_estructurada(contenido)
+            
             return {
-                "contenido": contenido,
+                "contenido": resultado_parseado["contenido"],
+                "titulo": resultado_parseado["titulo"],
                 "tokens_usados": tokens_usados,
                 "tiempo_ms": tiempo_ms
             }
@@ -262,8 +280,13 @@ class GeneradorIA:
                 if contenido_original == "Contenido original de la noticia":
                     contenido_original = "Este es el contenido procesado por IA en modo simulado. El contenido original ha sido optimizado según el prompt y estilo configurados para esta salida."
                 
-                contenido = f"""**{titulo_extraido}**
+                # Generar título simulado DIFERENTE al original para modo error
+                titulo_error = f"Error API - {titulo_extraido[:150]}"
+                
+                # Generar respuesta simulada con formato estructurado para error
+                respuesta_error = f"""TÍTULO: {titulo_error}
 
+CONTENIDO:
 {contenido_original}
 
 ---
@@ -271,8 +294,12 @@ class GeneradorIA:
 *🔧 Error de API detectado - Configura API key válida para usar IA real*
 *📅 Procesado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
                 
+                # Parsear la respuesta de error
+                resultado_error = self._parsear_respuesta_estructurada(respuesta_error)
+                
                 return {
-                    "contenido": contenido,
+                    "contenido": resultado_error["contenido"],
+                    "titulo": resultado_error["titulo"],
                     "tokens_usados": 150,  # Simulado
                     "tiempo_ms": tiempo_ms
                 }
@@ -491,7 +518,7 @@ Genera el contenido optimizado:"""
                 NoticiaSalida.salida_id == salida.id
             ).first()
             if noticia_salida:
-                noticia_salida.titulo = noticia.titulo
+                noticia_salida.titulo = resultado["titulo"]  # ← CAMBIO: usar título generado por IA
                 noticia_salida.contenido_generado = resultado["contenido"]
                 noticia_salida.tokens_usados = resultado["tokens_usados"]
                 noticia_salida.tiempo_generacion_ms = resultado["tiempo_ms"]
@@ -500,7 +527,7 @@ Genera el contenido optimizado:"""
                 noticia_salida = NoticiaSalida(
                     noticia_id=noticia.id,
                     salida_id=salida.id,
-                    titulo=noticia.titulo,
+                    titulo=resultado["titulo"],  # ← CAMBIO: usar título generado por IA
                     contenido_generado=resultado["contenido"],
                     tokens_usados=resultado["tokens_usados"],
                     tiempo_generacion_ms=resultado["tiempo_ms"]
@@ -510,7 +537,7 @@ Genera el contenido optimizado:"""
             noticia_salida = NoticiaSalida(
                 noticia_id=noticia.id,
                 salida_id=salida.id,
-                titulo=noticia.titulo,
+                titulo=resultado["titulo"],  # ← CAMBIO: usar título generado por IA
                 contenido_generado=resultado["contenido"],
                 tokens_usados=resultado["tokens_usados"],
                 tiempo_generacion_ms=resultado["tiempo_ms"]
@@ -733,7 +760,7 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
             "id": None,  # Temporal - no tiene ID de BD
             "noticia_id": getattr(noticia_temporal, 'id', None),
             "salida_id": salida.id,
-            "titulo": noticia_temporal.titulo,
+            "titulo": resultado["titulo"],  # ← CAMBIO: usar título generado por IA
             "contenido_generado": resultado["contenido"],
             "tokens_usados": resultado["tokens_usados"],
             "tiempo_generacion_ms": resultado["tiempo_ms"],
@@ -771,3 +798,72 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         }
         
         return max_tokens.get(salida.tipo_salida, 1500)
+    
+    def _parsear_respuesta_estructurada(self, contenido_respuesta: str) -> Dict[str, str]:
+        """
+        Parsea la respuesta del LLM para extraer título y contenido por separado
+        
+        Args:
+            contenido_respuesta: Respuesta completa del LLM con formato "TÍTULO: ... CONTENIDO: ..."
+            
+        Returns:
+            Dict con 'titulo' y 'contenido' extraídos
+        """
+        import re
+        
+        # Patrón para capturar TÍTULO: y CONTENIDO:
+        patron_titulo = r'TÍTULO:\s*(.+?)(?=\n\s*CONTENIDO:|$)'
+        patron_contenido = r'CONTENIDO:\s*(.+)'
+        
+        # Extraer título
+        match_titulo = re.search(patron_titulo, contenido_respuesta, re.DOTALL | re.IGNORECASE)
+        titulo_extraido = match_titulo.group(1).strip() if match_titulo else ""
+        
+        # Extraer contenido
+        match_contenido = re.search(patron_contenido, contenido_respuesta, re.DOTALL | re.IGNORECASE)
+        contenido_extraido = match_contenido.group(1).strip() if match_contenido else ""
+        
+        # Si no se pudo parsear el formato, usar fallbacks
+        if not titulo_extraido or not contenido_extraido:
+            print(f"[WARNING] No se pudo parsear respuesta estructurada. Usando fallbacks.")
+            
+            # Fallback: usar las primeras líneas como título si no hay estructura
+            lineas = contenido_respuesta.strip().split('\n')
+            if not titulo_extraido and len(lineas) > 0:
+                # Buscar una línea que parezca título (corta, sin punto final)
+                for linea in lineas[:3]:
+                    linea_limpia = linea.strip()
+                    if 10 <= len(linea_limpia) <= 200 and not linea_limpia.endswith('.'):
+                        titulo_extraido = linea_limpia
+                        break
+                
+                # Si no encontró un título apropiado, usar la primera línea
+                if not titulo_extraido:
+                    titulo_extraido = lineas[0].strip()[:200]
+            
+            # Fallback: usar todo el contenido si no se encontró separación
+            if not contenido_extraido:
+                contenido_extraido = contenido_respuesta.strip()
+        
+        # Limpiar y validar
+        titulo_extraido = titulo_extraido.replace('TÍTULO:', '').strip()
+        contenido_extraido = contenido_extraido.replace('CONTENIDO:', '').strip()
+        
+        # Validaciones básicas
+        if len(titulo_extraido) > 200:
+            titulo_extraido = titulo_extraido[:200].strip()
+        
+        if len(titulo_extraido) < 10:
+            titulo_extraido = "Título generado por IA"
+        
+        if len(contenido_extraido) < 50:
+            contenido_extraido = f"{titulo_extraido}\n\n{contenido_extraido}" if contenido_extraido else f"Contenido generado automáticamente para {titulo_extraido}"
+        
+        print(f"[DEBUG] Parsing completado:")
+        print(f"[DEBUG] - Título extraído: '{titulo_extraido[:50]}...'")
+        print(f"[DEBUG] - Contenido extraído: {len(contenido_extraido)} caracteres")
+        
+        return {
+            "titulo": titulo_extraido,
+            "contenido": contenido_extraido
+        }

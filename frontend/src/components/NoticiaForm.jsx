@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { Save, FileText, AlertCircle, X } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Save, FileText, AlertCircle, X, Upload, File, Check } from 'lucide-react';
 import { api } from '../services/api';
 import { seccionService } from '../services/maestros';
 import { useAuth } from '../context/AuthContext';
@@ -49,6 +49,12 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
   }, [noticia]);
   const [error, setError] = useState('');
 
+  // Estados para drag & drop y upload de archivos
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
@@ -73,6 +79,10 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
     }
     if (!form.contenido || form.contenido.trim().length < 20) {
       setError('El contenido debe tener al menos 20 caracteres');
+      return;
+    }
+    if (form.contenido.trim().length > 10000) {
+      setError('El contenido no puede exceder 10,000 caracteres');
       return;
     }
     if (!form.seccion_id) {
@@ -168,14 +178,25 @@ export default function NoticiaForm({ noticia, loading, onClose, onGenerarNotici
               value={form.contenido}
               onChange={handleChange}
               required
-              rows={5}
-              maxLength={2000}
+              rows={8}
+              maxLength={10000}
               placeholder="Escriba el cuerpo de la noticia..."
               className="w-full px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none transition-colors"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Mínimo 10 caracteres, máximo 2000
-            </p>
+            <div className="flex justify-between items-center mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Mínimo 20 caracteres, máximo 10,000
+              </p>
+              <p className={`text-xs font-mono ${
+                form.contenido.length > 10000 
+                  ? 'text-red-500 dark:text-red-400' 
+                  : form.contenido.length > 8500 
+                    ? 'text-orange-500 dark:text-orange-400'
+                    : 'text-slate-500 dark:text-slate-400'
+              }`}>
+                {form.contenido.length.toLocaleString()}/10,000
+              </p>
+            </div>
           </div>
 
           {/* Sección */}
