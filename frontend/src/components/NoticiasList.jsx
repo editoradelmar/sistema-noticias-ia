@@ -5,7 +5,7 @@ import { seccionService } from '../services/maestros';
 import NoticiaForm from './NoticiaForm';
 import NoticiaGeneracionVista from '../NoticiaGeneracionVista';
 import { useAuth } from '../context/AuthContext';
-import { RefreshCw, FileText, Edit, Trash2, Search, Power, PowerOff, Grid, List, Calendar, User, Filter, ChevronDown, ChevronUp, SortAsc, SortDesc } from 'lucide-react';
+import { RefreshCw, FileText, Edit, Trash2, Search, Power, PowerOff, Grid, List, Calendar, User, Filter, ChevronDown, ChevronUp, SortAsc, SortDesc, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function NoticiasList() {
   const [secciones, setSecciones] = useState([]);
@@ -55,10 +55,18 @@ export default function NoticiasList() {
   // Nuevos filtros avanzados
   const [filtroUsuario, setFiltroUsuario] = useState('');
   const [filtroSeccion, setFiltroSeccion] = useState('');
-  const [filtroFechaDesde, setFiltroFechaDesde] = useState('');
-  const [filtroFechaHasta, setFiltroFechaHasta] = useState('');
+  
+  // Inicializar filtros de fecha con el día actual por defecto
+  const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState(fechaHoy);
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState(fechaHoy);
+  
   const [ordenamiento, setOrdenamiento] = useState('fecha_desc'); // fecha_desc, fecha_asc, titulo_asc, titulo_desc
   const [mostrarFiltrosAvanzados, setMostrarFiltrosAvanzados] = useState(false);
+  
+  // Estados de paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [itemsPorPagina, setItemsPorPagina] = useState(12); // 12 noticias por página por defecto
   
   const { token, isAdmin, canEdit } = useAuth();
 
@@ -102,8 +110,80 @@ export default function NoticiasList() {
     }
   });
 
+  // ==================== LÓGICA DE PAGINACIÓN ====================
+  
+  // Calcular paginación
+  const totalItems = noticiasFiltradas.length;
+  const totalPaginas = Math.ceil(totalItems / itemsPorPagina);
+  const indiceInicio = (paginaActual - 1) * itemsPorPagina;
+  const indiceFinal = Math.min(indiceInicio + itemsPorPagina, totalItems);
+  
+  // Noticias de la página actual
+  const noticiasParaMostrar = noticiasFiltradas.slice(indiceInicio, indiceFinal);
+  
+  // Resetear página cuando cambian los filtros
+  const resetearPagina = () => {
+    setPaginaActual(1);
+  };
+  
+  // Effect para resetear página cuando cambian filtros
+  useEffect(() => {
+    resetearPagina();
+  }, [filtro, filtroUsuario, filtroSeccion, filtroFechaDesde, filtroFechaHasta, estadoFiltro]);
+
   // Ya no necesitamos extraer usuarios de las noticias, usamos la lista cargada
   // const usuariosUnicos = [...new Set(noticias.map(n => n.autor_nombre).filter(Boolean))].sort();
+
+  // ==================== FUNCIONES DE FILTROS DE FECHA ====================
+  
+  const filtrarHoy = () => {
+    const hoy = new Date().toISOString().split('T')[0];
+    setFiltroFechaDesde(hoy);
+    setFiltroFechaHasta(hoy);
+    setPaginaActual(1);
+  };
+
+  const filtrarAyer = () => {
+    const ayer = new Date();
+    ayer.setDate(ayer.getDate() - 1);
+    const fechaAyer = ayer.toISOString().split('T')[0];
+    setFiltroFechaDesde(fechaAyer);
+    setFiltroFechaHasta(fechaAyer);
+    setPaginaActual(1);
+  };
+
+  const filtrarUltimaSemana = () => {
+    const hoy = new Date();
+    const semanaAtras = new Date();
+    semanaAtras.setDate(hoy.getDate() - 7);
+    setFiltroFechaDesde(semanaAtras.toISOString().split('T')[0]);
+    setFiltroFechaHasta(hoy.toISOString().split('T')[0]);
+    setPaginaActual(1);
+  };
+
+  const filtrarUltimoMes = () => {
+    const hoy = new Date();
+    const mesAtras = new Date();
+    mesAtras.setMonth(hoy.getMonth() - 1);
+    setFiltroFechaDesde(mesAtras.toISOString().split('T')[0]);
+    setFiltroFechaHasta(hoy.toISOString().split('T')[0]);
+    setPaginaActual(1);
+  };
+
+  const limpiarFiltrosFecha = () => {
+    setFiltroFechaDesde('');
+    setFiltroFechaHasta('');
+    setPaginaActual(1);
+  };
+
+  const limpiarTodosFiltros = () => {
+    setFiltro('');
+    setFiltroUsuario('');
+    setFiltroSeccion('');
+    setFiltroFechaDesde('');
+    setFiltroFechaHasta('');
+    setPaginaActual(1);
+  };
 
   useEffect(() => {
     fetchNoticias();
@@ -390,20 +470,55 @@ export default function NoticiasList() {
                 </div>
               </div>
               
+              {/* Botones de filtro rápido */}
+              <div className="mt-4 border-t border-slate-200 dark:border-slate-600 pt-4">
+                <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Filtros rápidos:</h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={filtrarHoy}
+                    className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-all flex items-center gap-1"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    Hoy
+                  </button>
+                  <button
+                    onClick={filtrarAyer}
+                    className="px-3 py-1.5 bg-amber-600 text-white text-xs rounded-lg hover:bg-amber-700 transition-all flex items-center gap-1"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    Ayer
+                  </button>
+                  <button
+                    onClick={filtrarUltimaSemana}
+                    className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition-all flex items-center gap-1"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    Última semana
+                  </button>
+                  <button
+                    onClick={filtrarUltimoMes}
+                    className="px-3 py-1.5 bg-purple-600 text-white text-xs rounded-lg hover:bg-purple-700 transition-all flex items-center gap-1"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    Último mes
+                  </button>
+                  <button
+                    onClick={limpiarFiltrosFecha}
+                    className="px-3 py-1.5 bg-slate-500 text-white text-xs rounded-lg hover:bg-slate-600 transition-all flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    Ver todo
+                  </button>
+                </div>
+              </div>
+              
               {/* Botón limpiar filtros */}
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={() => {
-                    setFiltroUsuario('');
-                    setFiltroSeccion('');
-                    setFiltroFechaDesde('');
-                    setFiltroFechaHasta('');
-                    setOrdenamiento('fecha_desc');
-                    setFiltro('');
-                  }}
+                  onClick={limpiarTodosFiltros}
                   className="px-4 py-2 bg-slate-600 dark:bg-slate-700 text-white text-sm rounded-lg hover:bg-slate-700 dark:hover:bg-slate-600 transition-all"
                 >
-                  Limpiar filtros
+                  Limpiar todos los filtros
                 </button>
               </div>
             </div>
@@ -416,20 +531,59 @@ export default function NoticiasList() {
         <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
           <FileText className="w-4 h-4" />
           <span>
-            Mostrando <span className="font-bold text-slate-900 dark:text-slate-100">{noticiasFiltradas.length}</span> de{' '}
-            <span className="font-bold">{noticias.length}</span> noticias
-            {(filtro || filtroUsuario || filtroSeccion || filtroFechaDesde || filtroFechaHasta) && (
-              <span className="text-blue-600 dark:text-blue-400 ml-1">(filtradas)</span>
+            Mostrando <span className="font-bold text-slate-900 dark:text-slate-100">{indiceInicio + 1}-{indiceFinal}</span> de{' '}
+            <span className="font-bold">{totalItems}</span> noticias
+            {totalPaginas > 1 && (
+              <span className="text-slate-500 dark:text-slate-400 ml-1">
+                (página {paginaActual} de {totalPaginas})
+              </span>
+            )}
+            
+            {/* Indicador específico de filtros */}
+            {filtroFechaDesde && filtroFechaHasta && filtroFechaDesde === filtroFechaHasta && (
+              <span className="text-blue-600 dark:text-blue-400 ml-1 font-medium">
+                {filtroFechaDesde === new Date().toISOString().split('T')[0] 
+                  ? '(del día de hoy)' 
+                  : `(del ${new Date(filtroFechaDesde).toLocaleDateString('es-ES')})`}
+              </span>
+            )}
+            {filtroFechaDesde && filtroFechaHasta && filtroFechaDesde !== filtroFechaHasta && (
+              <span className="text-blue-600 dark:text-blue-400 ml-1 font-medium">
+                (del {new Date(filtroFechaDesde).toLocaleDateString('es-ES')} al {new Date(filtroFechaHasta).toLocaleDateString('es-ES')})
+              </span>
+            )}
+            {(filtro || filtroUsuario || filtroSeccion) && (
+              <span className="text-orange-600 dark:text-orange-400 ml-1">(con filtros adicionales)</span>
             )}
           </span>
         </div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          Ordenado por: {
-            ordenamiento === 'fecha_desc' ? '📅 Más recientes' :
-            ordenamiento === 'fecha_asc' ? '📅 Más antiguas' :
-            ordenamiento === 'titulo_asc' ? '🔤 Título A-Z' :
-            '🔤 Título Z-A'
-          }
+        <div className="flex items-center gap-4">
+          {/* Selector de items por página */}
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>Por página:</span>
+            <select
+              value={itemsPorPagina}
+              onChange={e => {
+                setItemsPorPagina(Number(e.target.value));
+                setPaginaActual(1);
+              }}
+              className="px-2 py-1 border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            >
+              <option value={6}>6</option>
+              <option value={12}>12</option>
+              <option value={24}>24</option>
+              <option value={48}>48</option>
+            </select>
+          </div>
+          
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            Ordenado por: {
+              ordenamiento === 'fecha_desc' ? '📅 Más recientes' :
+              ordenamiento === 'fecha_asc' ? '📅 Más antiguas' :
+              ordenamiento === 'titulo_asc' ? '🔤 Título A-Z' :
+              '🔤 Título Z-A'
+            }
+          </div>
         </div>
       </div>
 
@@ -437,7 +591,7 @@ export default function NoticiasList() {
       {vistaActual === 'tarjetas' ? (
         // Vista de tarjetas (actual)
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {noticiasFiltradas.map(noticia => (
+          {noticiasParaMostrar.map(noticia => (
             <div key={noticia.id} className="group relative bg-white dark:bg-slate-800 rounded-lg shadow-lg dark:shadow-glow-sm hover:shadow-xl dark:hover:shadow-glow-md transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="p-6 relative z-10 flex flex-col gap-3">
@@ -528,7 +682,7 @@ export default function NoticiasList() {
       ) : (
         // Vista de lista (nueva)
         <div className="space-y-2">
-          {noticiasFiltradas.map(noticia => (
+          {noticiasParaMostrar.map(noticia => (
             <div key={noticia.id} className="group bg-white dark:bg-slate-800 rounded-lg shadow-sm dark:shadow-glow-sm hover:shadow-md dark:hover:shadow-glow-md transition-all duration-200 border border-slate-200 dark:border-slate-700">
               <div className="p-3">
                 <div className="flex items-center justify-between">
@@ -620,6 +774,84 @@ export default function NoticiasList() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Controles de paginación */}
+      {totalPaginas > 1 && (
+        <div className="flex items-center justify-between py-4 px-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 mt-6">
+          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+            <span>Página {paginaActual} de {totalPaginas}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* Botón Primera página */}
+            <button
+              onClick={() => setPaginaActual(1)}
+              disabled={paginaActual === 1}
+              className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              ««
+            </button>
+            
+            {/* Botón Página anterior */}
+            <button
+              onClick={() => setPaginaActual(paginaActual - 1)}
+              disabled={paginaActual === 1}
+              className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              ‹ Anterior
+            </button>
+
+            {/* Números de página */}
+            <div className="flex items-center gap-1">
+              {(() => {
+                let numerosPagina = [];
+                
+                if (totalPaginas <= 5) {
+                  // Si hay 5 páginas o menos, mostrar todas
+                  numerosPagina = Array.from({ length: totalPaginas }, (_, j) => j + 1);
+                } else {
+                  // Si hay más de 5 páginas, mostrar ventana alrededor de la página actual
+                  const inicio = Math.max(1, paginaActual - 2);
+                  const fin = Math.min(totalPaginas, inicio + 4);
+                  numerosPagina = Array.from({ length: fin - inicio + 1 }, (_, j) => inicio + j);
+                }
+
+                return numerosPagina.map(numPagina => (
+                  <button
+                    key={numPagina}
+                    onClick={() => setPaginaActual(numPagina)}
+                    className={`px-3 py-2 text-sm rounded-lg transition-all ${
+                      paginaActual === numPagina
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {numPagina}
+                  </button>
+                ));
+              })()}
+            </div>
+
+            {/* Botón Página siguiente */}
+            <button
+              onClick={() => setPaginaActual(paginaActual + 1)}
+              disabled={paginaActual === totalPaginas}
+              className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              Siguiente ›
+            </button>
+            
+            {/* Botón Última página */}
+            <button
+              onClick={() => setPaginaActual(totalPaginas)}
+              disabled={paginaActual === totalPaginas}
+              className="px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              »»
+            </button>
+          </div>
         </div>
       )}
     </div>

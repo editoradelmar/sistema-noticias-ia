@@ -12,6 +12,7 @@ from core.database import init_db, engine
 # Importar routers
 from routers import noticias, ai, auth, proyectos
 from routers import llm_maestro, prompts, estilos, secciones, salidas, generacion
+from routers import admin_usuarios  # Administración de usuarios
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,14 +38,34 @@ app = FastAPI(
 
 # Mostrar valor de CORS en consola para depuración
 print('CORS origins from .env:', settings.ALLOWED_ORIGINS)
-print('CORS origins as list:', [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')])
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+# Procesar orígenes permitidos
+allowed_origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')]
+
+# Para desarrollo con ngrok, ser más permisivo
+is_ngrok_dev = any('ngrok' in origin for origin in allowed_origins)
+if is_ngrok_dev and settings.DEBUG:
+    print('🌐 Modo ngrok + desarrollo detectado - Configuración CORS permisiva')
+    # En desarrollo, permitir cualquier origen para ngrok
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Permisivo para desarrollo
+        allow_credentials=False,  # No credentials con "*"
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    print('🔒 Modo producción - CORS restrictivo')
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"]
+    )
+
+print('CORS origins configurados:', allowed_origins if not (is_ngrok_dev and settings.DEBUG) else ["*"])
 
 # Incluir routers
 app.include_router(auth.router, prefix="/api/auth", tags=["autenticacion"])
@@ -63,6 +84,9 @@ app.include_router(generacion.router)  # 🎉 Nuevo - Generación IA
 from routers import prompt_items, estilo_items
 app.include_router(prompt_items.router)
 app.include_router(estilo_items.router)
+
+# Routers Fase 7 - Administración de Usuarios
+app.include_router(admin_usuarios.router, prefix="/api", tags=["admin-usuarios"])
 
 # Endpoint raíz
 @app.get("/")

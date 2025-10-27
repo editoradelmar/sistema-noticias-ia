@@ -5,7 +5,7 @@ Endpoints: register, login, me, refresh
 from fastapi import APIRouter, HTTPException, status, Depends, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 
 from core.database import get_db
@@ -107,6 +107,34 @@ async def require_role(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Requiere uno de estos roles: {', '.join(required_roles)}"
+        )
+    return current_user
+
+
+async def require_admin(
+    current_user: orm_models.Usuario = Depends(get_current_user)
+) -> orm_models.Usuario:
+    """
+    Verificar que el usuario sea administrador del sistema
+    """
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Requiere permisos de administrador del sistema"
+        )
+    return current_user
+
+
+async def require_director_or_above(
+    current_user: orm_models.Usuario = Depends(get_current_user)
+) -> orm_models.Usuario:
+    """
+    Verificar que el usuario sea director de redacción o superior
+    """
+    if current_user.role not in ['admin', 'director']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Requiere permisos de director de redacción o superior"
         )
     return current_user
 
@@ -402,3 +430,167 @@ async def create_admin(
     db.refresh(admin_user)
     
     return admin_user
+
+
+# ==================== GESTIÓN AVANZADA DE USUARIOS ====================
+
+@router.put("/users/{user_id}", response_model=Usuario)
+async def update_user(
+    user_id: int,
+    user_data: dict,
+    db: Session = Depends(get_db),
+    current_user: orm_models.Usuario = Depends(get_current_user)
+):
+    """
+    Actualizar usuario por ID
+    Solo administradores pueden actualizar otros usuarios
+    """
+    # Verificar permisos - solo admin puede editar otros usuarios
+    if current_user.role != 'admin' and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos para editar este usuario"
+        )
+    
+    # Buscar usuario a actualizar
+    user = db.query(orm_models.Usuario).filter(orm_models.Usuario.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    # Actualizar campos permitidos
+    if 'email' in user_data and user_data['email']:
+        # Verificar email único
+        existing = db.query(orm_models.Usuario).filter(
+            orm_models.Usuario.email == user_data['email'].lower(),
+            orm_models.Usuario.id != user_id
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El email ya está en uso"
+            )
+        user.email = user_data['email'].lower()
+    
+    if 'username' in user_data and user_data['username']:
+        # Verificar username único
+        existing = db.query(orm_models.Usuario).filter(
+            orm_models.Usuario.username == user_data['username'].lower(),
+            orm_models.Usuario.id != user_id
+        ).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El username ya está en uso"
+            )
+        user.username = user_data['username'].lower()
+    
+    if 'nombre_completo' in user_data:
+        user.nombre_completo = user_data['nombre_completo']
+    
+    if 'password' in user_data and user_data['password']:
+        user.hashed_password = get_password_hash(user_data['password'])
+    
+    # Solo admin puede cambiar roles y campos administrativos
+    if current_user.role == 'admin':
+        if 'role' in user_data:
+            user.role = user_data['role']
+        
+        if 'supervisor_id' in user_data:
+            if user_data['supervisor_id']:
+                # Verificar que el supervisor existe
+                supervisor = db.query(orm_models.Usuario).filter(
+                    orm_models.Usuario.id == user_data['supervisor_id']
+                ).first()
+                if not supervisor:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Supervisor especificado no existe"
+                    )
+            user.supervisor_id = user_data['supervisor_id']
+        
+        if 'secciones_asignadas' in user_data:
+            user.secciones_asignadas = user_data['secciones_asignadas']
+        
+        if 'limite_tokens_diario' in user_data:
+            user.limite_tokens_diario = user_data['limite_tokens_diario']
+        
+        if 'fecha_expiracion_acceso' in user_data:
+            if user_data['fecha_expiracion_acceso']:
+                try:
+                    # Parsear como fecha (no datetime) ya que el campo DB es Date
+                    fecha_str = user_data['fecha_expiracion_acceso']
+                    if 'T' in fecha_str:
+                        # Si viene con tiempo, extraer solo la fecha
+                        fecha_str = fecha_str.split('T')[0]
+                    user.fecha_expiracion_acceso = date.fromisoformat(fecha_str)
+                except ValueError:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Formato de fecha inválido. Use YYYY-MM-DD"
+                    )
+            else:
+                user.fecha_expiracion_acceso = None
+        
+        if 'is_active' in user_data:
+            user.is_active = user_data['is_active']
+    
+    try:
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error actualizando usuario"
+        )
+
+
+@router.delete("/users/{user_id}", response_model=ResponseModel)
+async def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: orm_models.Usuario = Depends(get_current_user)
+):
+    """
+    Eliminar usuario por ID
+    Solo administradores pueden eliminar usuarios
+    """
+    # Solo admin puede eliminar usuarios
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos para eliminar usuarios"
+        )
+    
+    # No permitir auto-eliminación
+    if current_user.id == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes eliminar tu propia cuenta"
+        )
+    
+    # Buscar usuario
+    user = db.query(orm_models.Usuario).filter(orm_models.Usuario.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+    
+    try:
+        db.delete(user)
+        db.commit()
+        return ResponseModel(
+            success=True,
+            message=f"Usuario {user.username} eliminado correctamente"
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error eliminando usuario"
+        )

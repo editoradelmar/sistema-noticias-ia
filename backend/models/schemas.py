@@ -4,7 +4,7 @@ Schemas para requests y responses
 """
 from pydantic import BaseModel, Field, validator, field_serializer
 from typing import Optional, List, Union
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 
 # ==================== ENUMS ====================
@@ -138,10 +138,12 @@ class EstadisticasResponse(BaseModel):
 # ==================== USUARIOS Y AUTENTICACIÓN ====================
 
 class RoleEnum(str, Enum):
-    """Roles de usuario disponibles"""
-    ADMIN = "admin"        # Acceso total
-    EDITOR = "editor"      # Puede crear y editar
-    VIEWER = "viewer"      # Solo lectura
+    """Roles de usuario disponibles con jerarquía editorial"""
+    ADMIN = "admin"              # Acceso total al sistema
+    DIRECTOR = "director"        # Director de redacción (ve todo editorial)
+    JEFE_SECCION = "jefe_seccion"  # Jefe de sección (ve su equipo)
+    REDACTOR = "redactor"        # Redactor (ve solo sus noticias)
+    VIEWER = "viewer"            # Solo lectura
 
 class UsuarioBase(BaseModel):
     """Schema base para usuarios"""
@@ -167,6 +169,10 @@ class UsuarioCreate(UsuarioBase):
     """Schema para crear usuario (con contraseña)"""
     password: str = Field(..., min_length=6, max_length=100)
     role: RoleEnum = RoleEnum.VIEWER
+    supervisor_id: Optional[int] = None
+    secciones_asignadas: Optional[List[int]] = Field(default_factory=list)
+    limite_tokens_diario: Optional[int] = Field(10000, ge=1000, le=100000)
+    fecha_expiracion_acceso: Optional[str] = None  # YYYY-MM-DD format
     
     @validator('password')
     def validate_password(cls, v):
@@ -183,6 +189,10 @@ class UsuarioUpdate(BaseModel):
     password: Optional[str] = Field(None, min_length=6, max_length=100)
     role: Optional[RoleEnum] = None
     is_active: Optional[bool] = None
+    supervisor_id: Optional[int] = None
+    secciones_asignadas: Optional[List[int]] = None
+    limite_tokens_diario: Optional[int] = Field(None, ge=1000, le=100000)
+    fecha_expiracion_acceso: Optional[str] = None
 
 class Usuario(UsuarioBase):
     """Schema completo de usuario (sin contraseña)"""
@@ -190,11 +200,48 @@ class Usuario(UsuarioBase):
     role: RoleEnum
     is_active: bool
     is_superuser: bool
-    created_at: datetime
-    last_login: Optional[datetime] = None
+    supervisor_id: Optional[int] = None
+    secciones_asignadas: List[int] = Field(default_factory=list)
+    limite_tokens_diario: int = 10000
+    fecha_expiracion_acceso: Optional[Union[str, datetime, date]] = None
+    created_at: Union[str, datetime]
+    last_login: Optional[Union[str, datetime]] = None
+    
+    @field_serializer('fecha_expiracion_acceso', when_used='always')
+    def serialize_fecha_expiracion(self, value):
+        if value is None:
+            return None
+        if hasattr(value, 'isoformat'):
+            return value.isoformat()
+        return str(value)
+    
+    @field_serializer('created_at', when_used='always')
+    def serialize_created_at(self, value):
+        if value is None:
+            return None
+        if hasattr(value, 'isoformat'):
+            return value.isoformat()
+        return str(value)
+    
+    @field_serializer('last_login', when_used='always')
+    def serialize_last_login(self, value):
+        if value is None:
+            return None
+        if hasattr(value, 'isoformat'):
+            return value.isoformat()
+        return str(value)
     
     class Config:
         from_attributes = True
+
+class UsuarioExtendido(Usuario):
+    """Schema extendido con información de jerarquía y métricas"""
+    supervisor_nombre: Optional[str] = None
+    subordinados_count: int = 0
+    noticias_count: int = 0
+    secciones_nombres: List[str] = Field(default_factory=list)
+    puede_supervisar: bool = False
+    nivel_jerarquico: int = 5
 
 class UsuarioInDB(Usuario):
     """Schema de usuario con contraseña hasheada (uso interno)"""

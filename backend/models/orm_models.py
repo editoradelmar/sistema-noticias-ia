@@ -141,7 +141,7 @@ class DocumentoContexto(Base):
 class Usuario(Base):
     """
     Modelo de Usuario
-    Sistema de autenticación y autorización
+    Sistema de autenticación y autorización con jerarquía editorial
     """
     __tablename__ = 'usuarios'
     
@@ -152,9 +152,15 @@ class Usuario(Base):
     nombre_completo = Column(String(200), nullable=True)
     
     # Roles y permisos
-    role = Column(String(20), default='viewer', nullable=False)  # admin, editor, viewer
+    role = Column(String(20), default='viewer', nullable=False)  # admin, director, jefe_seccion, redactor, viewer
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
+    
+    # Jerarquía editorial
+    supervisor_id = Column(Integer, ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True, index=True)
+    secciones_asignadas = Column(JSON, default=[], nullable=False)  # Lista de IDs de secciones
+    limite_tokens_diario = Column(Integer, default=10000, nullable=False)
+    fecha_expiracion_acceso = Column(Date, nullable=True)
     
     # Metadata
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -164,8 +170,59 @@ class Usuario(Base):
     # Relaciones
     noticias = relationship('Noticia', back_populates='usuario_creador', foreign_keys='Noticia.usuario_id')
     
+    # Relaciones jerárquicas
+    supervisor = relationship('Usuario', remote_side=[id], back_populates='subordinados')
+    subordinados = relationship('Usuario', back_populates='supervisor')
+    # Relaciones jerárquicas
+    supervisor = relationship('Usuario', remote_side=[id], back_populates='subordinados')
+    subordinados = relationship('Usuario', back_populates='supervisor')
+    
     def __repr__(self):
         return f"<Usuario(id={self.id}, email='{self.email}', role='{self.role}')>"
+    
+    @property
+    def puede_supervisar(self):
+        """Determina si el usuario puede supervisar a otros"""
+        return self.role in ['admin', 'director', 'jefe_seccion']
+    
+    @property
+    def nivel_jerarquico(self):
+        """Nivel en la jerarquía editorial (1=admin, 2=director, 3=jefe, 4=redactor, 5=viewer)"""
+        nivel_map = {
+            'admin': 1,
+            'director': 2, 
+            'jefe_seccion': 3,
+            'redactor': 4,
+            'viewer': 5
+        }
+        return nivel_map.get(self.role, 5)
+    
+    def puede_acceder_usuario(self, target_user):
+        """Determina si puede ver/editar información de otro usuario"""
+        # Admin ve todo
+        if self.role == 'admin':
+            return True
+        # Director ve todo editorial
+        if self.role == 'director' and target_user.role != 'admin':
+            return True
+        # Jefe de sección ve su equipo
+        if self.role == 'jefe_seccion':
+            return target_user.supervisor_id == self.id or target_user.id == self.id
+        # Redactor solo se ve a sí mismo
+        return target_user.id == self.id
+    
+    def get_usuarios_accesibles(self, db_session):
+        """Obtiene lista de usuarios que puede ver según jerarquía"""
+        if self.role == 'admin':
+            return db_session.query(Usuario).all()
+        elif self.role == 'director':
+            return db_session.query(Usuario).filter(Usuario.role != 'admin').all()
+        elif self.role == 'jefe_seccion':
+            return db_session.query(Usuario).filter(
+                (Usuario.supervisor_id == self.id) | (Usuario.id == self.id)
+            ).all()
+        else:
+            return [self]
 
 
 class ConversacionIA(Base):
