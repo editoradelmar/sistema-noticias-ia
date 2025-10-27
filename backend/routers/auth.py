@@ -324,6 +324,33 @@ async def logout(
     )
 
 
+@router.get("/users", response_model=list[Usuario])
+async def get_users(
+    activos_solo: bool = True,
+    db: Session = Depends(get_db),
+    current_user: orm_models.Usuario = Depends(get_current_active_user)
+):
+    """
+    Obtener lista de usuarios
+    
+    Accesible para todos los usuarios autenticados (para dropdowns de autor)
+    
+    Args:
+        activos_solo: Si True, solo retorna usuarios activos (default: True)
+        
+    Returns:
+        Lista de usuarios ordenada por nombre_completo
+    """
+    query = db.query(orm_models.Usuario)
+    
+    if activos_solo:
+        query = query.filter(orm_models.Usuario.is_active == True)
+    
+    users = query.order_by(orm_models.Usuario.nombre_completo).all()
+    
+    return users
+
+
 @router.post("/create-admin", response_model=Usuario)
 async def create_admin(
     admin_data: UsuarioCreate,

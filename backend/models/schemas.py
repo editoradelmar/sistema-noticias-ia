@@ -24,7 +24,6 @@ class NoticiaBase(BaseModel):
     titulo: str = Field(..., min_length=5, max_length=200)
     contenido: str = Field(..., min_length=20)
     seccion_id: Optional[int] = Field(None, description="ID de la sección a la que pertenece la noticia")
-    autor: str = Field(default="Sistema")
     proyecto_id: Optional[int] = None  # Asociar a proyecto
     llm_id: Optional[int] = None  # Modelo LLM asociado
     estado: Optional[str] = Field('activo', description="Estado de la noticia: activo, archivado, eliminado")
@@ -41,7 +40,6 @@ class NoticiaUpdate(BaseModel):
     titulo: Optional[str] = Field(None, min_length=5, max_length=200)
     contenido: Optional[str] = Field(None, min_length=20)
     seccion_id: Optional[int] = None
-    autor: Optional[str] = None
     salidas_ids: Optional[list[int]] = []
     proyecto_id: Optional[int] = None
     llm_id: Optional[int] = None

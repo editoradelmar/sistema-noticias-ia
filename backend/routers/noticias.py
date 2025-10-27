@@ -2,7 +2,7 @@
 Router de Noticias - Endpoints CRUD con PostgreSQL y Autenticación
 """
 from fastapi import APIRouter, HTTPException, status, Query, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime
 
@@ -61,7 +61,7 @@ async def listar_noticias(
     - proyecto_id: Filtrar noticias de un proyecto específico
     - estado: Filtrar por estado ('activo', 'archivado', etc)
     """
-    query = db.query(orm_models.Noticia)
+    query = db.query(orm_models.Noticia).options(joinedload(orm_models.Noticia.usuario_creador))
     if seccion_id:
         query = query.filter(orm_models.Noticia.seccion_id == seccion_id)
     if proyecto_id:
@@ -81,7 +81,7 @@ async def obtener_noticia(noticia_id: int, db: Session = Depends(get_db)):
     
     📖 Endpoint PÚBLICO - No requiere autenticación
     """
-    noticia = db.query(orm_models.Noticia).filter(
+    noticia = db.query(orm_models.Noticia).options(joinedload(orm_models.Noticia.usuario_creador)).filter(
         orm_models.Noticia.id == noticia_id
     ).first()
     if not noticia:
@@ -163,8 +163,7 @@ async def crear_noticia(
         titulo=noticia.titulo,
         contenido=noticia.contenido,
         seccion_id=noticia.seccion_id,
-        autor=noticia.autor,
-        usuario_id=current_user.id,  # Vincular con el usuario
+        usuario_id=current_user.id,  # Vincular con el usuario como fuente de verdad
         proyecto_id=noticia.proyecto_id,  # Vincular con proyecto (opcional)
         llm_id=noticia.llm_id,
         estado=noticia.estado if hasattr(noticia, 'estado') and noticia.estado else 'activo'
@@ -313,20 +312,17 @@ async def crear_datos_ejemplo(db: Session = Depends(get_db)):
         {
             "titulo": "FastAPI supera a Flask en popularidad",
             "contenido": "Según las últimas estadísticas, FastAPI ha superado a Flask como el framework web más utilizado en Python para nuevos proyectos en 2025.",
-            "seccion_id": 1,
-            "autor": "Sistema"
+            "seccion_id": 1
         },
         {
             "titulo": "Claude 4 establece nuevo récord en benchmarks",
             "contenido": "El modelo Claude Sonnet 4.5 ha demostrado capacidades superiores en razonamiento y generación de código, superando modelos anteriores.",
-            "seccion_id": 2,
-            "autor": "Sistema"
+            "seccion_id": 2
         },
         {
             "titulo": "PostgreSQL 16 trae mejoras significativas",
             "contenido": "La nueva versión de PostgreSQL incluye mejoras en rendimiento, replicación lógica y nuevas funcionalidades para JSON.",
-            "seccion_id": 3,
-            "autor": "Sistema"
+            "seccion_id": 3
         }
     ]
     for dato in datos_ejemplo:

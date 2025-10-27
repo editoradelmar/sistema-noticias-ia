@@ -475,7 +475,7 @@ Genera el contenido optimizado:"""
         variables = {
             "titulo": noticia.titulo,
             "contenido": noticia.contenido,
-            "autor": noticia.autor or "Redacción",
+            "autor": noticia.autor_nombre,  # Usar la propiedad que obtiene el username
             "seccion": noticia.seccion.nombre if noticia.seccion else "General",
             "tipo_salida": salida.tipo_salida,
             "nombre_salida": salida.nombre,
@@ -691,7 +691,7 @@ Genera el contenido optimizado:"""
         variables = {
             "titulo": noticia_temporal.titulo,
             "contenido": noticia_temporal.contenido,
-            "autor": getattr(noticia_temporal, 'autor', 'Redacción'),
+            "autor": getattr(noticia_temporal, 'autor_nombre', 'Redacción'),  # Usar autor_nombre
             "seccion": noticia_temporal.seccion.nombre if hasattr(noticia_temporal, 'seccion') else "General",
             "tipo_salida": salida.tipo_salida,
             "nombre_salida": salida.nombre,

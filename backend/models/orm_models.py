@@ -46,7 +46,6 @@ class Noticia(Base):
     titulo = Column(String(200), nullable=False, index=True)
     contenido = Column(Text, nullable=False)
     seccion_id = Column(Integer, ForeignKey('seccion.id', ondelete='SET NULL'), nullable=True, index=True)
-    autor = Column(String(100), default='Sistema')
     
     # Campos IA
     resumen_ia = Column(Text, nullable=True)
@@ -62,7 +61,7 @@ class Noticia(Base):
     
     # Foreign Keys
     proyecto_id = Column(Integer, ForeignKey('proyectos.id', ondelete='SET NULL'), nullable=True)
-    usuario_id = Column(Integer, ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True)
+    usuario_id = Column(Integer, ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=False)  # Requerido para integridad
     llm_id = Column(Integer, ForeignKey('llm_maestro.id', ondelete='SET NULL'), nullable=True)
 
     # Relaciones
@@ -74,20 +73,37 @@ class Noticia(Base):
     def __repr__(self):
         return f"<Noticia(id={self.id}, titulo='{self.titulo[:30]}...')>"
     
+    @property
+    def autor_nombre(self):
+        """Obtener username del autor desde la relación usuario_creador"""
+        if self.usuario_creador:
+            return self.usuario_creador.username
+        return 'Sin autor'
+    
+    @property 
+    def autor_id(self):
+        """Alias para usuario_id para compatibilidad"""
+        return self.usuario_id
+    
     def to_dict(self):
-        """Convertir a diccionario para compatibilidad con código actual"""
+        """Convertir a diccionario usando usuario_id como fuente de verdad"""
+        try:
+            autor_nombre = self.autor_nombre  # Usa la propiedad que maneja la relación
+        except:
+            autor_nombre = 'Sin autor'  # Fallback
+        
         return {
             'id': self.id,
             'titulo': self.titulo,
             'contenido': self.contenido,
             'seccion_id': self.seccion_id,
-            'autor': self.autor,
+            'autor_nombre': autor_nombre,  # Solo nombre desde relación
             'resumen_ia': self.resumen_ia,
             'sentiment_score': self.sentiment_score,
             'keywords': self.keywords,
             'fecha': self.fecha.strftime('%Y-%m-%d %H:%M:%S') if self.fecha else None,
             'proyecto_id': self.proyecto_id,
-            'usuario_id': self.usuario_id,
+            'usuario_id': self.usuario_id,  # Fuente de verdad para filtros
             'llm_id': self.llm_id,
             'estado': self.estado
         }

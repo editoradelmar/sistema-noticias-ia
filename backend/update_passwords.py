@@ -25,6 +25,39 @@ def actualizar_contraseñas():
             {
                 "email": "viewer@sistema.com",
                 "password": "viewer123"
+            },
+            # Nuevos periodistas y editores
+            {
+                "email": "carlos.rodriguez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "maria.garcia@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "luis.martinez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "ana.lopez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "pedro.sanchez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "laura.hernandez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "jorge.ramirez@eldiario.com",
+                "password": "periodista123"
+            },
+            {
+                "email": "sofia.torres@eldiario.com",
+                "password": "periodista123"
             }
         ]
         

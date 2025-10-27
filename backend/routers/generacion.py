@@ -101,7 +101,7 @@ async def generar_salidas(
         noticia.contenido = request.datosNoticia.contenido
         noticia.seccion_id = request.datosNoticia.seccion_id
         noticia.proyecto_id = request.datosNoticia.proyecto_id
-        noticia.autor = "Temporal"
+        noticia.usuario_id = current_user.id  # Usar usuario_id en lugar de autor
         noticia.fecha = datetime.now()
         noticia.seccion = seccion_real
         
@@ -259,7 +259,7 @@ async def generar_salidas_temporal(
     noticia_temporal.contenido = request.datosNoticia.contenido
     noticia_temporal.seccion_id = request.datosNoticia.seccion_id
     noticia_temporal.proyecto_id = request.datosNoticia.proyecto_id
-    noticia_temporal.autor = "Temporal"
+    noticia_temporal.usuario_id = current_user.id  # Usar usuario_id en lugar de autor
     noticia_temporal.fecha = datetime.now()
     noticia_temporal.seccion = seccion_real
     

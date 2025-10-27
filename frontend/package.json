@@ -16,6 +16,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.12.2",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",

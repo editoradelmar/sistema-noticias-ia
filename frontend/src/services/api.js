@@ -166,5 +166,12 @@ export const api = {
   getProyectoStats: async (id, token = null) => {
     const { data } = await axiosInstance.get(`/proyectos/${id}/stats`);
     return data;
+  },
+
+  // Usuarios
+  getUsuarios: async (activosSolo = true) => {
+    const params = { activos_solo: activosSolo };
+    const { data } = await axiosInstance.get('/auth/users', { params });
+    return data;
   }
 };
