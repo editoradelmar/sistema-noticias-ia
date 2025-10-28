@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Newspaper, LogOut, Sun, Moon, Folder, Settings, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-
+import appConfig from '../config/appConfig';
 
 export default function Header({ vista, setVista }) {
   const { user, logout, isAdmin, canEdit } = useAuth();
@@ -82,11 +82,11 @@ export default function Header({ vista, setVista }) {
             </div>
             <div>
               <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">
-                Sistema de Noticias <span className="text-blue-600 dark:text-blue-400">IA</span>
+                {appConfig.APP_NAME.replace('con IA', '')} <span className="text-blue-600 dark:text-blue-400">IA</span>
               </h1>
               <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center gap-2">
                 <Sparkles className="w-3 h-3 text-cyan-500 dark:text-cyan-400" />
-                FastAPI + React + Multi Modelo
+                FastAPI + React + Multi Modelo v{appConfig.VERSION}
               </p>
             </div>
           </div>

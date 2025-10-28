@@ -1,7 +1,7 @@
 {
   "name": "sistema-noticias-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.4.0",
   "type": "module",
   "description": "Sistema de Noticias con IA - Frontend React",
   "author": "Hector Romero <hromero@eluniversal.com.co> (Editor del Mar SA)",

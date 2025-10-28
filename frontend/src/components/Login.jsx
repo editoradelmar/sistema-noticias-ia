@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LogIn, Mail, Lock, Loader2, AlertCircle, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { getAppTitle, isFeatureEnabled } from '../config/appConfig';
 
 export default function Login({ onSwitchToRegister }) {
   const { login } = useAuth();
@@ -162,7 +163,7 @@ export default function Login({ onSwitchToRegister }) {
           </div>
 
           {/* Quick Login (Development) - Solo visible en modo desarrollo */}
-          {import.meta.env.MODE === 'development' && (
+          {import.meta.env.MODE === 'development' && isFeatureEnabled('QUICK_LOGIN') && (
             <div className="mt-6 pt-6 border-t-2 border-slate-100 dark:border-slate-800">
               <p className="text-xs text-slate-500 dark:text-slate-500 text-center mb-3">Acceso rápido (Desarrollo)</p>
               <div className="grid grid-cols-3 gap-2">
@@ -197,7 +198,7 @@ export default function Login({ onSwitchToRegister }) {
 
         {/* Footer */}
         <p className="text-center text-white/90 dark:text-slate-400 text-sm mt-6 font-medium">
-          News System with AI v2.1.0
+          {getAppTitle()}
         </p>
       </div>
     </div>

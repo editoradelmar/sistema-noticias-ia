@@ -9,10 +9,17 @@ import os
 class Settings(BaseSettings):
     """Configuración de la aplicación"""
     
-    # Configuración general
+    # Configuración general de la aplicación
     APP_NAME: str = "Sistema de Noticias con IA"
-    VERSION: str = "2.0.0"  # Actualizado con PostgreSQL
+    APP_VERSION: str = "2.4.0"  # Actualizado con admin usuarios y paginación
+    APP_DESCRIPTION: str = "Sistema profesional de gestión de noticias con IA"
+    COMPANY: str = "Editor del Mar SA"
+    AUTHOR: str = "Hector Romero"
+    EMAIL: str = "hromero@eluniversal.com.co"
+    
+    # Configuración técnica
     DEBUG: bool = True
+    VERSION: str = APP_VERSION  # Alias para compatibilidad
     
     # Base de Datos PostgreSQL
     DATABASE_URL: str = "postgresql://openpg:openpgpwd@localhost:5432/noticias_ia"
@@ -68,7 +75,7 @@ if settings.ANTHROPIC_API_KEY:
     print(f"""
     ╔══════════════════════════════════════════╗
     ║  {settings.APP_NAME:^38}  ║
-    ║  v{settings.VERSION:^36}   ║
+    ║  v{settings.APP_VERSION:^36}   ║
     ╠══════════════════════════════════════════╣
     ║  ✅ API Key Configurada                  ║
     ║  🤖 Claude API: ACTIVA                   ║
@@ -80,7 +87,7 @@ else:
     print(f"""
     ╔══════════════════════════════════════════╗
     ║  {settings.APP_NAME:^38}  ║
-    ║  v{settings.VERSION:^36}  ║
+    ║  v{settings.APP_VERSION:^36}  ║
     ╠══════════════════════════════════════════╣
     ║  ⚠️  API Key NO Configurada              ║
     ║  🤖 Claude API: MODO SIMULADO            ║

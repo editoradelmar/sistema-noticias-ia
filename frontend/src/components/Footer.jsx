@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shield, Sparkles, User, Settings, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import UsuariosAdminCompleto from './admin/UsuariosAdminSimple';
+import { getCopyright } from '../config/appConfig';
 
 export default function Footer() {
   const { user, isAdmin } = useAuth();
@@ -69,7 +70,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <div className="text-slate-500 dark:text-slate-400 text-sm text-center md:text-left">
-              &copy; {new Date().getFullYear()} Sistema de Noticias IA. Todos los derechos reservados.
+              {getCopyright()}
             </div>
             
             {/* Panel de Administración - Solo para Admins */}
