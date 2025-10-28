@@ -224,7 +224,7 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
 
   // --- Render principal ---
   return (
-  <div className="flex flex-col h-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden" style={{minHeight: '100%'}}>
+  <div className="flex flex-col h-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl dark:shadow-glow-md overflow-hidden" style={{minHeight: '100%'}}>
       <Toast message={toast.message} show={toast.show} onClose={() => setToast({ show: false, message: '' })} />
       {/* Encabezado del panel derecho */}
       <div>

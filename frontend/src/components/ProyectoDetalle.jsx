@@ -334,6 +334,7 @@ function NoticiaCard({ noticia, onGenerarResumen, onEliminar, canDelete }) {
           </p>
         </div>
       )}
+      {/* Botón Generar Resumen comentado temporalmente
       <button
         onClick={handleResumen}
         disabled={loading}
@@ -351,6 +352,7 @@ function NoticiaCard({ noticia, onGenerarResumen, onEliminar, canDelete }) {
           </>
         )}
       </button>
+      */}
     </div>
   );
 }

@@ -1,16 +1,10 @@
 import axios from 'axios';
+import { appConfig } from '../config/appConfig.js';
 
-// Cambia esta IP por la IP real de tu servidor backend en la LAN
+// Usar configuración centralizada de appConfig.js
+const API_BASE = `${appConfig.API_BASE_URL}/api`;
 
-// Permite alternar entre ngrok, localhost y IP local según entorno
-const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  'http://172.17.100.64:8000/api';
-
-// Ejemplo para desarrollo local:
-// VITE_API_BASE=http://localhost:8000/api
-// VITE_API_BASE=http://172.17.100.64:8000/api
-// VITE_API_BASE=https://credible-kodiak-one.ngrok-free.app/api
+console.log('🔧 API Base URL configurada:', API_BASE);
 
 // Crear instancia de axios
 const axiosInstance = axios.create({

@@ -26,6 +26,9 @@ export default function NoticiasList() {
       console.error('Error al cargar usuarios:', err);
       setUsuarios([]);
     });
+
+    // Cargar noticias una sola vez al iniciar el componente
+    fetchNoticias();
   }, []);
 
   function getSeccionInfo(seccion_id) {
@@ -92,8 +95,13 @@ export default function NoticiasList() {
     const cumpleFiltroFechaHasta = !filtroFechaHasta || 
                                   new Date(n.fecha) <= new Date(filtroFechaHasta + 'T23:59:59');
     
+    // Filtro por estado (activo/archivado)
+    const cumpleFiltroEstado = estadoFiltro === 'activo' 
+                              ? n.activo !== false 
+                              : n.activo === false;
+    
     return cumpleFiltroTexto && cumpleFiltroUsuario && cumpleFiltroSeccion && 
-           cumpleFiltroFechaDesde && cumpleFiltroFechaHasta;
+           cumpleFiltroFechaDesde && cumpleFiltroFechaHasta && cumpleFiltroEstado;
   }).sort((a, b) => {
     // Ordenamiento
     switch (ordenamiento) {
@@ -129,7 +137,9 @@ export default function NoticiasList() {
   // Effect para resetear página cuando cambian filtros
   useEffect(() => {
     resetearPagina();
-  }, [filtro, filtroUsuario, filtroSeccion, filtroFechaDesde, filtroFechaHasta, estadoFiltro]);
+  }, [filtro, filtroUsuario, filtroSeccion, filtroFechaDesde, filtroFechaHasta]);
+
+  // Función para obtener todas las noticias (solo se llama una vez al cargar)
 
   // Ya no necesitamos extraer usuarios de las noticias, usamos la lista cargada
   // const usuariosUnicos = [...new Set(noticias.map(n => n.autor_nombre).filter(Boolean))].sort();
@@ -176,6 +186,12 @@ export default function NoticiasList() {
     setPaginaActual(1);
   };
 
+  // Función para cambiar filtro de estado y resetear página
+  const cambiarEstadoFiltro = (nuevoEstado) => {
+    setEstadoFiltro(nuevoEstado);
+    setPaginaActual(1);
+  };
+
   const limpiarTodosFiltros = () => {
     setFiltro('');
     setFiltroUsuario('');
@@ -185,15 +201,11 @@ export default function NoticiasList() {
     setPaginaActual(1);
   };
 
-  useEffect(() => {
-    fetchNoticias();
-  }, [estadoFiltro]);
-
   const fetchNoticias = async () => {
     setLoading(true);
     try {
-      // Suponiendo que api.getNoticias puede recibir un filtro de estado
-      const noticiasResp = await api.getNoticias({ estado: estadoFiltro });
+      // Obtener todas las noticias (activas y archivadas) para filtrar en cliente
+      const noticiasResp = await api.getNoticias();
       let lista = Array.isArray(noticiasResp)
         ? noticiasResp
         : (Array.isArray(noticiasResp?.data) ? noticiasResp.data : []);

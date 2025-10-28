@@ -28,26 +28,22 @@ export const AuthProvider = ({ children }) => {
   // Login
   const login = async (email, password) => {
     try {
+      console.log('🔐 Intentando login para:', email);
+      console.log('🔧 API Base URL:', axiosInstance.defaults.baseURL);
+      
       // OAuth2 form data
       const formData = new URLSearchParams();
       formData.append('username', email); // OAuth2 usa 'username' pero mandamos el email
       formData.append('password', password);
 
-  const response = await fetch(`${axiosInstance.defaults.baseURL.replace(/\/$/, '')}/auth/login`, {
-        method: 'POST',
+      // Usar axiosInstance en lugar de fetch para aprovechar la configuración centralizada
+      const response = await axiosInstance.post('/auth/login', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'ngrok-skip-browser-warning': 'true'
-        },
-        body: formData.toString(),
+        }
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Error en el login');
-      }
-
-      const data = await response.json();
+      const data = response.data;
       
       // Guardar token y usuario
       setToken(data.access_token);
@@ -65,26 +61,17 @@ export const AuthProvider = ({ children }) => {
   // Register
   const register = async (email, username, password, nombre_completo = '') => {
     try {
-  const response = await fetch(`${axiosInstance.defaults.baseURL.replace(/\/$/, '')}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-          nombre_completo,
-          role: 'viewer' // Por defecto viewer
-        }),
+      console.log('🔐 Intentando registro para:', email);
+      
+      const response = await axiosInstance.post('/auth/register', {
+        email,
+        username,
+        password,
+        nombre_completo,
+        role: 'viewer' // Por defecto viewer
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Error en el registro');
-      }
-
-      const data = await response.json();
+      const data = response.data;
       
       // Auto-login después del registro
       return await login(email, password);

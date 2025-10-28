@@ -42,30 +42,23 @@ print('CORS origins from .env:', settings.ALLOWED_ORIGINS)
 # Procesar orígenes permitidos
 allowed_origins = [origin.strip() for origin in settings.ALLOWED_ORIGINS.split(',')]
 
-# Para desarrollo con ngrok, ser más permisivo
+# Configuración CORS compatible con credentials y ngrok
 is_ngrok_dev = any('ngrok' in origin for origin in allowed_origins)
-if is_ngrok_dev and settings.DEBUG:
-    print('🌐 Modo ngrok + desarrollo detectado - Configuración CORS permisiva')
-    # En desarrollo, permitir cualquier origen para ngrok
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Permisivo para desarrollo
-        allow_credentials=False,  # No credentials con "*"
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-else:
-    print('🔒 Modo producción - CORS restrictivo')
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=allowed_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["*"]
-    )
+print(f'🌐 Modo ngrok detectado: {is_ngrok_dev}, DEBUG: {settings.DEBUG}')
 
-print('CORS origins configurados:', allowed_origins if not (is_ngrok_dev and settings.DEBUG) else ["*"])
+# Siempre usar orígenes específicos para permitir credentials
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,  # Orígenes específicos para permitir credentials
+    allow_credentials=True,         # Necesario para tokens de autenticación
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
+print('CORS origins configurados:', allowed_origins)
+print('🔧 CORS credentials habilitadas: True')
+print('🔧 Verificar que el frontend esté en:', [o for o in allowed_origins if 'woodcock' in o])
 
 # Incluir routers
 app.include_router(auth.router, prefix="/api/auth", tags=["autenticacion"])

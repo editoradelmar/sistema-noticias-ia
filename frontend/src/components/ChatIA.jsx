@@ -128,7 +128,7 @@ export default function ChatIA() {
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl dark:shadow-glow-md border border-slate-200 dark:border-slate-700 w-full max-w-3xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-700 dark:to-cyan-700 p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11v2m0 4h.01M12 7h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
