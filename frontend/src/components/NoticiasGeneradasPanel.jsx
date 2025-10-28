@@ -4,8 +4,9 @@ import { FileText, Edit, Trash2, Send, Copy } from 'lucide-react';
 import generacionService from '../services/generacion';
 import Toast from './Toast';
 import { api } from '../services/api';
+import MetricasValor from './MetricasValor';
 
-export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId, loadingGeneracion, loadingPublicacion }) {
+export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId, loadingGeneracion, loadingPublicacion, metricas }) {
   // Variable de entorno para controlar el modo de funcionamiento
   const simplifiedMode = import.meta.env.VITE_SIMPLIFIED_PUBLICATION_MODE === 'true';
   
@@ -330,6 +331,9 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
             </div>
           )}
         </div>
+        
+        {/* Métricas de Valor Periodístico - Solo para Admins */}
+        <MetricasValor metricas={metricas} />
       </div>
     </div>
   );

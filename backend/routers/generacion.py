@@ -207,6 +207,7 @@ async def generar_salidas_temporal(
     2. Selecciona salidas (web, print, social, etc.)
     3. Usa un LLM para generar contenido
     4. Devuelve resultados SIN guardar en BD
+    5. **NUEVO**: Calcula métricas de valor periodístico para admins
     
     **Usado por "Generar Noticias" antes de "Publicar"**
     """
@@ -263,31 +264,50 @@ async def generar_salidas_temporal(
     noticia_temporal.fecha = datetime.now()
     noticia_temporal.seccion = seccion_real
     
+    # Determinar si capturar métricas (solo para admins)
+    capturar_metricas = current_user.role == 'admin'
+    
     # Generar contenido temporal
     generador = GeneradorIA(db)
-    print(f"🔄 Iniciando generación temporal para {len(salidas)} salidas")
-    resultados = generador.generar_multiples_salidas_temporal(
+    print(f"🔄 Iniciando generación temporal para {len(salidas)} salidas (métricas: {capturar_metricas})")
+    
+    resultado_completo = generador.generar_multiples_salidas_temporal(
         noticia_temporal=noticia_temporal,
         salidas=salidas,
         llm=llm,
-        regenerar=True  # Siempre regenerar para temporal
+        regenerar=True,  # Siempre regenerar para temporal
+        usuario_id=current_user.id,
+        capturar_metricas=capturar_metricas
     )
     
-    print(f"📊 Resultados obtenidos: {len(resultados)} items")
-    if resultados:
-        print(f"🔍 Primer resultado: {type(resultados[0])} - Keys: {list(resultados[0].keys()) if isinstance(resultados[0], dict) else 'No es dict'}")
+    # Extraer datos del resultado completo
+    resultados = resultado_completo.get("salidas_generadas", [])
+    errores = resultado_completo.get("errores", [])
+    tiempo_total = resultado_completo.get("tiempo_total", 0)
+    metricas_valor = resultado_completo.get("metricas_valor", None)
+    
+    print(f"� Resultados obtenidos: {len(resultados)} items, {len(errores)} errores")
+    if metricas_valor:
+        print(f"📈 Métricas incluidas para admin: ROI {metricas_valor.get('roi_porcentaje', 0)}%")
     
     # Calcular totales - los resultados temporales son diccionarios
     total_tokens = sum(r.get("tokens_usados", 0) for r in resultados if r.get("tokens_usados"))
-    tiempo_total_ms = sum(r.get("tiempo_generacion_ms", 0) for r in resultados if r.get("tiempo_generacion_ms"))
+    tiempo_total_ms = tiempo_total * 1000  # Convertir a ms para compatibilidad
     
-    return GenerarSalidasTemporalResponse(
-        noticia_id=request.datosNoticia.id,  # Puede ser None para temporal
-        salidas_generadas=resultados,
-        total_tokens=total_tokens,
-        tiempo_total_ms=tiempo_total_ms,
-        errores=[]
-    )
+    # Preparar respuesta
+    response_data = {
+        "noticia_id": request.datosNoticia.id,  # Puede ser None para temporal
+        "salidas_generadas": resultados,
+        "total_tokens": total_tokens,
+        "tiempo_total_ms": tiempo_total_ms,
+        "errores": errores
+    }
+    
+    # Añadir métricas si están disponibles (solo para admins)
+    if metricas_valor:
+        response_data["metricas_valor"] = metricas_valor
+    
+    return GenerarSalidasTemporalResponse(**response_data)
 
 
 @router.post("/salida-individual", response_model=NoticiaSalida)

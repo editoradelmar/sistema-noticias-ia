@@ -29,8 +29,10 @@ from models.orm_models import (
     Seccion,
     SalidaMaestro,
     Noticia,
-    NoticiaSalida
+    NoticiaSalida,
+    MetricasValorPeriodistico
 )
+from models.schemas import MetricasValorResumen
 
 
 class GeneradorIA:
@@ -613,8 +615,10 @@ Genera el contenido optimizado:"""
         noticia_temporal: Any,  # SimpleNamespace con datos de noticia
         salidas: List[SalidaMaestro],
         llm: LLMMaestro,
-        regenerar: bool = True
-    ) -> List[Dict[str, Any]]:
+        regenerar: bool = True,
+        usuario_id: Optional[int] = None,
+        capturar_metricas: bool = False
+    ) -> Dict[str, Any]:
         """
         Genera contenido para múltiples salidas usando datos temporales
         NO guarda en BD, solo devuelve resultados
@@ -624,12 +628,19 @@ Genera el contenido optimizado:"""
             salidas: Lista de salidas a generar
             llm: Modelo LLM a usar
             regenerar: Siempre True para temporal
+            usuario_id: ID del usuario (para métricas admin)
+            capturar_metricas: Si capturar métricas de valor periodístico
             
         Returns:
-            Lista de diccionarios con resultados temporales
+            Dict con resultados temporales y métricas (si es admin)
         """
         resultados = []
         errores = []
+        
+        # Captura de tiempo inicio para métricas
+        inicio_total = time.time()
+        tokens_totales = 0
+        contenido_total = ""
         
         print(f"🔄 Iniciando generación TEMPORAL para {len(salidas)} salidas:")
         for i, salida in enumerate(salidas):
@@ -638,13 +649,31 @@ Genera el contenido optimizado:"""
         for salida in salidas:
             try:
                 print(f"🎯 Generando temporalmente para salida: {salida.nombre}")
+                
+                # Capturar tiempo por salida individual
+                inicio_salida = time.time()
+                
                 resultado_temporal = self.generar_para_salida_temporal(
                     noticia_temporal=noticia_temporal,
                     salida=salida,
                     llm=llm
                 )
-                print(f"✅ Salida temporal generada: {salida.nombre}")
+                
+                fin_salida = time.time()
+                tiempo_salida = fin_salida - inicio_salida
+                
+                # Añadir tiempo de esta salida al resultado
+                resultado_temporal["tiempo_generacion"] = tiempo_salida
+                
+                # Acumular para métricas
+                if capturar_metricas:
+                    tokens_salida = resultado_temporal.get("tokens_usados", 0)
+                    tokens_totales += tokens_salida
+                    contenido_total += f"{resultado_temporal.get('titulo', '')} {resultado_temporal.get('contenido', '')} "
+                
+                print(f"✅ Salida temporal generada: {salida.nombre} ({tiempo_salida:.2f}s)")
                 resultados.append(resultado_temporal)
+                
             except Exception as e:
                 print(f"❌ Error generando salida temporal {salida.nombre}: {str(e)}")
                 errores.append({
@@ -653,13 +682,57 @@ Genera el contenido optimizado:"""
                     "error": str(e)
                 })
         
+        # Tiempo total transcurrido
+        fin_total = time.time()
+        tiempo_total = fin_total - inicio_total
+        
         if errores:
             print(f"⚠️ Errores al generar {len(errores)} salidas temporales:")
             for err in errores:
                 print(f"  - {err['salida_nombre']}: {err['error']}")
         
-        print(f"📊 Resumen temporal: {len(resultados)} salidas generadas, {len(errores)} errores")
-        return resultados
+        print(f"📊 Resumen temporal: {len(resultados)} salidas generadas, {len(errores)} errores en {tiempo_total:.2f}s")
+        
+        # Preparar respuesta
+        response = {
+            "salidas_generadas": resultados,
+            "errores": errores,
+            "tiempo_total": tiempo_total,
+            "cantidad_salidas": len(resultados)
+        }
+        
+        # Calcular y añadir métricas si es solicitado (solo admin)
+        print(f"🔍 Debug métricas: capturar_metricas={capturar_metricas}, len(resultados)={len(resultados)}")
+        if capturar_metricas and len(resultados) > 0:
+            try:
+                print("📈 Iniciando cálculo de métricas...")
+                tipo_noticia = getattr(noticia_temporal, 'tipo', 'feature')
+                complejidad = 'media'  # Se puede hacer más sofisticado
+                
+                metricas = self.calcular_metricas_valor(
+                    tiempo_generacion_total=tiempo_total,
+                    tokens_totales=max(tokens_totales, len(contenido_total.split()) * 1.3),  # Estimación si no hay tokens
+                    cantidad_salidas=len(resultados),
+                    modelo_usado=llm.modelo,
+                    contenido_total=contenido_total,
+                    tipo_noticia=tipo_noticia,
+                    complejidad=complejidad
+                )
+                
+                # Añadir resumen de métricas a la respuesta
+                response["metricas_valor"] = self.obtener_resumen_metricas(metricas).dict()
+                
+                print(f"📈 Métricas calculadas - ROI: {metricas['roi_porcentaje']}%, Ahorro: {metricas['ahorro_tiempo_minutos']} min")
+                
+            except Exception as e:
+                print(f"⚠️ Error calculando métricas: {e}")
+                import traceback
+                traceback.print_exc()
+                # No fallar la respuesta por errores de métricas
+        else:
+            print(f"❌ No se calcularán métricas: capturar_metricas={capturar_metricas}, len(resultados)={len(resultados)}")
+        
+        return response
     
     def generar_para_salida_temporal(
         self,
@@ -867,3 +940,154 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
             "titulo": titulo_extraido,
             "contenido": contenido_extraido
         }
+
+    # ==================== MÉTRICAS DE VALOR PERIODÍSTICO ====================
+    
+    def calcular_metricas_valor(
+        self,
+        tiempo_generacion_total: float,
+        tokens_totales: int,
+        cantidad_salidas: int,
+        modelo_usado: str,
+        contenido_total: str,
+        tipo_noticia: str = "feature",
+        complejidad: str = "media"
+    ) -> Dict[str, Any]:
+        """
+        Calcula métricas de valor periodístico para administradores
+        
+        Args:
+            tiempo_generacion_total: Tiempo total en segundos
+            tokens_totales: Tokens consumidos en total
+            cantidad_salidas: Número de salidas generadas
+            modelo_usado: Nombre del modelo usado
+            contenido_total: Todo el contenido generado
+            tipo_noticia: Tipo de noticia (breaking, feature, opinion)
+            complejidad: Complejidad estimada (simple, media, compleja)
+            
+        Returns:
+            Dict con métricas calculadas
+        """
+        
+        # Cálculos base
+        palabras_totales = len(contenido_total.split())
+        velocidad_palabras_segundo = palabras_totales / max(tiempo_generacion_total, 0.1)
+        
+        # Estimaciones de tiempo manual basadas en tipo y complejidad
+        tiempos_base_manual = {
+            "breaking": {"simple": 10, "media": 15, "compleja": 25},
+            "feature": {"simple": 20, "media": 30, "compleja": 45},
+            "opinion": {"simple": 25, "media": 40, "compleja": 60}
+        }
+        
+        tiempo_base_manual = tiempos_base_manual.get(tipo_noticia, tiempos_base_manual["feature"])
+        tiempo_manual_minutos = tiempo_base_manual.get(complejidad, 30)
+        
+        # Multiplicar por cantidad de salidas (cada salida requiere adaptación manual)
+        tiempo_manual_total = tiempo_manual_minutos * cantidad_salidas
+        ahorro_tiempo_minutos = max(0, tiempo_manual_total - (tiempo_generacion_total / 60))
+        
+        # Cálculos de costo
+        precios_modelo = {
+            "claude-3-5-sonnet-20241022": {"input": 0.003, "output": 0.015},  # por 1K tokens
+            "claude-3-haiku": {"input": 0.00025, "output": 0.00125},
+            "gpt-4": {"input": 0.03, "output": 0.06},
+            "gpt-3.5-turbo": {"input": 0.0015, "output": 0.002},
+            "gemini-pro": {"input": 0.001, "output": 0.002}
+        }
+        
+        precio_modelo = precios_modelo.get(modelo_usado, precios_modelo["claude-3-5-sonnet-20241022"])
+        
+        # Estimación conservadora: 70% input, 30% output
+        tokens_input = int(tokens_totales * 0.7)
+        tokens_output = int(tokens_totales * 0.3)
+        
+        costo_generacion = (
+            (tokens_input / 1000) * precio_modelo["input"] +
+            (tokens_output / 1000) * precio_modelo["output"]
+        )
+        
+        # Costo manual: $15/hora promedio periodista
+        costo_manual = (tiempo_manual_total / 60) * 15.0
+        ahorro_costo = max(0, costo_manual - costo_generacion)
+        
+        # Cálculo de ROI
+        roi_porcentaje = ((ahorro_costo) / max(costo_generacion, 0.001)) * 100
+        
+        # Conteo de formatos diferentes
+        formatos_diferentes = min(cantidad_salidas, 5)  # Max 5 formatos típicos
+        
+        return {
+            "tiempo_generacion_total": tiempo_generacion_total,
+            "tiempo_estimado_manual": tiempo_manual_total,
+            "ahorro_tiempo_minutos": int(ahorro_tiempo_minutos),
+            "tokens_total": tokens_totales,
+            "costo_generacion": round(costo_generacion, 4),
+            "costo_estimado_manual": round(costo_manual, 2),
+            "ahorro_costo": round(ahorro_costo, 2),
+            "cantidad_salidas_generadas": cantidad_salidas,
+            "cantidad_formatos_diferentes": formatos_diferentes,
+            "velocidad_palabras_por_segundo": round(velocidad_palabras_segundo, 2),
+            "roi_porcentaje": round(roi_porcentaje, 2),
+            "modelo_usado": modelo_usado,
+            "tipo_noticia": tipo_noticia,
+            "complejidad_estimada": complejidad
+        }
+    
+    def guardar_metricas_valor(
+        self,
+        metricas: Dict[str, Any],
+        noticia_id: int,
+        usuario_id: Optional[int] = None
+    ) -> Optional[MetricasValorPeriodistico]:
+        """
+        Guarda métricas de valor en la base de datos
+        Solo para uso por administradores
+        """
+        try:
+            metrica_obj = MetricasValorPeriodistico(
+                noticia_id=noticia_id,
+                tiempo_generacion_total=metricas["tiempo_generacion_total"],
+                tiempo_por_salida={},  # Se puede expandir en el futuro
+                tiempo_estimado_manual=metricas["tiempo_estimado_manual"],
+                ahorro_tiempo_minutos=metricas["ahorro_tiempo_minutos"],
+                tokens_total=metricas["tokens_total"],
+                costo_generacion=metricas["costo_generacion"],
+                costo_estimado_manual=metricas["costo_estimado_manual"],
+                ahorro_costo=metricas["ahorro_costo"],
+                cantidad_salidas_generadas=metricas["cantidad_salidas_generadas"],
+                cantidad_formatos_diferentes=metricas["cantidad_formatos_diferentes"],
+                velocidad_palabras_por_segundo=metricas["velocidad_palabras_por_segundo"],
+                modelo_usado=metricas["modelo_usado"],
+                usuario_id=usuario_id,
+                tipo_noticia=metricas["tipo_noticia"],
+                complejidad_estimada=metricas["complejidad_estimada"],
+                roi_porcentaje=metricas["roi_porcentaje"]
+            )
+            
+            self.db.add(metrica_obj)
+            self.db.commit()
+            self.db.refresh(metrica_obj)
+            
+            return metrica_obj
+            
+        except Exception as e:
+            print(f"❌ Error guardando métricas de valor: {e}")
+            self.db.rollback()
+            return None
+    
+    def obtener_resumen_metricas(self, metricas: Dict[str, Any]) -> MetricasValorResumen:
+        """
+        Convierte métricas completas a resumen para frontend
+        Solo visible para administradores
+        """
+        return MetricasValorResumen(
+            ahorro_tiempo_minutos=metricas["ahorro_tiempo_minutos"],
+            costo_generacion=metricas["costo_generacion"],
+            costo_estimado_manual=metricas["costo_estimado_manual"],
+            cantidad_formatos=metricas["cantidad_salidas_generadas"],
+            roi_porcentaje=metricas["roi_porcentaje"],
+            velocidad_palabras_segundo=metricas["velocidad_palabras_por_segundo"],
+            modelo_usado=metricas["modelo_usado"],
+            tiempo_total_segundos=metricas["tiempo_generacion_total"]
+        )

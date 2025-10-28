@@ -417,7 +417,7 @@ class GenerarSalidasResponse(BaseModel):
     noticia_id: int
     salidas_generadas: List[NoticiaSalida]
     total_tokens: int
-    tiempo_total_ms: int
+    tiempo_total_ms: float = Field(description="Tiempo total en milisegundos (puede tener decimales)")
     errores: List[str] = []
 
 
@@ -426,8 +426,9 @@ class GenerarSalidasTemporalResponse(BaseModel):
     noticia_id: Optional[int] = Field(None, description="ID de noticia (None para temporales)")
     salidas_generadas: List[NoticiaSalidaTemporal]
     total_tokens: int
-    tiempo_total_ms: int
+    tiempo_total_ms: float = Field(description="Tiempo total en milisegundos (puede tener decimales)")
     errores: List[str] = []
+    metricas_valor: Optional[Dict[str, Any]] = Field(None, description="Métricas de valor periodístico (solo para admins)")
 
 
 # ==================== ESTADÍSTICAS ====================

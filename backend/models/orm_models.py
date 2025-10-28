@@ -2,7 +2,7 @@
 Modelos ORM con SQLAlchemy
 Define la estructura de las tablas en PostgreSQL
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, Float, ForeignKey, Table, JSON, Boolean, DECIMAL, Date
+from sqlalchemy import Column, Integer, String, Text, DateTime, Float, ForeignKey, Table, JSON, Boolean, DECIMAL, Date, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -477,3 +477,57 @@ class NoticiaSalida(Base):
     
     def __repr__(self):
         return f"<NoticiaSalida(noticia_id={self.noticia_id}, salida_id={self.salida_id}, titulo='{self.titulo[:30]}...')>"
+
+
+class MetricasValorPeriodistico(Base):
+    """
+    Métricas de valor y ROI de la IA en el proceso periodístico
+    Solo accesible para administradores del sistema
+    """
+    __tablename__ = 'metricas_valor_periodistico'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    noticia_id = Column(Integer, ForeignKey('noticias.id', ondelete='CASCADE'), nullable=False, index=True)
+    
+    # Métricas de Eficiencia Temporal
+    tiempo_generacion_total = Column(Numeric(8, 3), nullable=False)  # segundos totales
+    tiempo_por_salida = Column(JSON, default={})  # {"web": 2.3, "twitter": 1.1}
+    tiempo_estimado_manual = Column(Integer, nullable=False)  # minutos manual
+    ahorro_tiempo_minutos = Column(Integer, nullable=False)  # ahorro vs manual
+    
+    # Métricas de Costo
+    tokens_total = Column(Integer, nullable=False)
+    costo_generacion = Column(Numeric(10, 4), nullable=False)  # USD
+    costo_estimado_manual = Column(Numeric(10, 2), nullable=False)  # USD manual
+    ahorro_costo = Column(Numeric(10, 2), nullable=False)  # diferencia
+    
+    # Métricas de Productividad
+    cantidad_salidas_generadas = Column(Integer, nullable=False)
+    cantidad_formatos_diferentes = Column(Integer, nullable=False)
+    velocidad_palabras_por_segundo = Column(Numeric(8, 2), nullable=False)
+    
+    # Métricas de Calidad
+    adherencia_manual_estilo = Column(Numeric(3, 2), default=0.95)  # 0.0 a 1.0
+    requiere_edicion_manual = Column(Boolean, default=False)
+    porcentaje_contenido_aprovechable = Column(Numeric(3, 2), default=0.90)
+    
+    # Contexto del Proceso
+    modelo_usado = Column(String(100), nullable=False, index=True)
+    usuario_id = Column(Integer, ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True, index=True)
+    tipo_noticia = Column(String(50), default='feature', index=True)
+    complejidad_estimada = Column(String(20), default='media')
+    
+    # Resultados de Negocio
+    engagement_promedio = Column(Numeric(8, 2), default=0)
+    tiempo_en_tendencia = Column(Integer, default=0)
+    roi_porcentaje = Column(Numeric(8, 2), nullable=False)  # ROI calculado
+    
+    # Metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    
+    # Relaciones
+    noticia = relationship('Noticia', backref='metricas_valor')
+    usuario = relationship('Usuario')
+    
+    def __repr__(self):
+        return f"<MetricasValor(id={self.id}, noticia_id={self.noticia_id}, roi={self.roi_porcentaje}%)>"

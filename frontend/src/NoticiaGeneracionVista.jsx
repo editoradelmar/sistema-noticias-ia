@@ -39,6 +39,9 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
   
   // Estado para salidas temporales (antes de publicar)
   const [salidasTemporales, setSalidasTemporales] = useState([]);
+  
+  // Estado para métricas de valor periodístico (solo para admins)
+  const [metricas, setMetricas] = useState(null);
 
   // Obtener salidas reales desde el backend
   useEffect(() => {
@@ -148,6 +151,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
     });
 
     setLoadingSalidas(true);
+    setMetricas(null); // Limpiar métricas previas
     try {
       // 1. Para CUALQUIER caso: NO crear en BD, solo generar con IA usando datos temporales
       const datosParaIA = {
@@ -170,6 +174,14 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
       });
 
       console.log("✅ Salidas generadas (temporal):", resultadoGeneracion);
+
+      // Extraer métricas si están disponibles (solo para admins)
+      if (resultadoGeneracion.metricas_valor) {
+        console.log("📈 Métricas de valor recibidas:", resultadoGeneracion.metricas_valor);
+        setMetricas(resultadoGeneracion.metricas_valor);
+      } else {
+        setMetricas(null);
+      }
 
       // 3. Procesar salidas temporales (no están en BD)
       if (resultadoGeneracion.salidas_generadas && resultadoGeneracion.salidas_generadas.length > 0) {
@@ -361,6 +373,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
           noticiaFormData={noticiaFormData}
           llmId={llmId}
           salidasTemporales={salidasTemporales}
+          metricas={metricas}
           onPublicado={() => { if (onVolverLista) onVolverLista(true); }}
         />
       </div>

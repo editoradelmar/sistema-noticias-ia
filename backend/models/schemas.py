@@ -311,3 +311,56 @@ class ProyectoStats(BaseModel):
     total_noticias: int
     noticias_por_seccion: dict
     ultima_actualizacion: Optional[datetime] = None
+
+
+# ================================
+# Schemas de Métricas de Valor Periodístico
+# ================================
+
+class MetricasValorPeriodisticoBase(BaseModel):
+    """Base para métricas de valor periodístico"""
+    noticia_id: int
+    tiempo_generacion_total: float
+    tiempo_por_salida: Optional[dict] = {}
+    tiempo_estimado_manual: int
+    ahorro_tiempo_minutos: int
+    tokens_total: int
+    costo_generacion: float
+    costo_estimado_manual: float
+    ahorro_costo: float
+    cantidad_salidas_generadas: int
+    cantidad_formatos_diferentes: int
+    velocidad_palabras_por_segundo: float
+    adherencia_manual_estilo: Optional[float] = 0.95
+    requiere_edicion_manual: Optional[bool] = False
+    porcentaje_contenido_aprovechable: Optional[float] = 0.90
+    modelo_usado: str
+    usuario_id: Optional[int] = None
+    tipo_noticia: Optional[str] = 'feature'
+    complejidad_estimada: Optional[str] = 'media'
+    engagement_promedio: Optional[float] = 0
+    tiempo_en_tendencia: Optional[int] = 0
+    roi_porcentaje: float
+
+class MetricasValorPeriodisticoCreate(MetricasValorPeriodisticoBase):
+    """Crear nueva métrica de valor periodístico"""
+    pass
+
+class MetricasValorPeriodisticoResponse(MetricasValorPeriodisticoBase):
+    """Respuesta completa de métrica de valor periodístico"""
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class MetricasValorResumen(BaseModel):
+    """Resumen de métricas para mostrar en frontend - Solo Admin"""
+    ahorro_tiempo_minutos: int
+    costo_generacion: float
+    costo_estimado_manual: float
+    cantidad_formatos: int
+    roi_porcentaje: float
+    velocidad_palabras_segundo: float
+    modelo_usado: str
+    tiempo_total_segundos: float
