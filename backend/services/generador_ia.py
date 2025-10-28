@@ -713,7 +713,7 @@ Genera el contenido optimizado:"""
                     tiempo_generacion_total=tiempo_total,
                     tokens_totales=max(tokens_totales, len(contenido_total.split()) * 1.3),  # Estimación si no hay tokens
                     cantidad_salidas=len(resultados),
-                    modelo_usado=llm.modelo,
+                    modelo_usado=llm.modelo_id,  # Corregido: modelo_id en lugar de modelo
                     contenido_total=contenido_total,
                     tipo_noticia=tipo_noticia,
                     complejidad=complejidad
@@ -1011,8 +1011,17 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         costo_manual = (tiempo_manual_total / 60) * 15.0
         ahorro_costo = max(0, costo_manual - costo_generacion)
         
-        # Cálculo de ROI
-        roi_porcentaje = ((ahorro_costo) / max(costo_generacion, 0.001)) * 100
+        # Cálculo de ROI con protección contra valores extremos
+        if costo_generacion > 0.001:  # Solo calcular ROI si hay costo real
+            roi_porcentaje = ((ahorro_costo) / costo_generacion) * 100
+            # Limitar ROI a un máximo razonable para evitar desbordamiento de BD
+            roi_porcentaje = min(roi_porcentaje, 999999.99)
+        else:
+            # Si el costo es casi cero, usar un ROI fijo muy alto pero controlado
+            roi_porcentaje = 999999.99
+        
+        # Proteger velocidad también
+        velocidad_palabras_segundo = min(velocidad_palabras_segundo, 999999.99)
         
         # Conteo de formatos diferentes
         formatos_diferentes = min(cantidad_salidas, 5)  # Max 5 formatos típicos
@@ -1081,13 +1090,22 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         Convierte métricas completas a resumen para frontend
         Solo visible para administradores
         """
+        # Calcular eficiencia temporal
+        tiempo_manual = metricas.get("tiempo_estimado_manual", 30)
+        tiempo_ia = metricas.get("tiempo_generacion_total", 1) / 60  # convertir a minutos
+        eficiencia_temporal = max(0, (tiempo_manual - tiempo_ia) / tiempo_manual * 100)
+        
         return MetricasValorResumen(
             ahorro_tiempo_minutos=metricas["ahorro_tiempo_minutos"],
+            ahorro_costo=metricas.get("ahorro_costo", 0.0),
             costo_generacion=metricas["costo_generacion"],
             costo_estimado_manual=metricas["costo_estimado_manual"],
             cantidad_formatos=metricas["cantidad_salidas_generadas"],
             roi_porcentaje=metricas["roi_porcentaje"],
-            velocidad_palabras_segundo=metricas["velocidad_palabras_por_segundo"],
+            velocidad_palabras_por_segundo=metricas["velocidad_palabras_por_segundo"],
+            eficiencia_temporal=round(eficiencia_temporal, 1),
+            porcentaje_contenido_aprovechable=0.90,  # Valor por defecto optimista
+            tokens_total=metricas.get("tokens_total", 0),
             modelo_usado=metricas["modelo_usado"],
             tiempo_total_segundos=metricas["tiempo_generacion_total"]
         )

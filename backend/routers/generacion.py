@@ -184,6 +184,48 @@ async def generar_salidas(
         # Los resultados normales son objetos
         total_tokens = sum(r.tokens_usados for r in resultados if r.tokens_usados)
         tiempo_total_ms = sum(r.tiempo_generacion_ms for r in resultados if r.tiempo_generacion_ms)
+        
+        # Para modo normal (publicación): guardar métricas para TODOS los usuarios
+        if len(resultados) > 0:
+            try:
+                print("💾 Usuario publicando - guardando métricas en BD...")
+                
+                # Calcular métricas de valor
+                contenido_total = f"{noticia.titulo} {noticia.contenido} "
+                for r in resultados:
+                    contenido_total += f"{r.titulo} {r.contenido_generado} "
+                
+                tipo_noticia = getattr(noticia, 'tipo', 'feature')
+                complejidad = 'media'
+                
+                metricas = generador.calcular_metricas_valor(
+                    tiempo_generacion_total=tiempo_total_ms / 1000.0,  # Convertir a segundos
+                    tokens_totales=total_tokens,
+                    cantidad_salidas=len(resultados),
+                    modelo_usado=llm.modelo_id,
+                    contenido_total=contenido_total,
+                    tipo_noticia=tipo_noticia,
+                    complejidad=complejidad
+                )
+                
+                # Guardar métricas en BD para TODOS los usuarios
+                metrica_guardada = generador.guardar_metricas_valor(
+                    metricas=metricas,
+                    noticia_id=noticia.id,
+                    usuario_id=current_user.id
+                )
+                
+                if metrica_guardada:
+                    print(f"✅ Métricas guardadas en BD - ID: {metrica_guardada.id}, Usuario: {current_user.username}")
+                else:
+                    print("⚠️ Error guardando métricas en BD")
+                    
+            except Exception as e:
+                print(f"❌ Error procesando métricas al publicar: {e}")
+                import traceback
+                traceback.print_exc()
+                # No fallar la publicación por errores de métricas
+    
     return GenerarSalidasResponse(
         noticia_id=getattr(noticia, 'id', 0),  # 0 para temporal
         salidas_generadas=resultados,
@@ -207,8 +249,9 @@ async def generar_salidas_temporal(
     2. Selecciona salidas (web, print, social, etc.)
     3. Usa un LLM para generar contenido
     4. Devuelve resultados SIN guardar en BD
-    5. **NUEVO**: Calcula métricas de valor periodístico para admins
+    5. **Métricas**: Se calculan y muestran solo para admins (para análisis)
     
+    **Nota**: Al publicar posteriormente, las métricas se guardan para TODOS los usuarios
     **Usado por "Generar Noticias" antes de "Publicar"**
     """
     # Validar salidas

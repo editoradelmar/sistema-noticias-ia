@@ -357,10 +357,14 @@ class MetricasValorPeriodisticoResponse(MetricasValorPeriodisticoBase):
 class MetricasValorResumen(BaseModel):
     """Resumen de métricas para mostrar en frontend - Solo Admin"""
     ahorro_tiempo_minutos: int
+    ahorro_costo: float = Field(description="Ahorro en dólares vs proceso manual")
     costo_generacion: float
     costo_estimado_manual: float
     cantidad_formatos: int
     roi_porcentaje: float
-    velocidad_palabras_segundo: float
+    velocidad_palabras_por_segundo: float
+    eficiencia_temporal: float = Field(description="Porcentaje de eficiencia temporal")
+    porcentaje_contenido_aprovechable: float = Field(default=0.90, description="Calidad del contenido IA")
+    tokens_total: int = Field(description="Total de tokens utilizados")
     modelo_usado: str
     tiempo_total_segundos: float

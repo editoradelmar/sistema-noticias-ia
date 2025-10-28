@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     VERSION: str = APP_VERSION  # Alias para compatibilidad
     
-    # Base de Datos PostgreSQL
-    DATABASE_URL: str = "postgresql://openpg:openpgpwd@localhost:5432/noticias_ia"
+    # Base de Datos PostgreSQL - Usar 127.0.0.1 para evitar problemas UTF-8
+    DATABASE_URL: str = "postgresql://openpg:openpgpwd@127.0.0.1:5432/noticias_ia"
     # Formato: postgresql://usuario:password@host:puerto/nombre_db
     # Ejemplo producción: postgresql://user:pass@db.example.com:5432/prod_db
     
