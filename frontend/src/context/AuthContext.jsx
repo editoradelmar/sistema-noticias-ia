@@ -100,12 +100,17 @@ export const AuthProvider = ({ children }) => {
 
   // Puede crear/editar noticias
   const canEdit = () => {
-    return hasRole(['admin', 'editor']);
+    return hasRole(['admin', 'director', 'jefe_seccion', 'redactor', 'editor']);
   };
 
   // Es admin
   const isAdmin = () => {
     return hasRole('admin');
+  };
+
+  // Puede ver métricas (helper)
+  const canSeeMetricas = () => {
+    return !!user?.puede_ver_metricas;
   };
 
   const value = {
@@ -118,6 +123,7 @@ export const AuthProvider = ({ children }) => {
     hasRole,
     canEdit,
     isAdmin,
+    canSeeMetricas,
     isAuthenticated: !!user,
   };
 

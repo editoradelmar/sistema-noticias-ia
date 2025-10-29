@@ -114,10 +114,10 @@ async def get_current_editor(
     Raises:
         HTTPException: Si el usuario no tiene permisos
     """
-    if current_user.role not in ['admin', 'editor']:
+    if current_user.role not in ['admin', 'director', 'jefe_seccion', 'redactor', 'editor']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Se requieren permisos de editor o administrador"
+            detail="Se requieren permisos de editor, redactor, jefe de sección, director o administrador"
         )
     return current_user
 

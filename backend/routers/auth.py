@@ -25,7 +25,16 @@ from utils.security import (
     decode_access_token
 )
 
+
 router = APIRouter()
+
+# Endpoint explícito OPTIONS para /login (CORS preflight)
+@router.options("/login")
+async def options_login():
+    """
+    Endpoint OPTIONS para preflight CORS en /login
+    """
+    return {}
 
 # OAuth2 scheme para obtener el token del header
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
@@ -187,7 +196,8 @@ async def register(
         nombre_completo=user_data.nombre_completo,
         role=user_data.role.value,
         is_active=True,
-        is_superuser=False
+        is_superuser=False,
+        puede_ver_metricas=getattr(user_data, 'puede_ver_metricas', False)
     )
     
     db.add(new_user)
@@ -256,7 +266,8 @@ async def login(
         is_superuser=user.is_superuser,
         created_at=user.created_at,
         last_login=user.last_login,
-        nombre_completo=user.nombre_completo
+        nombre_completo=user.nombre_completo,
+        puede_ver_metricas=user.puede_ver_metricas
     )
     
     return token_response
@@ -330,7 +341,8 @@ async def login_json(
         is_superuser=user.is_superuser,
         created_at=user.created_at,
         last_login=user.last_login,
-        nombre_completo=user.nombre_completo
+        nombre_completo=user.nombre_completo,
+        puede_ver_metricas=user.puede_ver_metricas
     )
     
     return token_response
@@ -422,7 +434,8 @@ async def create_admin(
         nombre_completo=admin_data.nombre_completo,
         role='admin',
         is_active=True,
-        is_superuser=True
+        is_superuser=True,
+        puede_ver_metricas=getattr(admin_data, 'puede_ver_metricas', True)
     )
     
     db.add(admin_user)
@@ -537,6 +550,10 @@ async def update_user(
         if 'is_active' in user_data:
             user.is_active = user_data['is_active']
     
+    # Permitir que el admin edite puede_ver_metricas
+    if current_user.role == 'admin' and 'puede_ver_metricas' in user_data:
+        user.puede_ver_metricas = user_data['puede_ver_metricas']
+
     try:
         db.commit()
         db.refresh(user)

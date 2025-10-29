@@ -144,6 +144,7 @@ class RoleEnum(str, Enum):
     DIRECTOR = "director"        # Director de redacción (ve todo editorial)
     JEFE_SECCION = "jefe_seccion"  # Jefe de sección (ve su equipo)
     REDACTOR = "redactor"        # Redactor (ve solo sus noticias)
+    EDITOR = "editor"            # Editor (rol editorial)
     VIEWER = "viewer"            # Solo lectura
 
 class UsuarioBase(BaseModel):
@@ -174,6 +175,7 @@ class UsuarioCreate(UsuarioBase):
     secciones_asignadas: Optional[List[int]] = Field(default_factory=list)
     limite_tokens_diario: Optional[int] = Field(10000, ge=1000, le=100000)
     fecha_expiracion_acceso: Optional[str] = None  # YYYY-MM-DD format
+    puede_ver_metricas: bool = False
     
     @validator('password')
     def validate_password(cls, v):
@@ -194,6 +196,7 @@ class UsuarioUpdate(BaseModel):
     secciones_asignadas: Optional[List[int]] = None
     limite_tokens_diario: Optional[int] = Field(None, ge=1000, le=100000)
     fecha_expiracion_acceso: Optional[str] = None
+    puede_ver_metricas: Optional[bool] = None
 
 class Usuario(UsuarioBase):
     """Schema completo de usuario (sin contraseña)"""
@@ -207,6 +210,7 @@ class Usuario(UsuarioBase):
     fecha_expiracion_acceso: Optional[Union[str, datetime, date]] = None
     created_at: Union[str, datetime]
     last_login: Optional[Union[str, datetime]] = None
+    puede_ver_metricas: bool = False
     
     @field_serializer('fecha_expiracion_acceso', when_used='always')
     def serialize_fecha_expiracion(self, value):
@@ -243,6 +247,7 @@ class UsuarioExtendido(Usuario):
     secciones_nombres: List[str] = Field(default_factory=list)
     puede_supervisar: bool = False
     nivel_jerarquico: int = 5
+    puede_ver_metricas: bool = False
 
 class UsuarioInDB(Usuario):
     """Schema de usuario con contraseña hasheada (uso interno)"""

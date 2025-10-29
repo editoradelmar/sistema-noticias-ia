@@ -155,6 +155,8 @@ class Usuario(Base):
     role = Column(String(20), default='viewer', nullable=False)  # admin, director, jefe_seccion, redactor, viewer
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
+    puede_ver_metricas = Column(Boolean, default=False, nullable=False)  # Permiso para ver métricas
+    puede_ver_metricas = Column(Boolean, default=False, nullable=False)  # Permiso individual para ver métricas
     
     # Jerarquía editorial
     supervisor_id = Column(Integer, ForeignKey('usuarios.id', ondelete='SET NULL'), nullable=True, index=True)
@@ -183,15 +185,16 @@ class Usuario(Base):
     @property
     def puede_supervisar(self):
         """Determina si el usuario puede supervisar a otros"""
-        return self.role in ['admin', 'director', 'jefe_seccion']
+        return self.role in ['admin', 'director', 'jefe_seccion', 'editor']
     
     @property
     def nivel_jerarquico(self):
-        """Nivel en la jerarquía editorial (1=admin, 2=director, 3=jefe, 4=redactor, 5=viewer)"""
+        """Nivel en la jerarquía editorial (1=admin, 2=director, 3=jefe/editor, 4=redactor, 5=viewer)"""
         nivel_map = {
             'admin': 1,
             'director': 2, 
             'jefe_seccion': 3,
+            'editor': 3,
             'redactor': 4,
             'viewer': 5
         }

@@ -47,23 +47,22 @@ export default function Login({ onSwitchToRegister }) {
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Toggle de tema flotante */}
-        <div className="absolute -top-16 right-0">
-          <button
-            onClick={toggleTheme}
-            className="p-3 bg-white/10 dark:bg-white/5 backdrop-blur-lg text-white rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300 border border-white/20 dark:border-white/10"
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {isDark ? (
-              <Sun className="w-6 h-6 text-yellow-400" />
-            ) : (
-              <Moon className="w-6 h-6 text-blue-300" />
-            )}
-          </button>
-        </div>
-
         {/* Card Principal */}
-        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-lg shadow-2xl dark:shadow-glow-lg p-8 border border-white/30 dark:border-slate-700">
+        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-lg shadow-2xl dark:shadow-glow-lg p-8 border border-white/30 dark:border-slate-700 relative">
+          {/* Toggle de tema dentro del card, esquina superior derecha */}
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={toggleTheme}
+              className="p-3 bg-white/10 dark:bg-white/5 backdrop-blur-lg text-white rounded-lg hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300 border border-white/20 dark:border-white/10 shadow-md"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? (
+                <Sun className="w-6 h-6 text-yellow-400" />
+              ) : (
+                <Moon className="w-6 h-6 text-blue-300" />
+              )}
+            </button>
+          </div>
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-block p-4 bg-gradient-to-br from-blue-600 to-cyan-600 dark:from-blue-500 dark:to-cyan-500 rounded-lg shadow-lg dark:shadow-glow-md mb-4">

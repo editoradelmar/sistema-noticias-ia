@@ -115,20 +115,25 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
           
           console.log("✅ Noticia cargada para edición:", noticia.titulo);
           
-          // 📊 Cargar métricas existentes si las hay
+          // 📊 Cargar métricas existentes si las hay (preferir las métricas incluidas en la noticia)
           try {
-            // 📊 Cargar métricas solo si la noticia está publicada
             console.log(`📊 Buscando métricas para noticia publicada ${noticiaId}...`);
-            const metricasExistentes = await metricasService.obtenerMetricasNoticia(noticiaId);
-            if (metricasExistentes) {
-              console.log("✅ Métricas encontradas:", metricasExistentes);
-              setMetricas(metricasExistentes);
+            if (noticia.metricas) {
+              console.log('✅ Métricas incluidas en la respuesta de la noticia:', noticia.metricas);
+              setMetricas(noticia.metricas);
             } else {
-              console.log("ℹ️ No se encontraron métricas para esta noticia publicada");
-              setMetricas(null);
+              // Fallback: pedir al servicio de métricas (compatibilidad hacia atrás)
+              const metricasExistentes = await metricasService.obtenerMetricasNoticia(noticiaId);
+              if (metricasExistentes) {
+                console.log("✅ Métricas encontradas vía servicio:", metricasExistentes);
+                setMetricas(metricasExistentes);
+              } else {
+                console.log("ℹ️ No se encontraron métricas para esta noticia publicada");
+                setMetricas(null);
+              }
             }
           } catch (metricasError) {
-            console.log("⚠️ Error cargando métricas (normal si no es admin):", metricasError.message);
+            console.log("⚠️ Error cargando métricas (normal si no es admin):", metricasError?.message || metricasError);
             setMetricas(null);
           }
           
@@ -360,6 +365,24 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
         // Sincroniza el selector de LLM con el valor de la noticia (siempre string)
         setLlmId(noticia.llm_id ? String(noticia.llm_id) : "");
         setNoticiaId(noticiaIdProp);
+        // Preferir métricas que vienen embebidas en la noticia (si las hay)
+        if (noticia.metricas) {
+          console.log('📊 Métricas incluidas en noticia (prop load):', noticia.metricas);
+          setMetricas(noticia.metricas);
+        } else {
+          // No vienen en la noticia: intentar cargar vía servicio (retrocompatibilidad)
+          try {
+            const metricasExistentes = await metricasService.obtenerMetricasNoticia(noticiaIdProp);
+            if (metricasExistentes) {
+              console.log('✅ Métricas encontradas vía servicio (prop load):', metricasExistentes);
+              setMetricas(metricasExistentes);
+            } else {
+              setMetricas(null);
+            }
+          } catch (e) {
+            setMetricas(null);
+          }
+        }
       } finally {
         setLoadingSalidas(false);
       }

@@ -76,7 +76,7 @@ async def listar_noticias(
 
 
 @router.get("/{noticia_id}")
-async def obtener_noticia(noticia_id: int, db: Session = Depends(get_db)):
+def obtener_noticia(noticia_id: int, db: Session = Depends(get_db)):
     """
     Obtener una noticia específica por ID
     
@@ -94,6 +94,34 @@ async def obtener_noticia(noticia_id: int, db: Session = Depends(get_db)):
     salidas_ids = [rel.salida_id for rel in db.query(orm_models.NoticiaSalida).filter_by(noticia_id=noticia_id)]
     data = noticia.to_dict()
     data['salidas_ids'] = salidas_ids
+    # Buscar métricas asociadas
+    metrica = db.query(orm_models.MetricasValorPeriodistico).filter_by(noticia_id=noticia_id).first()
+    if metrica:
+        data['metricas'] = {
+            'tiempo_generacion_total': float(metrica.tiempo_generacion_total),
+            'tiempo_por_salida': metrica.tiempo_por_salida,
+            'tiempo_estimado_manual': metrica.tiempo_estimado_manual,
+            'ahorro_tiempo_minutos': metrica.ahorro_tiempo_minutos,
+            'tokens_total': metrica.tokens_total,
+            'costo_generacion': float(metrica.costo_generacion),
+            'costo_estimado_manual': float(metrica.costo_estimado_manual),
+            'ahorro_costo': float(metrica.ahorro_costo),
+            'cantidad_salidas_generadas': metrica.cantidad_salidas_generadas,
+            'cantidad_formatos_diferentes': metrica.cantidad_formatos_diferentes,
+            'velocidad_palabras_por_segundo': float(metrica.velocidad_palabras_por_segundo),
+            'adherencia_manual_estilo': float(metrica.adherencia_manual_estilo),
+            'requiere_edicion_manual': metrica.requiere_edicion_manual,
+            'porcentaje_contenido_aprovechable': float(metrica.porcentaje_contenido_aprovechable),
+            'modelo_usado': metrica.modelo_usado,
+            'usuario_id': metrica.usuario_id,
+            'tipo_noticia': metrica.tipo_noticia,
+            'complejidad_estimada': metrica.complejidad_estimada,
+            'engagement_promedio': float(metrica.engagement_promedio),
+            'tiempo_en_tendencia': metrica.tiempo_en_tendencia,
+            'roi_porcentaje': float(metrica.roi_porcentaje)
+        }
+    else:
+        data['metricas'] = None
     return data
 
 
@@ -141,10 +169,10 @@ async def crear_noticia(
     👤 Roles permitidos: admin, editor
     """
     # Verificar permisos
-    if current_user.role not in ['admin', 'editor']:
+    if current_user.role not in ['admin', 'director', 'jefe_seccion', 'redactor', 'editor']:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo admin y editor pueden crear noticias"
+            detail="Solo admin, director, jefe de sección, redactor o editor pueden crear noticias"
         )
     
     # Validar que el proyecto exista si se proporciona proyecto_id

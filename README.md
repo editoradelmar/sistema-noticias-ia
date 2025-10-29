@@ -1059,18 +1059,19 @@ Seguridad:       ████████████  95% (JWT + CORS + Validac
 
 ---
 
-**📅 Última actualización:** 2025-10-25  
-**🔖 Versión actual:** v2.3.1 (Acceso Externo + Fixes)  
+
+**📅 Última actualización:** 2025-10-28  
+**🔖 Versión actual:** v2.3.1 (Fixes críticos, atomicidad y restauración de salidas)  
 **🎯 Próxima versión:** v2.4.0 (Dashboard Analítico)  
 **👨‍💻 Desarrollador:** Hector Romero - Editor del Mar SA
 
 ### 🆕 **Últimas Actualizaciones (v2.3.1)**
-- ✅ **Acceso externo via ngrok** configurado y funcional
-- ✅ **Problema CORS resuelto** para conexiones remotas
-- ✅ **Headers anti-advertencia** para ngrok implementados
-- ✅ **Conectividad PostgreSQL** optimizada (localhost/127.0.0.1)
-- ✅ **Sistema completamente operativo** y validado
-- ✅ **Documentación actualizada** con troubleshooting
+- ✅ **Fix CORS**: El backend ahora permite correctamente orígenes locales y remotos, solucionando bloqueos de frontend.
+- ✅ **Restauración de agrupación de salidas**: El panel de edición muestra tabs y salidas generadas correctamente, con mapeo por tipo y nombre de salida.
+- ✅ **Atomicidad de métricas**: Las métricas solo se guardan si el proceso de publicación es exitoso y todos los datos están presentes.
+- ✅ **Troubleshooting avanzado**: Documentados los mensajes informativos en frontend cuando no existen métricas, y el flujo de edición/restauración de datos.
+- ✅ **Validación de flujo de edición**: El sistema recupera y muestra correctamente noticias, salidas y métricas asociadas en modo edición.
+- ✅ **Documentación actualizada** con los nuevos flujos y fixes críticos.
 
 ### 🌐 **URLs de Acceso (Demo)**
 - **Frontend**: https://woodcock-still-tetra.ngrok-free.app/

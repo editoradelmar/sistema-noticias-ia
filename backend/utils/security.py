@@ -85,7 +85,7 @@ def decode_access_token(token: str) -> Optional[dict]:
         return None
 
 
-def create_token_response(user_id: int, email: str, username: str, role: str, is_active: bool, is_superuser: bool, created_at: Any, last_login: Any = None, nombre_completo: str = None) -> dict:
+def create_token_response(user_id: int, email: str, username: str, role: str, is_active: bool, is_superuser: bool, created_at: Any, last_login: Any = None, nombre_completo: str = None, puede_ver_metricas: bool = False) -> dict:
     """
     Crear respuesta con token y datos del usuario
     
@@ -127,6 +127,7 @@ def create_token_response(user_id: int, email: str, username: str, role: str, is
             "role": role,
             "is_active": is_active,
             "is_superuser": is_superuser,
+            "puede_ver_metricas": puede_ver_metricas,
             "created_at": created_at,
             "last_login": last_login
         }

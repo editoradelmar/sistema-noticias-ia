@@ -21,7 +21,7 @@ export const appConfig = {
   EMAIL: getEnvVar('VITE_EMAIL', 'hromero@eluniversal.com.co'),
   
   // URLs y APIs
-  API_BASE_URL: getEnvVar('VITE_API_BASE_URL', 'http://localhost:8000'),
+  API_BASE_URL: getEnvVar('VITE_API_BASE_URL', 'https://credible-kodiak-one.ngrok-free.app'),
   
   // Configuración de desarrollo
   IS_DEVELOPMENT: import.meta.env.MODE === 'development',

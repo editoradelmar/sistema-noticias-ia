@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     
-    # CORS - Como string separada por comas
+    # CORS - Permitir localhost, IP local y cualquier IP LAN
     ALLOWED_ORIGINS: str = (
         "http://localhost:5173,"
         "http://localhost:3000,"
@@ -44,8 +44,11 @@ class Settings(BaseSettings):
         "http://172.17.100.64:5173,"
         "http://192.168.0.100:5173,"
         "http://192.168.1.100:5173,"
-        "https://credible-kodiak-one.ngrok-free.app,"
-        "https://woodcock-still-tetra.ngrok-free.app"
+        "http://10.0.0.2:5173,"
+        "http://10.0.0.3:5173,"
+        "http://10.0.0.4:5173,"
+        "http://192.168.1.101:5173,"
+        "http://192.168.1.102:5173"
     )
     
     # Límites de la API

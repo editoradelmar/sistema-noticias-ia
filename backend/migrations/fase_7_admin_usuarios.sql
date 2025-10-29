@@ -15,15 +15,12 @@ CREATE INDEX IF NOT EXISTS idx_usuarios_supervisor_id ON usuarios(supervisor_id)
 CREATE INDEX IF NOT EXISTS idx_usuarios_role ON usuarios(role);
 CREATE INDEX IF NOT EXISTS idx_usuarios_active ON usuarios(is_active);
 
--- Migrar roles existentes a nueva estructura jerárquica
--- Convertir 'editor' a 'redactor' para mantener compatibilidad
-UPDATE usuarios SET role = 'redactor' WHERE role = 'editor';
 
 -- Actualizar constraint de roles para incluir nuevos roles jerárquicos
 ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_role_check;
 ALTER TABLE usuarios 
 ADD CONSTRAINT usuarios_role_check 
-CHECK (role IN ('admin', 'director', 'jefe_seccion', 'redactor', 'viewer'));
+CHECK (role IN ('admin', 'director', 'jefe_seccion', 'redactor', 'editor', 'viewer'));
 
 -- Crear tabla de auditoría para cambios en usuarios (para uso futuro)
 CREATE TABLE IF NOT EXISTS auditoria_usuarios (
