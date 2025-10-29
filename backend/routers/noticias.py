@@ -15,6 +15,7 @@ from models.schemas import (
     ResponseModel,
     EstadisticasResponse
 )
+from models.orm_models import MetricasValorPeriodistico  # Para asociar métricas
 from routers.auth import get_current_user, get_current_active_user
 
 router = APIRouter()
@@ -171,6 +172,60 @@ async def crear_noticia(
     db.add(nueva_noticia)
     db.commit()
     db.refresh(nueva_noticia)
+    
+    # ✨ ASOCIAR MÉTRICAS TEMPORALES SI EXISTE session_id
+    if noticia.session_id:
+            print(f"🔄 Asociando métricas de session_id: {noticia.session_id} a noticia_id: {nueva_noticia.id}")
+            try:
+                metricas_temporales = db.query(orm_models.MetricasValorPeriodistico).filter(
+                    orm_models.MetricasValorPeriodistico.session_id == noticia.session_id
+                ).all()
+                if metricas_temporales:
+                    # Limpiar duplicados previos para esta noticia
+                    db.query(orm_models.MetricasValorPeriodistico).filter(
+                        orm_models.MetricasValorPeriodistico.noticia_id == nueva_noticia.id
+                    ).delete()
+                    db.commit()
+                    for metrica in metricas_temporales:
+                        metrica.noticia_id = nueva_noticia.id
+                        metrica.session_id = None
+                        print(f"📊 Métrica asociada: tokens={metrica.tokens_total}, costo={metrica.costo_generacion}")
+                    db.commit()
+                    print(f"✅ {len(metricas_temporales)} métricas asociadas exitosamente")
+                    # Si ya asociamos métricas, NO recalcular ni guardar nuevas métricas
+                    data = nueva_noticia.to_dict()
+                    salidas_ids = [rel.salida_id for rel in db.query(orm_models.NoticiaSalida).filter_by(noticia_id=nueva_noticia.id)]
+                    data['salidas_ids'] = salidas_ids
+                    return data
+                else:
+                    print(f"⚠️ No se encontraron métricas para session_id: {noticia.session_id}")
+                    # Si no hay métricas temporales, recalcular y guardar nuevas métricas
+                    from services.generador_ia import GeneradorIA
+                    generador = GeneradorIA(db)
+                    # Recalcular métricas solo si no existen
+                    metricas = generador.calcular_metricas_valor(
+                        tiempo_generacion_total=0.0,
+                        tokens_totales=0,
+                        cantidad_salidas=0,
+                        modelo_usado="",
+                        contenido_total="",
+                        tipo_noticia=getattr(noticia, 'tipo', 'feature'),
+                        complejidad=getattr(noticia, 'complejidad', 'media')
+                    )
+                    metrica_nueva = orm_models.MetricasValorPeriodistico(
+                        noticia_id=nueva_noticia.id,
+                        usuario_id=current_user.id,
+                        **metricas
+                    )
+                    db.add(metrica_nueva)
+                    db.commit()
+                    print(f"✅ Métrica nueva creada y asociada a noticia {nueva_noticia.id}")
+            except Exception as e:
+                print(f"❌ Error asociando métricas: {e}")
+                db.rollback()
+                db.add(nueva_noticia)
+                db.commit()
+                db.refresh(nueva_noticia)
     # Asociar salidas si se envían
     if getattr(noticia, 'salidas_ids', None):
         for salida_id in noticia.salidas_ids:

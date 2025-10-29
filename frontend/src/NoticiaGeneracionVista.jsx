@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from "react";
 import NoticiaForm from "./components/NoticiaForm";
 import NoticiasGeneradasPanel from "./components/NoticiasGeneradasPanel";
@@ -7,16 +5,28 @@ import { useAuth } from "./context/AuthContext";
 
 import generacionService from "./services/generacion";
 import { salidaService, llmService } from "./services/maestros";
+import metricasService from "./services/metricas";
 
 import { api } from "./services/api";
 
 function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
   const { token } = useAuth();
   
-  // Detectar si estamos en modo edición desde URL
+  // Detectar si estamos en modo edición desde URL o prop
   const urlParams = new URLSearchParams(window.location.search);
   const editId = urlParams.get('edit');
-  const isEditMode = editId && !isNaN(parseInt(editId));
+  const isEditMode = Boolean(noticiaIdProp || (editId && !isNaN(parseInt(editId))));
+  
+  console.log('🔍 Debug modo edición (ACTUALIZADO):', {
+    url: window.location.href,
+    search: window.location.search,
+    editId,
+    isEditMode,
+    noticiaIdProp,
+    detectedFromProp: Boolean(noticiaIdProp),
+    detectedFromUrl: Boolean(editId && !isNaN(parseInt(editId))),
+    timestamp: new Date().toISOString()
+  });
   
   // Estado para controlar si el modo edición es válido
   const [editModeValid, setEditModeValid] = useState(!isEditMode); // Si no es modo edición, es válido por defecto
@@ -39,9 +49,11 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
   
   // Estado para salidas temporales (antes de publicar)
   const [salidasTemporales, setSalidasTemporales] = useState([]);
-  
+
   // Estado para métricas de valor periodístico (solo para admins)
   const [metricas, setMetricas] = useState(null);
+
+
 
   // Obtener salidas reales desde el backend
   useEffect(() => {
@@ -84,6 +96,8 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
 
   // Cargar datos de la noticia si estamos en modo edición
   useEffect(() => {
+    console.log('🔍 useEffect edición triggered:', { isEditMode, noticiaId });
+    
     if (isEditMode && noticiaId) {
       async function cargarNoticiaParaEdicion() {
         try {
@@ -100,6 +114,24 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
           });
           
           console.log("✅ Noticia cargada para edición:", noticia.titulo);
+          
+          // 📊 Cargar métricas existentes si las hay
+          try {
+            // 📊 Cargar métricas solo si la noticia está publicada
+            console.log(`📊 Buscando métricas para noticia publicada ${noticiaId}...`);
+            const metricasExistentes = await metricasService.obtenerMetricasNoticia(noticiaId);
+            if (metricasExistentes) {
+              console.log("✅ Métricas encontradas:", metricasExistentes);
+              setMetricas(metricasExistentes);
+            } else {
+              console.log("ℹ️ No se encontraron métricas para esta noticia publicada");
+              setMetricas(null);
+            }
+          } catch (metricasError) {
+            console.log("⚠️ Error cargando métricas (normal si no es admin):", metricasError.message);
+            setMetricas(null);
+          }
+          
           setEditModeValid(true); // ✅ Modo edición válido
         } catch (error) {
           console.error("❌ Error cargando noticia para edición:", error);
@@ -175,6 +207,8 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
 
       console.log("✅ Salidas generadas (temporal):", resultadoGeneracion);
 
+      // Eliminado: ya no se usa session_id, solo mantener métricas y salidas en memoria hasta publicar
+
       // Extraer métricas si están disponibles (solo para admins)
       if (resultadoGeneracion.metricas_valor) {
         console.log("📈 Métricas de valor recibidas:", resultadoGeneracion.metricas_valor);
@@ -247,6 +281,21 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
         temporal: !noticiaId // Marcar como temporal si es creación
       });
 
+      // 5. Si estamos editando una noticia existente y hay métricas nuevas, 
+      // recargar desde BD para obtener las métricas actualizadas
+      if (isEditMode && noticiaId && resultadoGeneracion.metricas_valor) {
+        console.log("🔄 Recargando métricas actualizadas desde BD...");
+        try {
+          const metricasActualizadas = await metricasService.obtenerMetricasNoticia(noticiaId);
+          if (metricasActualizadas) {
+            console.log("✅ Métricas actualizadas recargadas:", metricasActualizadas);
+            setMetricas(metricasActualizadas);
+          }
+        } catch (error) {
+          console.log("ℹ️ No se pudieron recargar métricas actualizadas:", error);
+        }
+      }
+
     } catch (err) {
       console.error("❌ Error generando noticias:", err);
       alert("Error generando salidas: " + (err?.response?.data?.detail || err.message));
@@ -297,7 +346,7 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
             });
           }
         }
-        // Log para depuración de agrupamiento de salidas
+        // Log para depuración de agrupamento de salidas
         console.log('Agrupadas para panel derecho:', agrupadas);
         setNoticiasPorSalida(agrupadas);
         setNoticiaFormData({
@@ -374,11 +423,14 @@ function NoticiaGeneracionVista({ noticiaId: noticiaIdProp, onVolverLista }) {
           llmId={llmId}
           salidasTemporales={salidasTemporales}
           metricas={metricas}
+          sessionIdTemporal={typeof sessionIdTemporal !== 'undefined' ? sessionIdTemporal : null}
           onPublicado={() => { if (onVolverLista) onVolverLista(true); }}
         />
       </div>
     </div>
   );
 }
+
+
 
 export default NoticiaGeneracionVista;

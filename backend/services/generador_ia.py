@@ -617,7 +617,8 @@ Genera el contenido optimizado:"""
         llm: LLMMaestro,
         regenerar: bool = True,
         usuario_id: Optional[int] = None,
-        capturar_metricas: bool = False
+        capturar_metricas: bool = False,
+        session_id: Optional[str] = None  # Para métricas temporales
     ) -> Dict[str, Any]:
         """
         Genera contenido para múltiples salidas usando datos temporales
@@ -630,12 +631,19 @@ Genera el contenido optimizado:"""
             regenerar: Siempre True para temporal
             usuario_id: ID del usuario (para métricas admin)
             capturar_metricas: Si capturar métricas de valor periodístico
+            session_id: ID de sesión para métricas temporales
             
         Returns:
             Dict con resultados temporales y métricas (si es admin)
         """
         resultados = []
         errores = []
+        
+        # Identificador único para detectar llamadas duplicadas
+        import uuid
+        llamada_id = str(uuid.uuid4())[:8]
+        print(f"🚀 INICIO generar_multiples_salidas_temporal - Llamada ID: {llamada_id}")
+        print(f"🔍 Params: noticia_id={getattr(noticia_temporal, 'id', None)}, salidas={len(salidas)}, capturar_metricas={capturar_metricas}")
         
         # Captura de tiempo inicio para métricas
         inicio_total = time.time()
@@ -668,8 +676,10 @@ Genera el contenido optimizado:"""
                 # Acumular para métricas
                 if capturar_metricas:
                     tokens_salida = resultado_temporal.get("tokens_usados", 0)
+                    print(f"🔍 Debug tokens - Salida {salida.nombre}: tokens_salida={tokens_salida}")
                     tokens_totales += tokens_salida
                     contenido_total += f"{resultado_temporal.get('titulo', '')} {resultado_temporal.get('contenido', '')} "
+                    print(f"🔍 Debug tokens - Total acumulado: {tokens_totales}")
                 
                 print(f"✅ Salida temporal generada: {salida.nombre} ({tiempo_salida:.2f}s)")
                 resultados.append(resultado_temporal)
@@ -706,12 +716,25 @@ Genera el contenido optimizado:"""
         if capturar_metricas and len(resultados) > 0:
             try:
                 print("📈 Iniciando cálculo de métricas...")
+                print(f"🔍 Debug métricas - tokens_totales={tokens_totales}, contenido_total_len={len(contenido_total)}")
                 tipo_noticia = getattr(noticia_temporal, 'tipo', 'feature')
                 complejidad = 'media'  # Se puede hacer más sofisticado
                 
+                tokens_estimados = len(contenido_total.split()) * 1.3
+                tokens_finales = max(tokens_totales, tokens_estimados)
+                print(f"🔍 Debug métricas DETALLADO:")
+                print(f"  - tokens_totales (acumulado): {tokens_totales}")
+                print(f"  - contenido_total_len: {len(contenido_total)} chars")
+                print(f"  - contenido_total palabras: {len(contenido_total.split())} palabras")
+                print(f"  - tokens_estimados: {tokens_estimados}")
+                print(f"  - tokens_finales (max): {tokens_finales}")
+                print(f"  - tiempo_total: {tiempo_total} segundos")
+                print(f"  - cantidad_salidas: {len(resultados)}")
+                print(f"  - modelo_usado: {llm.modelo_id}")
+                
                 metricas = self.calcular_metricas_valor(
                     tiempo_generacion_total=tiempo_total,
-                    tokens_totales=max(tokens_totales, len(contenido_total.split()) * 1.3),  # Estimación si no hay tokens
+                    tokens_totales=tokens_finales,
                     cantidad_salidas=len(resultados),
                     modelo_usado=llm.modelo_id,  # Corregido: modelo_id en lugar de modelo
                     contenido_total=contenido_total,
@@ -719,10 +742,97 @@ Genera el contenido optimizado:"""
                     complejidad=complejidad
                 )
                 
+                print(f"🔍 Debug métricas CALCULADAS:")
+                print(f"  - tokens_total: {metricas.get('tokens_total', 'NO EXISTE')}")
+                print(f"  - costo_generacion: {metricas.get('costo_generacion', 'NO EXISTE')}")
+                print(f"  - costo_estimado_manual: {metricas.get('costo_estimado_manual', 'NO EXISTE')}")
+                print(f"  - roi_porcentaje: {metricas.get('roi_porcentaje', 'NO EXISTE')}")
+                
                 # Añadir resumen de métricas a la respuesta
                 response["metricas_valor"] = self.obtener_resumen_metricas(metricas).dict()
                 
                 print(f"📈 Métricas calculadas - ROI: {metricas['roi_porcentaje']}%, Ahorro: {metricas['ahorro_tiempo_minutos']} min")
+                print(f"🔍 Debug métricas finales - tokens_total: {metricas['tokens_total']}, costo_generacion: {metricas['costo_generacion']}")
+                
+                # Determinar si se debe guardar en BD
+                es_noticia_existente = hasattr(noticia_temporal, 'id') and noticia_temporal.id
+                tiene_usuario_id = usuario_id is not None
+                
+                print(f"🔍 Evaluación guardado BD:")
+                print(f"  - es_noticia_existente: {es_noticia_existente}")
+                print(f"  - tiene_usuario_id: {tiene_usuario_id}")
+                print(f"  - noticia_temporal.id: {getattr(noticia_temporal, 'id', 'NO EXISTE')}")
+                
+                # Guardar métricas si: es noticia existente O si tenemos usuario_id (admin generando temporal)
+                if es_noticia_existente or tiene_usuario_id:
+                    try:
+                        # Determinar el noticia_id para guardar
+                        if es_noticia_existente:
+                            noticia_id_para_guardar = noticia_temporal.id
+                            print(f"💾 Guardando métricas para noticia existente ID: {noticia_id_para_guardar}")
+                        else:
+                            # Es generación temporal pero queremos guardar métricas (admin)
+                            # Necesitamos crear una entrada temporal o usar un ID especial
+                            print(f"💾 Generación temporal con métricas para usuario {usuario_id}")
+                            print(f"⚠️ SKIP: No se puede guardar métricas sin noticia_id válido")
+                            noticia_id_para_guardar = None
+                        
+                        if noticia_id_para_guardar:
+                            print(f"🔍 Valores consolidados a guardar: tokens={metricas['tokens_total']}, costo={metricas['costo_generacion']}")
+                            
+                            # Primero limpiar duplicados existentes
+                            self.limpiar_metricas_duplicadas(noticia_id_para_guardar)
+                            
+                            # Verificar si ya existe una métrica para esta noticia en esta sesión
+                            metrica_existente = self.db.query(MetricasValorPeriodistico).filter(
+                                MetricasValorPeriodistico.noticia_id == noticia_id_para_guardar
+                            ).order_by(MetricasValorPeriodistico.created_at.desc()).first()
+                            
+                            # Si existe una métrica reciente (menos de 5 minutos), actualizarla en lugar de crear nueva
+                            from datetime import datetime, timedelta
+                            now = datetime.now()
+                            
+                            if (metrica_existente and 
+                                metrica_existente.created_at and 
+                                (now - metrica_existente.created_at) < timedelta(minutes=5)):
+                                
+                                print(f"🔄 Actualizando métrica existente ID: {metrica_existente.id} (creada hace {(now - metrica_existente.created_at).total_seconds():.0f}s)")
+                                
+                                # Actualizar con nuevos valores consolidados
+                                metrica_existente.tiempo_generacion_total = metricas["tiempo_generacion_total"]
+                                metrica_existente.tokens_total = metricas["tokens_total"]
+                                metrica_existente.costo_generacion = metricas["costo_generacion"]
+                                metrica_existente.costo_estimado_manual = metricas["costo_estimado_manual"]
+                                metrica_existente.ahorro_costo = metricas["ahorro_costo"]
+                                metrica_existente.cantidad_salidas_generadas = metricas["cantidad_salidas_generadas"]
+                                metrica_existente.cantidad_formatos_diferentes = metricas["cantidad_formatos_diferentes"]
+                                metrica_existente.velocidad_palabras_por_segundo = metricas["velocidad_palabras_por_segundo"]
+                                metrica_existente.roi_porcentaje = metricas["roi_porcentaje"]
+                                metrica_existente.updated_at = now
+                                
+                                self.db.commit()
+                                self.db.refresh(metrica_existente)
+                                metrica_guardada = metrica_existente
+                                print(f"✅ Métrica actualizada en BD con ID: {metrica_guardada.id}")
+                            else:
+                                # Crear nueva métrica
+                                print(f"📝 Creando nueva métrica para noticia {noticia_id_para_guardar} o session {session_id}")
+                                metrica_guardada = self.guardar_metricas_valor(
+                                    noticia_id=noticia_id_para_guardar,
+                                    usuario_id=usuario_id,
+                                    metricas=metricas,
+                                    session_id=session_id  # Pasar session_id para métricas temporales
+                                )
+                                print(f"✅ Nueva métrica creada en BD con ID: {metrica_guardada.id}")
+                            
+                            # Verificar que se guardó correctamente
+                            if metrica_guardada:
+                                print(f"🔍 Verificación final: BD tokens={metrica_guardada.tokens_total}, BD costo={metrica_guardada.costo_generacion}")
+                    except Exception as save_error:
+                        print(f"⚠️ Error guardando métricas en BD: {save_error}")
+                        import traceback
+                        traceback.print_exc()
+                        # No fallar la respuesta por errores de guardado
                 
             except Exception as e:
                 print(f"⚠️ Error calculando métricas: {e}")
@@ -732,6 +842,7 @@ Genera el contenido optimizado:"""
         else:
             print(f"❌ No se calcularán métricas: capturar_metricas={capturar_metricas}, len(resultados)={len(resultados)}")
         
+        print(f"🏁 FIN generar_multiples_salidas_temporal - Llamada ID: {llamada_id}")
         return response
     
     def generar_para_salida_temporal(
@@ -969,9 +1080,19 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
             Dict con métricas calculadas
         """
         
+        print(f"📊 INICIO calcular_metricas_valor:")
+        print(f"  - tiempo_generacion_total: {tiempo_generacion_total}")
+        print(f"  - tokens_totales: {tokens_totales}")
+        print(f"  - cantidad_salidas: {cantidad_salidas}")
+        print(f"  - modelo_usado: {modelo_usado}")
+        print(f"  - contenido_total_len: {len(contenido_total)}")
+        
         # Cálculos base
         palabras_totales = len(contenido_total.split())
         velocidad_palabras_segundo = palabras_totales / max(tiempo_generacion_total, 0.1)
+        
+        print(f"  - palabras_totales: {palabras_totales}")
+        print(f"  - velocidad_palabras_segundo: {velocidad_palabras_segundo}")
         
         # Estimaciones de tiempo manual basadas en tipo y complejidad
         tiempos_base_manual = {
@@ -998,14 +1119,24 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         
         precio_modelo = precios_modelo.get(modelo_usado, precios_modelo["claude-3-5-sonnet-20241022"])
         
+        print(f"  - modelo_usado buscado: '{modelo_usado}'")
+        print(f"  - precio_modelo encontrado: {precio_modelo}")
+        
         # Estimación conservadora: 70% input, 30% output
         tokens_input = int(tokens_totales * 0.7)
         tokens_output = int(tokens_totales * 0.3)
+        
+        print(f"  - tokens_input (70%): {tokens_input}")
+        print(f"  - tokens_output (30%): {tokens_output}")
         
         costo_generacion = (
             (tokens_input / 1000) * precio_modelo["input"] +
             (tokens_output / 1000) * precio_modelo["output"]
         )
+        
+        print(f"  - costo_input: {(tokens_input / 1000) * precio_modelo['input']}")
+        print(f"  - costo_output: {(tokens_output / 1000) * precio_modelo['output']}")
+        print(f"  - costo_generacion TOTAL: {costo_generacion}")
         
         # Costo manual: $15/hora promedio periodista
         costo_manual = (tiempo_manual_total / 60) * 15.0
@@ -1026,7 +1157,7 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         # Conteo de formatos diferentes
         formatos_diferentes = min(cantidad_salidas, 5)  # Max 5 formatos típicos
         
-        return {
+        resultado = {
             "tiempo_generacion_total": tiempo_generacion_total,
             "tiempo_estimado_manual": tiempo_manual_total,
             "ahorro_tiempo_minutos": int(ahorro_tiempo_minutos),
@@ -1042,46 +1173,106 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
             "tipo_noticia": tipo_noticia,
             "complejidad_estimada": complejidad
         }
+        
+        print(f"📊 FIN calcular_metricas_valor - RESULTADO:")
+        print(f"  - tokens_total: {resultado['tokens_total']}")
+        print(f"  - costo_generacion: {resultado['costo_generacion']}")
+        print(f"  - costo_estimado_manual: {resultado['costo_estimado_manual']}")
+        print(f"  - roi_porcentaje: {resultado['roi_porcentaje']}")
+        
+        return resultado
     
+    def limpiar_metricas_duplicadas(self, noticia_id: int) -> None:
+        """
+        Limpia métricas duplicadas para una noticia, manteniendo solo la más reciente
+        """
+        try:
+            # Buscar todas las métricas para esta noticia
+            metricas = self.db.query(MetricasValorPeriodistico).filter(
+                MetricasValorPeriodistico.noticia_id == noticia_id
+            ).order_by(MetricasValorPeriodistico.created_at.desc()).all()
+            
+            if len(metricas) > 1:
+                print(f"🧹 Limpiando {len(metricas)-1} métricas duplicadas para noticia {noticia_id}")
+                
+                # Mantener solo la más reciente, eliminar el resto
+                metricas_a_eliminar = metricas[1:]  # Todas excepto la primera (más reciente)
+                
+                for metrica in metricas_a_eliminar:
+                    print(f"🗑️ Eliminando métrica duplicada ID: {metrica.id}")
+                    self.db.delete(metrica)
+                
+                self.db.commit()
+                print(f"✅ Métricas duplicadas eliminadas. Quedó solo ID: {metricas[0].id}")
+                
+        except Exception as e:
+            print(f"⚠️ Error limpiando métricas duplicadas: {e}")
+            self.db.rollback()
+
     def guardar_metricas_valor(
         self,
         metricas: Dict[str, Any],
-        noticia_id: int,
-        usuario_id: Optional[int] = None
+        noticia_id: Optional[int] = None,
+        usuario_id: Optional[int] = None,
+    # Eliminado: session_id, ya no se usa para métricas temporales
     ) -> Optional[MetricasValorPeriodistico]:
         """
         Guarda métricas de valor en la base de datos
         Solo para uso por administradores
+    Solo soporta noticia_id (persistente)
         """
+        import uuid
+        save_id = str(uuid.uuid4())[:8]
+        print(f"💾 INICIO guardar_metricas_valor - Save ID: {save_id}")
+        print(f"💾 Input metricas dict keys: {list(metricas.keys())}")
+        print(f"💾 Guardando para noticia_id={noticia_id}")
+        
+        # Validar que tenga noticia_id
+        if not noticia_id:
+            print(f"⚠️ ERROR: Necesita noticia_id para guardar métricas")
+            return None
+        print(f"💾 tokens_total: {metricas.get('tokens_total', 'MISSING')}")
+        print(f"💾 costo_generacion: {metricas.get('costo_generacion', 'MISSING')}")
+        
         try:
-            metrica_obj = MetricasValorPeriodistico(
-                noticia_id=noticia_id,
-                tiempo_generacion_total=metricas["tiempo_generacion_total"],
-                tiempo_por_salida={},  # Se puede expandir en el futuro
-                tiempo_estimado_manual=metricas["tiempo_estimado_manual"],
-                ahorro_tiempo_minutos=metricas["ahorro_tiempo_minutos"],
-                tokens_total=metricas["tokens_total"],
-                costo_generacion=metricas["costo_generacion"],
-                costo_estimado_manual=metricas["costo_estimado_manual"],
-                ahorro_costo=metricas["ahorro_costo"],
-                cantidad_salidas_generadas=metricas["cantidad_salidas_generadas"],
-                cantidad_formatos_diferentes=metricas["cantidad_formatos_diferentes"],
-                velocidad_palabras_por_segundo=metricas["velocidad_palabras_por_segundo"],
-                modelo_usado=metricas["modelo_usado"],
-                usuario_id=usuario_id,
-                tipo_noticia=metricas["tipo_noticia"],
-                complejidad_estimada=metricas["complejidad_estimada"],
-                roi_porcentaje=metricas["roi_porcentaje"]
-            )
-            
+            print(f"🔎 Dump metricas dict antes de asignar:")
+            for k, v in metricas.items():
+                print(f"    {k}: {v} (type={type(v)})")
+
+                metrica_obj = MetricasValorPeriodistico(
+                    noticia_id=noticia_id,
+                    tiempo_generacion_total=metricas.get("tiempo_generacion_total", 0),
+                    tiempo_por_salida={},  # Se puede expandir en el futuro
+                    tiempo_estimado_manual=metricas.get("tiempo_estimado_manual", 30),
+                    ahorro_tiempo_minutos=metricas.get("ahorro_tiempo_minutos", 0),
+                    tokens_total=metricas.get("tokens_total", 0),
+                    costo_generacion=metricas.get("costo_generacion", 0.0),
+                    costo_estimado_manual=metricas.get("costo_estimado_manual", 0),
+                    ahorro_costo=metricas.get("ahorro_costo", 0.0),
+                    cantidad_salidas_generadas=metricas.get("cantidad_salidas_generadas", 0),
+                    cantidad_formatos_diferentes=metricas.get("cantidad_formatos_diferentes", 0),
+                    velocidad_palabras_por_segundo=metricas.get("velocidad_palabras_por_segundo", 0.0),
+                    modelo_usado=metricas.get("modelo_usado", ""),
+                    usuario_id=usuario_id,
+                    tipo_noticia=metricas.get("tipo_noticia", ""),
+                    complejidad_estimada=metricas.get("complejidad_estimada", ""),
+                    roi_porcentaje=metricas.get("roi_porcentaje", 0.0)
+                )
+
+            print(f"🔎 Dump metrica_obj antes de commit:")
+            print(f"    tokens_total: {metrica_obj.tokens_total} (type={type(metrica_obj.tokens_total)})")
+            print(f"    costo_generacion: {metrica_obj.costo_generacion} (type={type(metrica_obj.costo_generacion)})")
+
             self.db.add(metrica_obj)
             self.db.commit()
             self.db.refresh(metrica_obj)
-            
+
+            print(f"💾 FIN guardar_metricas_valor - Save ID: {save_id} - BD ID: {metrica_obj.id}")
+            print(f"💾 Verificación post-commit: tokens={metrica_obj.tokens_total}, costo={metrica_obj.costo_generacion}")
             return metrica_obj
-            
+
         except Exception as e:
-            print(f"❌ Error guardando métricas de valor: {e}")
+            print(f"❌ Error guardando métricas de valor (Save ID: {save_id}): {e}")
             self.db.rollback()
             return None
     

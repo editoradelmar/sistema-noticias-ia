@@ -13,6 +13,7 @@ from core.database import init_db, engine
 from routers import noticias, ai, auth, proyectos
 from routers import llm_maestro, prompts, estilos, secciones, salidas, generacion
 from routers import admin_usuarios  # Administración de usuarios
+from routers import metricas  # Métricas de valor periodístico
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -73,6 +74,7 @@ app.include_router(estilos.router)
 app.include_router(secciones.router)
 app.include_router(salidas.router)
 app.include_router(generacion.router)  # 🎉 Nuevo - Generación IA
+app.include_router(metricas.router)  # 📊 Nuevo - Métricas de valor periodístico
 # Routers para manejo de items
 from routers import prompt_items, estilo_items
 app.include_router(prompt_items.router)

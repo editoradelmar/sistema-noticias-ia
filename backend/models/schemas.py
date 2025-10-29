@@ -34,6 +34,7 @@ class NoticiaCreate(NoticiaBase):
     proyecto_id: Optional[int] = None
     llm_id: Optional[int] = None
     estado: Optional[str] = Field('activo', description="Estado de la noticia: activo, archivado, eliminado")
+    session_id: Optional[str] = Field(None, description="ID de sesión para asociar métricas temporales")
 
 class NoticiaUpdate(BaseModel):
     """Schema para actualizar noticias (campos opcionales)"""

@@ -487,7 +487,8 @@ class MetricasValorPeriodistico(Base):
     __tablename__ = 'metricas_valor_periodistico'
     
     id = Column(Integer, primary_key=True, index=True)
-    noticia_id = Column(Integer, ForeignKey('noticias.id', ondelete='CASCADE'), nullable=False, index=True)
+    noticia_id = Column(Integer, ForeignKey('noticias.id', ondelete='CASCADE'), nullable=True, index=True)  # Ahora nullable
+    # Eliminado: session_id, ya no se usa para métricas temporales
     
     # Métricas de Eficiencia Temporal
     tiempo_generacion_total = Column(Numeric(8, 3), nullable=False)  # segundos totales

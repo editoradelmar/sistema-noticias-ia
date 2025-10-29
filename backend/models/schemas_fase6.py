@@ -363,7 +363,7 @@ class NoticiaSalida(NoticiaSalidaBase):
 
 
 class NoticiaSalidaTemporal(BaseModel):
-    """Schema para salidas temporales (sin guardar en BD)"""
+    """Schema para salidas temporales (solo en memoria, no se guarda en BD)"""
     id: Optional[int] = Field(None, description="ID temporal (None para temporales)")
     noticia_id: Optional[int] = Field(None, description="ID de noticia (None para temporales)")
     salida_id: int = Field(..., description="ID de la salida")
@@ -373,7 +373,7 @@ class NoticiaSalidaTemporal(BaseModel):
     tiempo_generacion_ms: Optional[int] = Field(None, ge=0, description="Tiempo de generación en ms")
     generado_en: str = Field(..., description="Timestamp de generación")
     nombre_salida: Optional[str] = None
-    temporal: Optional[bool] = Field(True, description="Marca que es temporal")
+    temporal: Optional[bool] = Field(True, description="Marca que es temporal (solo en memoria)")
 
 
 class NoticiaSalidaConRelaciones(NoticiaSalida):
@@ -384,7 +384,7 @@ class NoticiaSalidaConRelaciones(NoticiaSalida):
 # ==================== GENERACIÓN IA ====================
 
 class DatosNoticiaTemporal(BaseModel):
-    """Datos de noticia temporal para generación sin BD"""
+    """Datos de noticia temporal para generación en memoria (sin BD)"""
     id: Optional[int] = Field(None, description="ID si existe, None para temporal")
     titulo: str = Field(..., min_length=5, description="Título de la noticia")
     contenido: str = Field(..., min_length=10, description="Contenido de la noticia")
@@ -398,10 +398,13 @@ class GenerarSalidasRequest(BaseModel):
     salidas_ids: List[int] = Field(..., min_items=1, description="IDs de las salidas a generar")
     llm_id: int = Field(..., description="ID del LLM a usar")
     regenerar: bool = Field(default=False, description="¿Regenerar si ya existe?")
-    
-    # Campos para modo temporal
-    temporal: bool = Field(default=False, description="Modo temporal (no guardar en BD)")
-    datosNoticia: Optional[DatosNoticiaTemporal] = Field(None, description="Datos temporales si temporal=True")
+
+    # Campos para modo temporal (solo en memoria)
+    temporal: bool = Field(default=False, description="Modo temporal (no guardar en BD, solo en memoria)")
+    datosNoticia: Optional[DatosNoticiaTemporal] = Field(None, description="Datos temporales si temporal=True (solo en memoria)")
+    # Eliminado: session_id, ya no se usa para métricas temporales
+
+    metricas_valor: Optional[Dict[str, Any]] = Field(None, description="Métricas de valor periodístico (solo para admins)")
 
 
 class GenerarSalidasTemporalRequest(BaseModel):

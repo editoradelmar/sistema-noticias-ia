@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { FileText, Edit, Trash2, Send, Copy } from 'lucide-react';
 import generacionService from '../services/generacion';
@@ -9,7 +8,7 @@ import MetricasValor from './MetricasValor';
 export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublicar, onPublicado, noticiaFormData, llmId, loadingGeneracion, loadingPublicacion, metricas }) {
   // Variable de entorno para controlar el modo de funcionamiento
   const simplifiedMode = import.meta.env.VITE_SIMPLIFIED_PUBLICATION_MODE === 'true';
-  
+
   const salidas = [
     { key: "impreso", label: "Impreso" },
     { key: "web", label: "Web" },
@@ -78,7 +77,34 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
 
   const handlePublicar = async () => {
     if (loadingPublicar) return; // Evitar doble clic
-    
+
+    // Mostrar métricas en consola justo antes de publicar
+    if (typeof metricas === 'object' && metricas !== null && Object.keys(metricas).length > 0) {
+      console.log('📊 Métricas a publicar:', metricas);
+    } else {
+      setToast({ show: true, message: 'Error: No hay métricas calculadas para publicar. No se enviará el registro.' });
+      console.error('❌ Error: No hay métricas calculadas para publicar.');
+      return;
+    }
+
+    // Validar y construir métricas completas para el payload
+    const metricasCompletas = {
+      tiempo_generacion_total: metricas?.tiempo_generacion_total ?? 0,
+      ahorro_tiempo_minutos: metricas?.ahorro_tiempo_minutos ?? 0,
+      ahorro_costo: metricas?.ahorro_costo ?? 0,
+      costo_generacion: metricas?.costo_generacion ?? 0,
+      costo_estimado_manual: metricas?.costo_estimado_manual ?? 0,
+      cantidad_salidas_generadas: metricas?.cantidad_salidas_generadas ?? 0,
+      cantidad_formatos_diferentes: metricas?.cantidad_formatos_diferentes ?? 0,
+      velocidad_palabras_por_segundo: metricas?.velocidad_palabras_por_segundo ?? 0,
+      modelo_usado: metricas?.modelo_usado ?? '',
+      usuario_id: metricas?.usuario_id ?? null,
+      tipo_noticia: metricas?.tipo_noticia ?? '',
+      complejidad_estimada: metricas?.complejidad_estimada ?? '',
+      roi_porcentaje: metricas?.roi_porcentaje ?? 0,
+      tokens_total: metricas?.tokens_total ?? 0
+    };
+
     setLoadingPublicar(true);
     try {
       // Determinar el llm_id a usar: preferir noticiaFormData.llm_id, si no, usar llmId prop
@@ -111,26 +137,31 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
     }
     
     let noticiaId;
-      // Si la noticia no existe, crearla primero
-  if (!noticiaFormData?.id) {
-        // Saneamiento de payload para evitar error 422
-        const payload = {
-          titulo: noticiaFormData.titulo,
-          contenido: noticiaFormData.contenido,
-          seccion_id: noticiaFormData.seccion_id ? Number(noticiaFormData.seccion_id) : undefined,
-          proyecto_id: noticiaFormData.proyecto_id ? Number(noticiaFormData.proyecto_id) : undefined,
-          salidas_ids: Array.isArray(noticiaFormData.salidas_ids)
-            ? noticiaFormData.salidas_ids.map(Number).filter(n => !isNaN(n))
-            : [],
-          llm_id: llm_id_final
-        };
-        // Eliminar campos undefined
-        Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
-        const noticia = await api.crearNoticia(payload);
-        noticiaId = noticia.id;
-      } else {
-        noticiaId = noticiaFormData.id;
+    // Si la noticia no existe, crearla primero
+    if (!noticiaFormData?.id) {
+      // Saneamiento de payload para evitar error 422
+      const payload = {
+        titulo: noticiaFormData.titulo,
+        contenido: noticiaFormData.contenido,
+        seccion_id: noticiaFormData.seccion_id ? Number(noticiaFormData.seccion_id) : undefined,
+        proyecto_id: noticiaFormData.proyecto_id ? Number(noticiaFormData.proyecto_id) : undefined,
+        salidas_ids: Array.isArray(noticiaFormData.salidas_ids)
+          ? noticiaFormData.salidas_ids.map(Number).filter(n => !isNaN(n))
+          : [],
+        llm_id: llm_id_final,
+        // CORRECCIÓN: incluir session_id en el payload desde noticiaFormData
+        session_id: noticiaFormData.session_id || undefined
+      };
+      // Eliminar campos undefined
+      Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
+      const noticia = await api.crearNoticia(payload);
+      noticiaId = noticia.id;
+      if (noticiaFormData.session_id) {
+        console.log('🆔 Incluyendo session_id en publicación:', noticiaFormData.session_id);
       }
+    } else {
+      noticiaId = noticiaFormData.id;
+    }
       // Crear las salidas en el backend
       // Solo enviar los campos esperados por el backend
       const payload = {
@@ -140,7 +171,9 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
         salidas: salidasPublicadas.map(s => ({
           titulo: s.titulo,
           contenido_generado: s.contenido
-        }))
+        })),
+        metricas_valor: metricasCompletas,
+        session_id: noticiaFormData.session_id || undefined
       };
       // Eliminar cualquier campo undefined o null
       Object.keys(payload).forEach(k => (payload[k] === undefined) && delete payload[k]);
