@@ -11,9 +11,7 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
-      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
-    volumes:
-      - ./backend:/app
+      - ALLOWED_ORIGINS=http://localhost:5173,http://172.17.200.87:5173,http://localhost:3000
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     networks:
       - noticias-network
@@ -32,20 +30,25 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=http://localhost:8000/api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev -- --host
+      - VITE_API_BASE_URL=http://backend:8000
+    command: npm run dev -- --host 0.0.0.0 --port 5173
     networks:
       - noticias-network
     depends_on:
       - backend
 
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: mi_db
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: clave
+    ports:
+      - "5432:5432"
+    networks:
+      - noticias-network
+
 networks:
   noticias-network:
     driver: bridge
-
-volumes:
-  backend-data:
-  frontend-data:
