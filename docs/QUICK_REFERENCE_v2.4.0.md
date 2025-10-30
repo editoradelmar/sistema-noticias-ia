@@ -4,8 +4,8 @@
 
 ### 📍 URLs Actuales
 - **Frontend**: `https://woodcock-still-tetra.ngrok-free.app`
-- **Backend**: `https://credible-kodiak-one.ngrok-free.app`
-- **API Base**: `https://credible-kodiak-one.ngrok-free.app/api`
+- **Backend**: `https://epic-exactly-bull.ngrok-free.app`
+- **API Base**: `https://epic-exactly-bull.ngrok-free.app/api`
 
 ### 🔧 Estado de Servicios
 - ✅ **Backend**: CMD independiente (Puerto 8000)

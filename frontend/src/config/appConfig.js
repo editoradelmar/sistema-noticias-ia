@@ -21,7 +21,26 @@ export const appConfig = {
   EMAIL: getEnvVar('VITE_EMAIL', 'hromero@eluniversal.com.co'),
   
   // URLs y APIs
-  API_BASE_URL: getEnvVar('VITE_API_BASE_URL', 'https://credible-kodiak-one.ngrok-free.app'),
+    // Resolver la URL base de la API con esta prioridad:
+    // 1. Variable de entorno VITE_API_BASE_URL (si está definida)
+    // 2. Si la app se sirve desde un host público (p.ej. ngrok) usar el origin actual
+    // 3. Por defecto usar http://localhost:8000
+    API_BASE_URL: (() => {
+      const env = getEnvVar('VITE_API_BASE_URL', '');
+      if (env && env.trim() !== '') return env;
+      try {
+        if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+          const hn = window.location.hostname;
+          // Si no es un host local, asumir que la API está disponible en el mismo origin
+          if (hn !== 'localhost' && !hn.startsWith('127.') && hn !== '') {
+            return `${window.location.protocol}//${window.location.host}`;
+          }
+        }
+      } catch (e) {
+        // entorno de build/server donde window no existe
+      }
+      return 'http://localhost:8000';
+    })(),
   
   // Configuración de desarrollo
   IS_DEVELOPMENT: import.meta.env.MODE === 'development',

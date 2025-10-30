@@ -1,4 +1,4 @@
-# 🚀 Sistema de Noticias con IA v2.4.0
+# 🚀 Sistema de Noticias con IA v2.3.1
 
 Sistema profesional de gestión de noticias con **administración de usuarios avanzada**, **jerarquía editorial**, **paginación optimizada**, **PostgreSQL**, **sistema de maestros multi-LLM** e integración de inteligencia artificial avanzada usando **FastAPI + React + Gemini/Claude**.
 
@@ -844,9 +844,9 @@ Authorization: Bearer <token>
 
 ## 📚 Documentación Adicional
 
-- 📐 [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitectura del sistema
-- 🚀 [QUICKSTART.md](./QUICKSTART.md) - Guía rápida 5 minutos
-- 🧠 [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) - Contexto completo
+  - 📐 [ARCHITECTURE.md](./ARCHITECTURE.md) - Arquitectura del sistema
+  - 🚀 [QUICKSTART.md](./QUICKSTART.md) - Guía rápida 5 minutos
+  - 🧠 [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) - Contexto completo
 - 📖 [API Docs](http://localhost:8000/docs) - Swagger UI (ejecutar backend)
 
 ---
@@ -1010,8 +1010,8 @@ Este proyecto fue posible gracias a estas increíbles tecnologías:
 
 ## 📞 Soporte y Contacto
 
-### 🆘 **Obtener Ayuda**
-- � **Documentación**: Consulta los archivos `.md` en la raíz del proyecto
+- ### 🆘 **Obtener Ayuda**
+- � **Documentación**: Consulta los archivos `.md` en la carpeta `docs/` del proyecto
 - � **Issues**: [GitHub Issues](https://github.com/editoradelmar/sistema-noticias-ia/issues)
 - � **Discusiones**: [GitHub Discussions](https://github.com/editoradelmar/sistema-noticias-ia/discussions)
 
@@ -1023,8 +1023,8 @@ Este proyecto fue posible gracias a estas increíbles tecnologías:
 ### 🔗 **Enlaces Importantes**
 - 🏠 **Repositorio**: [GitHub](https://github.com/editoradelmar/sistema-noticias-ia)
 - 📖 **Documentación**: [README completo](./README.md)
-- 🚀 **Guía Rápida**: [QUICKSTART.md](./QUICKSTART.md)
-- 📐 **Arquitectura**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+-- 🚀 **Guía Rápida**: [QUICKSTART.md](./QUICKSTART.md)
+-- 📐 **Arquitectura**: [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ---
 
@@ -1060,7 +1060,7 @@ Seguridad:       ████████████  95% (JWT + CORS + Validac
 ---
 
 
-**📅 Última actualización:** 2025-10-28  
+**📅 Última actualización:** 2025-10-30  
 **🔖 Versión actual:** v2.3.1 (Fixes críticos, atomicidad y restauración de salidas)  
 **🎯 Próxima versión:** v2.4.0 (Dashboard Analítico)  
 **👨‍💻 Desarrollador:** Hector Romero - Editor del Mar SA
@@ -1075,5 +1075,5 @@ Seguridad:       ████████████  95% (JWT + CORS + Validac
 
 ### 🌐 **URLs de Acceso (Demo)**
 - **Frontend**: https://woodcock-still-tetra.ngrok-free.app/
-- **Backend API**: https://credible-kodiak-one.ngrok-free.app/
-- **Documentación**: https://credible-kodiak-one.ngrok-free.app/docs
+- **Backend API**: https://epic-exactly-bull.ngrok-free.app/
+- **Documentación**: https://epic-exactly-bull.ngrok-free.app/docs

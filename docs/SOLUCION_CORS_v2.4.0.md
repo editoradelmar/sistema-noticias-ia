@@ -24,12 +24,12 @@ const API_BASE = `${appConfig.API_BASE_URL}/api`;
 
 ## Configuración Final Correcta
 
-### Frontend (woodcock-still-tetra.ngrok-free.app)
-- **appConfig.js**: Define `API_BASE_URL` como `https://credible-kodiak-one.ngrok-free.app`
-- **api.js**: Usa appConfig y agrega `/api` → `https://credible-kodiak-one.ngrok-free.app/api`
+### Frontend (http://localhost:5173)
+- **appConfig.js**: Define `API_BASE_URL` como `https://epic-exactly-bull.ngrok-free.app`
+- **api.js**: Usa appConfig y agrega `/api` → `https://epic-exactly-bull.ngrok-free.app/api`
 
-### Backend (credible-kodiak-one.ngrok-free.app)
-- **config.py**: CORS permite `https://woodcock-still-tetra.ngrok-free.app`
+### Backend (epic-exactly-bull.ngrok-free.app)
+- **config.py**: CORS permite `http://localhost:5173`
 - **main.py**: Configurado para recibir peticiones del frontend
 
 ## Cambios Realizados
@@ -58,8 +58,8 @@ ALLOWED_ORIGINS: str = (
     "http://172.17.100.64:5173,"
     "http://192.168.0.100:5173,"
     "http://192.168.1.100:5173,"
-    "https://credible-kodiak-one.ngrok-free.app,"
-    "https://woodcock-still-tetra.ngrok-free.app"  # ✅ Frontend permitido
+    "https://epic-exactly-bull.ngrok-free.app,"
+    "http://localhost:5173"  # ✅ Frontend permitido
 )
 ```
 
@@ -82,8 +82,8 @@ ALLOWED_ORIGINS: str = (
 
 ## Verificación del Fix
 
-1. **Frontend**: Las peticiones ahora usan `https://credible-kodiak-one.ngrok-free.app/api`
-2. **Backend**: Permite peticiones desde `https://woodcock-still-tetra.ngrok-free.app`
+1. **Frontend**: Las peticiones ahora usan `https://epic-exactly-bull.ngrok-free.app/api`
+2. **Backend**: Permite peticiones desde `http://localhost:5173`
 3. **Headers**: `ngrok-skip-browser-warning: true` en todas las peticiones
 4. **Configuración**: Centralizada en `appConfig.js` para fácil mantenimiento
 

@@ -10,7 +10,7 @@ from datetime import datetime
 
 # Configuración de prueba
 FRONTEND_ORIGIN = "https://woodcock-still-tetra.ngrok-free.app"
-BACKEND_BASE = "https://credible-kodiak-one.ngrok-free.app"
+BACKEND_BASE = "http://localhost:8000"
 API_BASE = f"{BACKEND_BASE}/api"
 
 def test_cors_preflight():

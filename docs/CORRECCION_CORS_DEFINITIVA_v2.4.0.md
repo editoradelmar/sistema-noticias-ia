@@ -4,7 +4,7 @@
 
 Error CORS persistente que impedía login y todas las peticiones de autenticación:
 ```
-Access to fetch at 'https://credible-kodiak-one.ngrok-free.app/api/auth/login' from origin 'https://woodcock-still-tetra.ngrok-free.app' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Access to fetch at 'https://epic-exactly-bull.ngrok-free.app/api/auth/login' from origin 'http://localhost:5173' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
 
 ## Causas Raíz Identificadas

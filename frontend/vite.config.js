@@ -13,12 +13,13 @@ export default defineConfig({
       '172.17.100.64',
       '192.168.0.100',
       '192.168.1.100',
-      'woodcock-still-tetra.ngrok-free.app'
+      'willyard-nonceremonial-leonila.ngrok-free.dev',
+      'epic-exactly-bull.ngrok-free.app'
     ],
     proxy: {
       // Proxy para evitar CORS en desarrollo
       '/api': {
-        target: 'http://172.17.100.64:8000',
+  target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       }

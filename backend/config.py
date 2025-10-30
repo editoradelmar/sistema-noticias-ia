@@ -48,9 +48,11 @@ class Settings(BaseSettings):
         "http://10.0.0.3:5173,"
         "http://10.0.0.4:5173,"
         "http://192.168.1.101:5173,"
-        "http://192.168.1.102:5173"
+        "http://192.168.1.102:5173,"
+        "https://epic-exactly-bull.ngrok-free.app,"
+        "https://willyard-nonceremonial-leonila.ngrok-free.dev"
     )
-    
+
     # Límites de la API
     MAX_TOKENS_IA: int = 2000
     MAX_NOTICIAS_POR_PAGINA: int = 100

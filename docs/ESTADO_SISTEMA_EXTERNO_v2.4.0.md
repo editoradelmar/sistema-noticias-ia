@@ -11,7 +11,7 @@
 #### 🔧 Backend (FastAPI + Uvicorn)
 - **Ubicación**: Ventana CMD independiente
 - **Puerto**: 8000
-- **URL**: `https://credible-kodiak-one.ngrok-free.app`
+-- **URL**: `https://epic-exactly-bull.ngrok-free.app`
 - **Entorno**: Virtual environment activado
 - **Estado**: ✅ Ejecutándose externamente
 - **CORS**: ✅ Configurado correctamente para frontend
@@ -49,7 +49,7 @@ Con los servicios ejecutándose externamente, puedes verificar:
 ### Backend Status
 ```bash
 # En navegador o herramienta API
-GET https://credible-kodiak-one.ngrok-free.app/
+GET https://epic-exactly-bull.ngrok-free.app/
 ```
 
 ### Frontend Status
@@ -92,7 +92,7 @@ allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 // Usando configuración centralizada
 import { appConfig } from '../config/appConfig.js';
 const API_BASE = `${appConfig.API_BASE_URL}/api`;
-// = https://credible-kodiak-one.ngrok-free.app/api
+// = https://epic-exactly-bull.ngrok-free.app/api
 ```
 
 ## 🎪 Testing del Sistema
