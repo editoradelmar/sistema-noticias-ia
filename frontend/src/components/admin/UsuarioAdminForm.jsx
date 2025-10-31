@@ -22,6 +22,7 @@ const localRoles = {
 
 const getRoleInfo = (role) => {
     return localRoles[role] || { label: role, nivel: 99, puede_supervisar: false };
+    //return localRoles[role] || { label: role, puede_supervisar: false };
 };
 
 const getPosiblesSupervisores = (roleUsuario, todosUsuarios) => {
@@ -54,6 +55,7 @@ const UsuarioAdminForm = ({ usuario, onSave, onClose }) => {
         },
         getRoleInfo: (role) => {
             return adminUsuariosServiceTemp.ROLES[role] || { label: role, nivel: 99, puede_supervisar: false };
+            //return adminUsuariosServiceTemp.ROLES[role] || { label: role, puede_supervisar: false };
         },
         getPosiblesSupervisores: (roleUsuario, todosUsuarios) => {
             const jerarquia = {
@@ -468,7 +470,7 @@ const UsuarioAdminForm = ({ usuario, onSave, onClose }) => {
                             >
                                 {Object.entries(localRoles).map(([role, info]) => (
                                     <option key={role} value={role} disabled={!isAdmin() && role === 'admin'}>
-                                        {info.label} (Nivel {info.nivel})
+                                        {info.label} {/* (Nivel {info.nivel}) */}
                                     </option>
                                 ))}
                             </select>

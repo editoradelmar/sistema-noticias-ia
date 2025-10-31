@@ -33,6 +33,8 @@ from models.orm_models import (
     MetricasValorPeriodistico
 )
 from models.schemas import MetricasValorResumen
+from config import settings
+from services import runtime_settings
 
 
 class GeneradorIA:
@@ -44,6 +46,12 @@ class GeneradorIA:
     def __init__(self, db: Session):
         self.db = db
         self._clientes = {}  # Cache de clientes API
+        # Máximo de caracteres permitidos en el prompt final (protección contra prompts excesivamente largos)
+        # Tomado desde la configuración central si está disponible
+        try:
+            self.max_prompt_chars = int(getattr(settings, 'MAX_PROMPT_CHARS', 50000))
+        except Exception:
+            self.max_prompt_chars = 50000
     
     # ==================== CLIENTE LLM ====================
     
@@ -326,15 +334,26 @@ CONTENIDO:
         Returns:
             Prompt procesado con variables reemplazadas
         """
-        # Obtener contenido de PromptItem (primer item activo)
+        # Concatenar el contenido de TODOS los PromptItem ordenados por 'orden'
         contenido = ""
-        if prompt.items and len(prompt.items) > 0:
-            contenido = prompt.items[0].contenido or ""
-            print(f"[DEBUG] Contenido del prompt '{prompt.nombre}': {len(contenido)} caracteres")
+        if getattr(prompt, 'items', None) and len(prompt.items) > 0:
+            # Ordenar por 'orden' si existe, si no por id
+            try:
+                items_ordenados = sorted(prompt.items, key=lambda it: getattr(it, 'orden', 0) or 0)
+            except Exception:
+                items_ordenados = list(prompt.items)
+
+            partes = []
+            for it in items_ordenados:
+                if it and getattr(it, 'contenido', None):
+                    partes.append(it.contenido.strip())
+
+            contenido = "\n\n---\n\n".join(partes).strip()
+            print(f"[DEBUG] Contenido del prompt '{prompt.nombre}': concatenados {len(partes)} items -> {len(contenido)} caracteres")
         else:
             print(f"[DEBUG] No se encontraron items para el prompt '{prompt.nombre}'")
         
-        # Si no hay contenido, usar prompt por defecto
+        # Si no hay contenido suficiente, usar prompt por defecto
         if not contenido or len(contenido.strip()) < 10:
             print(f"[WARNING] Prompt '{prompt.nombre}' vacío o muy corto. Usando prompt por defecto.")
             contenido = f"""Eres un redactor profesional de noticias. 
@@ -369,6 +388,12 @@ Genera el contenido optimizado:"""
         # Validación final: asegurar que el prompt tenga contenido mínimo
         if not contenido or len(contenido.strip()) < 20:
             raise ValueError(f"El prompt procesado es demasiado corto o está vacío. Verifica la configuración del prompt '{prompt.nombre}'")
+
+        # Protección: truncar prompt si excede el tamaño máximo permitido
+        current_limit = runtime_settings.get_max_prompt_chars() or getattr(self, 'max_prompt_chars', 50000)
+        if len(contenido) > current_limit:
+            print(f"[WARNING] Prompt procesado demasiado largo ({len(contenido)} chars). Truncando a {current_limit} chars.")
+            contenido = contenido[:current_limit]
         
         return contenido
     
@@ -421,6 +446,27 @@ Genera el contenido optimizado:"""
             prompt_final = f"{prompt_base}\n\n**ESTILO Y DIRECTIVAS:**\n{estilo_texto}"
         else:
             prompt_final = prompt_base
+
+        # Concatenar todos los EstiloItem si existen (ejemplos, reglas, fragmentos)
+        estilo_items_text = ""
+        if getattr(estilo, 'items', None) and len(estilo.items) > 0:
+            try:
+                estilo_items_ordenados = sorted(estilo.items, key=lambda it: getattr(it, 'orden', 0) or 0)
+            except Exception:
+                estilo_items_ordenados = list(estilo.items)
+
+            partes_items = [it.contenido.strip() for it in estilo_items_ordenados if it and getattr(it, 'contenido', None)]
+            if partes_items:
+                estilo_items_text = "\n\n".join(partes_items)
+                # Anexar los ejemplos/reglas al prompt final
+                prompt_final = f"{prompt_final}\n\n**EJEMPLOS Y REGLAS DE ESTILO:**\n{estilo_items_text}"
+                print(f"[DEBUG] Se anexaron {len(partes_items)} estilo.items al prompt (chars añadidos: {len(estilo_items_text)})")
+
+        # Protección: truncar prompt si excede el tamaño máximo permitido
+        current_limit = runtime_settings.get_max_prompt_chars() or getattr(self, 'max_prompt_chars', 50000)
+        if len(prompt_final) > current_limit:
+            print(f"[WARNING] Prompt con estilo demasiado largo ({len(prompt_final)} chars). Truncando a {current_limit} chars.")
+            prompt_final = prompt_final[:current_limit]
         
         return prompt_final
     

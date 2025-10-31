@@ -13,6 +13,22 @@ Reglas de estilo y componentes a seguir
 - Contextos: `AuthContext` y `ThemeContext` son la fuente de verdad para permisos y tema (usar `useAuth()` y `useTheme()` en componentes nuevos).
 - Servicios HTTP: todas las llamadas HTTP van a través de `frontend/src/services/api.js` y servicios específicos en `frontend/src/services/*.js` (ej: `maestros.js`). Usar esos servicios en lugar de fetch directo cuando sea posible.
 
+ - Antes de RESPONDER a preguntas que impliquen cambios técnicos, diseños de integración o recomendaciones de código, revisar a profundidad tanto el backend como el frontend: identificar puntos de entrada (por ejemplo `backend/main.py`, routers en `backend/routers/`, `frontend/src/main.jsx`, `frontend/src/App.jsx`), los servicios relevantes (`backend/services`, `frontend/src/services`) y las configuraciones que puedan verse afectadas. Documentar brevemente qué archivos se consultaron y por qué. Esta revisión es obligatoria y previa a cualquier propuesta de cambio.
+ - Antes de RESPONDER a preguntas que impliquen cambios técnicos, diseños de integración o recomendaciones de código, revisar a profundidad tanto el backend como el frontend: identificar puntos de entrada (por ejemplo `backend/main.py`, routers en `backend/routers/`, `frontend/src/main.jsx`, `frontend/src/App.jsx`), los servicios relevantes (`backend/services`, `frontend/src/services`) y las configuraciones que puedan verse afectadas. Documentar brevemente qué archivos se consultaron y por qué. Esta revisión es obligatoria y previa a cualquier propuesta de cambio.
+
+Regla estricta de seguridad para agentes colaboradores
+- NO GENERAR NINGÚN PARCHÉ O CÓDIGO SIN ANTES PRESENTAR UN ANÁLISIS DETALLADO Y UNA PROPUESTA (en español) QUE INCLUYA:
+  1) Qué archivos se van a modificar y por qué;
+  2) Un resumen de los cambios propuestos (pequeño diff conceptual o lista de ediciones);
+  3) Un plan de verificación rápido (tests/validaciones a correr);
+  4) Esperar confirmación explícita del mantenedor o revisor responsable antes de aplicar cambios al repositorio.
+
+Además, reglas de comunicación obligatorias:
+- Todas las respuestas técnicas y comentarios de código deben entregarse en ESPAÑOL por defecto.
+- Cuando se propongan cambios, la propuesta y el análisis deben estar en ESPAÑOL y deben documentar los archivos leídos durante la revisión previa.
+
+Si un agente no respeta estas reglas, sus cambios deben revisarse manualmente y no fusionarse hasta recibir aprobación humana.
+
 API y contratos comunes
 - Autenticación: OAuth2 form login en `/api/auth/login` (usar `username` en el body form). Frontend guarda `token` y `user` en localStorage. Ver `AuthContext.jsx`.
 - Form callbacks: los formularios usan la convención `onSave(data, setLoading, setError)` o `onClose(updated)`. Revisar `ProyectoForm.jsx` y `LLMMaestroForm.jsx` para ejemplos.

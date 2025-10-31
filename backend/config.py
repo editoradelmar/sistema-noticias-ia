@@ -56,6 +56,10 @@ class Settings(BaseSettings):
     # Límites de la API
     MAX_TOKENS_IA: int = 2000
     MAX_NOTICIAS_POR_PAGINA: int = 100
+    # Máximo de caracteres permitidos en el prompt final enviado al LLM
+    # Este valor protege contra prompts excesivamente largos que pueden causar
+    # fallos en el proveedor o consumos inesperados de tokens. Ajustable vía .env
+    MAX_PROMPT_CHARS: int = 50000
     
     # Claude API
     CLAUDE_MODEL: str = "claude-sonnet-4-20250514"

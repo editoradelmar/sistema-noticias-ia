@@ -80,10 +80,10 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
 
     // Mostrar métricas en consola justo antes de publicar
     if (typeof metricas === 'object' && metricas !== null && Object.keys(metricas).length > 0) {
-      console.log('📊 Métricas a publicar:', metricas);
+      console.log('📊 Métricas a guardar:', metricas);
     } else {
-      setToast({ show: true, message: 'Error: No hay métricas calculadas para publicar. No se enviará el registro.' });
-      console.error('❌ Error: No hay métricas calculadas para publicar.');
+      setToast({ show: true, message: 'Error: No hay métricas calculadas para guardar. No se enviará el registro.' });
+      console.error('❌ Error: No hay métricas calculadas para guardar.');
       return;
     }
 
@@ -346,7 +346,7 @@ export default function NoticiasGeneradasPanel({ noticiasPorSalida, puedePublica
             disabled={!haySalidaConContenido}
           >
             <Send className="w-5 h-5" />
-            {simplifiedMode ? 'Publicar y Copiar' : 'Publicar Noticias'}
+            {simplifiedMode ? 'Guardar y Copiar' : 'Guardar Noticias'}
           </button>
           {!simplifiedMode && (
             <button

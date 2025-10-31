@@ -54,3 +54,11 @@ greenlet==3.2.4
 distro==1.9.0
 jiter==0.11.0
 websockets==15.0.1
+
+# Dependencias para extracción de archivos (PDF/DOCX/DOC + OCR opcional)
+PyMuPDF==1.26.5
+python-docx==1.2.0
+filetype==1.2.0
+Pillow==12.0.0
+# OCR opcional (requiere binario tesseract en el sistema)
+pytesseract==0.3.13

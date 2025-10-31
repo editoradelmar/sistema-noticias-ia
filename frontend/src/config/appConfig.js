@@ -12,6 +12,7 @@ const getEnvVar = (name, defaultValue = '') => {
 export const appConfig = {
   // Información de la aplicación
   APP_NAME: getEnvVar('VITE_APP_NAME', 'Sistema de Noticias con IA'),
+  //APP_NAME: getEnvVar('VITE_APP_NAME', 'med_'),
   VERSION: getEnvVar('VITE_APP_VERSION', '2.4.0'),
   DESCRIPTION: getEnvVar('VITE_APP_DESCRIPTION', 'Sistema profesional de gestión de noticias con IA'),
   

@@ -1,0 +1,51 @@
+[
+  {
+    "id": "principios",
+    "titulo": "Principios del periodista",
+    "tipo": "regla",
+    "orden": 1,
+    "texto": "Compromiso con la verdad; evitar ventajas personales; prohibido plagio, difamación y acusación sin pruebas; formación permanente."
+  },
+  {
+    "id": "atribuciones-fuentes",
+    "titulo": "Atribuciones y tratamiento de fuentes",
+    "tipo": "regla",
+    "orden": 2,
+    "texto": "Atribuir con precisión desde la primera mención; evitar 'fuentes bien informadas'; cuando no se puede identificar, describir la condición de la fuente. Las citas textuales imprescindibles van entre comillas."
+  },
+  {
+    "id": "nombres-tratamientos",
+    "titulo": "Nombres, tratamientos y siglas",
+    "tipo": "regla",
+    "orden": 3,
+    "texto": "Primera mención: cargo + nombre completo; posteriores: apellido. Evitar 'don' y 'señor' salvo casos consuetudinarios. Escribir siglas con el nombre completo primero."
+  },
+  {
+    "id": "lead-y-titulares",
+    "titulo": "Lead y titulares",
+    "tipo": "regla",
+    "orden": 4,
+    "texto": "Título: síntesis sin adjetivos valorativos. Lead: 1-3 oraciones que respondan Qué/Quién/Dónde/Cuándo e incluyan atribución en el primer párrafo."
+  },
+  {
+    "id": "gramatica-puntuacion",
+    "titulo": "Gramática y puntuación",
+    "tipo": "regla",
+    "orden": 5,
+    "texto": "No separar sujeto y predicado con coma; evitar gerundios de posterioridad; preferir voz activa; regla de dos puntos y mayúscula/minúscula."
+  },
+  {
+    "id": "proteger-menores",
+    "titulo": "Protección de menores y temas sensibles",
+    "tipo": "regla",
+    "orden": 6,
+    "texto": "Prohibido publicar datos identificables de menores. Evitar detalles morbosos. Usar 'explotación sexual de menores' en vez de 'prostitución infantil'."
+  },
+  {
+    "id": "web-reqs",
+    "titulo": "Publicación web: requisitos mínimos",
+    "tipo": "practica",
+    "orden": 7,
+    "texto": "Título 40-70 chars; sumario ≤155 chars; foto de calidad; pie 80-150 chars; texto ≥2000 caracteres salvo nota en desarrollo; tags y autor."
+  }
+]

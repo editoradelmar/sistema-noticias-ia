@@ -14,6 +14,8 @@ from routers import noticias, ai, auth, proyectos
 from routers import llm_maestro, prompts, estilos, secciones, salidas, generacion
 from routers import admin_usuarios  # Administración de usuarios
 from routers import metricas  # Métricas de valor periodístico
+from routers import files as files_router
+from routers import admin_settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -75,6 +77,8 @@ app.include_router(secciones.router)
 app.include_router(salidas.router)
 app.include_router(generacion.router)  # 🎉 Nuevo - Generación IA
 app.include_router(metricas.router)  # 📊 Nuevo - Métricas de valor periodístico
+# Router para extracción de archivos (PDF/DOCX/DOC/TXT)
+app.include_router(files_router.router, prefix="/api/files", tags=["files"])
 # Routers para manejo de items
 from routers import prompt_items, estilo_items
 app.include_router(prompt_items.router)
@@ -82,6 +86,9 @@ app.include_router(estilo_items.router)
 
 # Routers Fase 7 - Administración de Usuarios
 app.include_router(admin_usuarios.router, prefix="/api", tags=["admin-usuarios"])
+
+# Router para ajustes de administración (runtime settings)
+app.include_router(admin_settings.router)
 
 # Endpoint raíz
 @app.get("/")
