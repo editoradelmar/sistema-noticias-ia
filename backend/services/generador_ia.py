@@ -2,7 +2,7 @@
 Servicio de Generación IA Multi-LLM
 Gestiona la generación de contenido con diferentes proveedores (Claude, GPT, Gemini)
 """
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from sqlalchemy.orm import Session
 from anthropic import Anthropic
 import time
@@ -475,29 +475,94 @@ Genera el contenido optimizado:"""
     def merge_configs(self, estilo_config: Optional[Dict[str, Any]], salida_config: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         """Merge runtime entre configuraciones de Estilo y Salida.
 
-        Reglas:
-        - Si salida_config['modo_fusion']=='replace' -> usar solo salida_config (sin 'modo_fusion').
-        - Modo por defecto: 'merge' => shallow merge: salida sobreescribe estilo.
-        - La clave 'max_caracteres' es exclusiva de Salida: si no está en salida_config, NO se hereda desde estilo.
-        - No se persiste el resultado en BD; sólo se usa en runtime.
+        Reglas soportadas (modo en salida_config['modo_fusion']):
+        - 'replace': usar solo salida_config (sin 'modo_fusion').
+        - 'merge'  : shallow merge por defecto (salida sobreescribe estilo).
+        - 'combine': deep-merge inteligente que preserva/combina estructuras y
+          devuelve metadata con resolución de conflictos.
+
+        Nota: La clave 'max_caracteres' es exclusivamente de Salida: si no está en
+        salida_config, no se hereda desde estilo.
         """
         estilo_config = estilo_config or {}
         salida_config = salida_config or {}
 
         modo = salida_config.get('modo_fusion', 'merge')
+
+        # Helper: deep merge for 'combine'
+        def _deep_merge(a: Any, b: Any, path: str = '') -> Tuple[Any, Dict[str, Any]]:
+            """Merge recursively dicts/lists. b overrides a for scalars. Returns (merged, metadata)"""
+            metadata = {"overrides": {}, "source_map": {}}
+            if isinstance(a, dict) and isinstance(b, dict):
+                result = dict(a)
+                for key in b:
+                    new_path = f"{path}.{key}" if path else key
+                    if key in a:
+                        merged_val, meta = _deep_merge(a[key], b[key], new_path)
+                        result[key] = merged_val
+                        # merge metadata
+                        if meta.get('overrides'):
+                            metadata['overrides'].update(meta['overrides'])
+                        if meta.get('source_map'):
+                            metadata['source_map'].update(meta['source_map'])
+                    else:
+                        result[key] = b[key]
+                        metadata['source_map'][new_path] = 'salida'
+                return result, metadata
+            # Lists: concatenate and deduplicate simple values
+            if isinstance(a, list) and isinstance(b, list):
+                try:
+                    merged_list = a + [item for item in b if item not in a]
+                except Exception:
+                    merged_list = a + b
+                # mark list source as combined
+                metadata['source_map'][path or '/'] = 'combined_list'
+                return merged_list, metadata
+            # Scalars or differing types: prefer salida (b) but record override
+            if a is not None and b is not None and a != b:
+                metadata['overrides'][path or '/'] = {'estilo': a, 'salida': b}
+                metadata['source_map'][path or '/'] = 'salida'
+                return b, metadata
+            # Fallback: prefer b if set, otherwise a
+            chosen = b if b is not None else a
+            metadata['source_map'][path or '/'] = 'salida' if b is not None else 'estilo'
+            return chosen, metadata
+
         if modo == 'replace':
+            # usar solo la configuración de salida (sin modo_fusion)
             return {k: v for k, v in salida_config.items() if k != 'modo_fusion'}
 
+        if modo == 'merge':
+            merged = dict(estilo_config)
+            for k, v in salida_config.items():
+                if k == 'modo_fusion':
+                    continue
+                merged[k] = v
+            # Asegurar que max_caracteres sólo venga de la Salida
+            if 'max_caracteres' not in salida_config and 'max_caracteres' in merged:
+                merged.pop('max_caracteres', None)
+            return merged
+
+        if modo == 'combine':
+            # Deep merge con metadata
+            merged, metadata = _deep_merge(estilo_config, salida_config)
+            # Asegurar que max_caracteres sólo venga de la Salida
+            if 'max_caracteres' not in salida_config and 'max_caracteres' in merged:
+                merged.pop('max_caracteres', None)
+                # si fue removida, limpiar metadata correspondiente
+                metadata['source_map'].pop('max_caracteres', None)
+                metadata['overrides'].pop('max_caracteres', None)
+            # Devolver una estructura especial para quien pida metadata
+            return {'_merged': merged, '_metadata': metadata}
+
+        # Si modo desconocido, fallback a merge
         merged = dict(estilo_config)
         for k, v in salida_config.items():
             if k == 'modo_fusion':
                 continue
             merged[k] = v
-
-        # Asegurar que max_caracteres sólo venga de la Salida
         if 'max_caracteres' not in salida_config and 'max_caracteres' in merged:
             merged.pop('max_caracteres', None)
-
         return merged
 
     def _remove_emojis(self, text: str) -> str:
@@ -620,7 +685,14 @@ Genera el contenido optimizado:"""
             temperature=0.7
         )
         # Aplicar configuración merged (Estilo + Salida) en post-procesamiento
-        merged_config = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        merged_raw = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        # merge_configs puede devolver {'_merged':..., '_metadata':...} cuando modo='combine'
+        if isinstance(merged_raw, dict) and '_merged' in merged_raw:
+            merged_config = merged_raw.get('_merged', {})
+            merge_metadata = merged_raw.get('_metadata', {})
+        else:
+            merged_config = merged_raw or {}
+            merge_metadata = {}
         try:
             contenido_proc = resultado.get('contenido', '')
             # Eliminar emojis si la salida no los permite
@@ -642,7 +714,13 @@ Genera el contenido optimizado:"""
             resultado["contenido"] = "Contenido generado automáticamente (simulado) para esta salida."
 
         # Aplicar configuración merged (Estilo + Salida) en post-procesamiento (temporal)
-        merged_config = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        merged_raw = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        if isinstance(merged_raw, dict) and '_merged' in merged_raw:
+            merged_config = merged_raw.get('_merged', {})
+            merge_metadata = merged_raw.get('_metadata', {})
+        else:
+            merged_config = merged_raw or {}
+            merge_metadata = {}
         try:
             contenido_proc = resultado.get('contenido', '')
             if merged_config.get('permite_emojis') is False:
@@ -1082,7 +1160,30 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
         # Validar que el contenido generado tenga al menos 10 caracteres
         if not resultado["contenido"] or len(resultado["contenido"].strip()) < 10:
             resultado["contenido"] = "Contenido generado automáticamente (simulado) para esta salida."
-        
+        # Aplicar post-procesamiento según configuración (Estilo + Salida)
+        merged_raw = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        if isinstance(merged_raw, dict) and '_merged' in merged_raw:
+            merged_config = merged_raw.get('_merged', {})
+            merge_metadata = merged_raw.get('_metadata', {})
+        else:
+            merged_config = merged_raw or {}
+            merge_metadata = {}
+
+        try:
+            contenido_proc = resultado.get('contenido', '')
+            if merged_config.get('permite_emojis') is False:
+                contenido_proc = self._remove_emojis(contenido_proc)
+            if 'max_caracteres' in merged_config and merged_config.get('max_caracteres'):
+                try:
+                    mc = int(merged_config.get('max_caracteres'))
+                    estrategia = merged_config.get('truncar_estrategia', 'smart')
+                    contenido_proc = self._apply_max_caracteres(contenido_proc, mc, estrategia)
+                except Exception:
+                    pass
+            resultado['contenido'] = contenido_proc
+        except Exception as e:
+            print(f"[WARNING] Error post-procesando contenido temporal según configuración de salida: {e}")
+
         # Devolver resultado temporal (formato similar a NoticiaSalida)
         return {
             "id": None,  # Temporal - no tiene ID de BD
@@ -1094,7 +1195,8 @@ Con base en la noticia anterior, genera el contenido optimizado para {salida.nom
             "tiempo_generacion_ms": resultado["tiempo_ms"],
             "generado_en": datetime.now().isoformat(),
             "nombre_salida": salida.nombre,
-            "temporal": True  # Marca que es temporal
+            "temporal": True,  # Marca que es temporal
+            "merge_metadata": merge_metadata
         }
     
     # ==================== UTILIDADES ====================

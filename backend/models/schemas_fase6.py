@@ -375,6 +375,7 @@ class NoticiaSalidaTemporal(BaseModel):
     generado_en: str = Field(..., description="Timestamp de generación")
     nombre_salida: Optional[str] = None
     temporal: Optional[bool] = Field(True, description="Marca que es temporal (solo en memoria)")
+    merge_metadata: Optional[Dict[str, Any]] = Field(None, description="Metadata sobre fusión de configuraciones (estilo+salida), solo si modo 'combine' es usado")
 
 
 class NoticiaSalidaConRelaciones(NoticiaSalida):

@@ -49,6 +49,12 @@ async def publicar_salidas(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Noticia {request.noticia_id} no encontrada"
         )
+    # Verificar que exista un Estilo efectivo (heredado de la sección o presente en la sección)
+    if not getattr(noticia, 'seccion', None) or not getattr(noticia.seccion, 'estilo', None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="La noticia no tiene un Estilo asociado. Asocie un Estilo a la Sección antes de generar."
+        )
     # Validar salidas
     salidas = db.query(SalidaMaestroORM).filter(
         SalidaMaestroORM.id.in_(request.salidas_ids),
@@ -254,6 +260,12 @@ async def generar_salidas_temporal(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Sección {request.datosNoticia.seccion_id} no encontrada"
         )
+    # Requerir que la sección tenga un Estilo asociado (regla: Estilo y Salida son obligatorios para generación)
+    if not getattr(seccion_real, 'estilo', None):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Sección {seccion_real.id} no tiene Estilo asociado. Asocie un Estilo para poder generar salidas temporales."
+        )
     
     # Pre-cargar relaciones de prompt y estilo
     if seccion_real.prompt and seccion_real.prompt.items:
@@ -333,6 +345,7 @@ async def generar_salida_individual(
     noticia_id: int,
     salida_id: int,
     llm_id: int,
+    estilo_id: Optional[int] = None,
     # prompt_id y estilo_id eliminados del endpoint individual (ajustar frontend si es necesario)
     regenerar: bool = False,
     db: Session = Depends(get_db),
@@ -370,12 +383,27 @@ async def generar_salida_individual(
         raise HTTPException(status_code=404, detail="LLM no encontrado o inactivo")
     
     # prompt y estilo ahora siempre se heredan de la sección
-    
+    # Resolver estilo: preferir estilo de la sección, si no existe usar estilo_id proporcionado
+    estilo_obj = None
+    if noticia.seccion and getattr(noticia.seccion, 'estilo', None):
+        estilo_obj = noticia.seccion.estilo
+    elif estilo_id is not None:
+        estilo_obj = db.query(EstiloMaestroORM).filter(
+            EstiloMaestroORM.id == estilo_id,
+            EstiloMaestroORM.activo == True
+        ).first()
+        if not estilo_obj:
+            raise HTTPException(status_code=404, detail=f"Estilo {estilo_id} no encontrado o inactivo")
+    else:
+        raise HTTPException(status_code=400, detail="No hay Estilo efectivo: asocie un Estilo a la Sección o pase estilo_id")
+
     # Generar
     generador = GeneradorIA(db)
     resultado = generador.generar_para_salida(
         noticia=noticia,
-        salida=salida
+        salida=salida,
+        estilo=estilo_obj,
+        regenerar=regenerar
     )
     return resultado
 
