@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { X, Save } from 'lucide-react';
 
 const SalidaForm = ({ salida, onSave, onCancel }) => {
-  const [form, setForm] = useState(salida || { nombre: '', descripcion: '', tipo_salida: '', activo: true });
+  const [form, setForm] = useState(salida || { nombre: '', descripcion: '', tipo_salida: '', configuracion: {}, activo: true });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -12,6 +12,9 @@ const SalidaForm = ({ salida, onSave, onCancel }) => {
     const { name, value, type, checked } = e.target;
     setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
   };
+
+  // Nota: la configuración de la salida se edita como JSON en un textarea.
+  // Se parsea en el cliente y se guarda como objeto en `form.configuracion`.
 
   const handleSubmit = async e => {
     if (e) e.preventDefault();
@@ -35,7 +38,7 @@ const SalidaForm = ({ salida, onSave, onCancel }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={() => onCancel(false)} />
-      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl flex flex-col h-[90vh] border border-slate-200 dark:border-slate-700">
+  <div className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl flex flex-col h-[75vh] border border-slate-200 dark:border-slate-700">
         {/* Header Fijo */}
         <div className="p-6 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between">
@@ -105,6 +108,35 @@ const SalidaForm = ({ salida, onSave, onCancel }) => {
               </select>
             </div>
 
+            {/* checkbox 'activo' movido debajo del JSON para coherencia */}
+
+            {/* Configuración (JSON) - igual a EstiloForm.jsx */}
+            <div>
+              <label className="block text-sm text-slate-700 dark:text-slate-300 mb-1">Configuración (JSON)</label>
+              <textarea
+                value={JSON.stringify(form.configuracion || {}, null, 2)}
+                onChange={e => {
+                  const val = e.target.value;
+                  if (!val.trim()) {
+                    setError('La configuración no puede estar vacía.');
+                    return;
+                  }
+                  try {
+                    const parsed = JSON.parse(val);
+                    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+                      setError('La configuración debe ser un objeto JSON.');
+                    } else {
+                      setForm(f => ({ ...f, configuracion: parsed }));
+                      setError('');
+                    }
+                  } catch {
+                    setError('Configuración debe ser JSON válido.');
+                  }
+                }}
+                rows={6}
+                className="w-full p-2 border-2 rounded-lg bg-white dark:bg-slate-900"
+              />
+            </div>
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"

@@ -302,6 +302,7 @@ class SalidaMaestroBase(BaseModel):
     tipo_salida: TipoSalida = Field(..., description="Tipo de salida (print/digital/social)")
     configuracion: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Configuración específica")
     activo: bool = Field(default=True, description="¿Está activa la salida?")
+    
 
 
 class SalidaMaestroCreate(SalidaMaestroBase):

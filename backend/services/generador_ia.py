@@ -469,6 +469,69 @@ Genera el contenido optimizado:"""
             prompt_final = prompt_final[:current_limit]
         
         return prompt_final
+
+    # ==================== CONFIGURACIONES Y MERGE ====================
+
+    def merge_configs(self, estilo_config: Optional[Dict[str, Any]], salida_config: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Merge runtime entre configuraciones de Estilo y Salida.
+
+        Reglas:
+        - Si salida_config['modo_fusion']=='replace' -> usar solo salida_config (sin 'modo_fusion').
+        - Modo por defecto: 'merge' => shallow merge: salida sobreescribe estilo.
+        - La clave 'max_caracteres' es exclusiva de Salida: si no está en salida_config, NO se hereda desde estilo.
+        - No se persiste el resultado en BD; sólo se usa en runtime.
+        """
+        estilo_config = estilo_config or {}
+        salida_config = salida_config or {}
+
+        modo = salida_config.get('modo_fusion', 'merge')
+        if modo == 'replace':
+            return {k: v for k, v in salida_config.items() if k != 'modo_fusion'}
+
+        merged = dict(estilo_config)
+        for k, v in salida_config.items():
+            if k == 'modo_fusion':
+                continue
+            merged[k] = v
+
+        # Asegurar que max_caracteres sólo venga de la Salida
+        if 'max_caracteres' not in salida_config and 'max_caracteres' in merged:
+            merged.pop('max_caracteres', None)
+
+        return merged
+
+    def _remove_emojis(self, text: str) -> str:
+        """Eliminar emojis básicos del texto usando regex simple."""
+        try:
+            # Rango unicode básico para emojis
+            emoji_pattern = re.compile(
+                "[\U0001F600-\U0001F64F"  # emoticons
+                "\U0001F300-\U0001F5FF"  # symbols & pictographs
+                "\U0001F680-\U0001F6FF"  # transport & map symbols
+                "\U0001F1E0-\U0001F1FF]", flags=re.UNICODE)
+            return emoji_pattern.sub(r'', text)
+        except Exception:
+            # Fallback: eliminar caracteres no ASCII extendidos
+            return re.sub(r'[\u2600-\u27bf]|[\U00010000-\U0010ffff]', '', text)
+
+    def _apply_max_caracteres(self, text: str, max_caracteres: int, estrategia: str = 'smart') -> str:
+        """Aplica truncado según max_caracteres y estrategia ('smart' intenta cortar en punto)."""
+        if not max_caracteres or max_caracteres <= 0:
+            return text
+        if len(text) <= max_caracteres:
+            return text
+        if estrategia == 'hard':
+            return text[:max_caracteres]
+        # Estrategia smart: intentar cortar en el último punto antes del límite
+        corte = text.rfind('.', 0, max_caracteres)
+        if corte != -1 and corte > int(max_caracteres * 0.5):
+            return text[:corte+1]
+        # Si no hay punto adecuado, truncar al último espacio
+        corte_ws = text.rfind(' ', 0, max_caracteres)
+        if corte_ws != -1 and corte_ws > int(max_caracteres * 0.3):
+            return text[:corte_ws]
+        # Fallback duro
+        return text[:max_caracteres]
     
     # ==================== GENERACIÓN PARA SALIDA ====================
     
@@ -556,9 +619,44 @@ Genera el contenido optimizado:"""
             max_tokens=self._get_max_tokens_salida(salida),
             temperature=0.7
         )
+        # Aplicar configuración merged (Estilo + Salida) en post-procesamiento
+        merged_config = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        try:
+            contenido_proc = resultado.get('contenido', '')
+            # Eliminar emojis si la salida no los permite
+            if merged_config.get('permite_emojis') is False:
+                contenido_proc = self._remove_emojis(contenido_proc)
+            # Aplicar truncado por max_caracteres (solo si está definido en la Salida)
+            if 'max_caracteres' in merged_config and merged_config.get('max_caracteres'):
+                try:
+                    mc = int(merged_config.get('max_caracteres'))
+                    estrategia = merged_config.get('truncar_estrategia', 'smart')
+                    contenido_proc = self._apply_max_caracteres(contenido_proc, mc, estrategia)
+                except Exception:
+                    pass
+            resultado['contenido'] = contenido_proc
+        except Exception as e:
+            print(f"[WARNING] Error post-procesando contenido según configuración de salida: {e}")
         # Validar que el contenido generado tenga al menos 10 caracteres
         if not resultado["contenido"] or len(resultado["contenido"].strip()) < 10:
             resultado["contenido"] = "Contenido generado automáticamente (simulado) para esta salida."
+
+        # Aplicar configuración merged (Estilo + Salida) en post-procesamiento (temporal)
+        merged_config = self.merge_configs(getattr(estilo, 'configuracion', {}) if estilo else {}, getattr(salida, 'configuracion', {}) or {})
+        try:
+            contenido_proc = resultado.get('contenido', '')
+            if merged_config.get('permite_emojis') is False:
+                contenido_proc = self._remove_emojis(contenido_proc)
+            if 'max_caracteres' in merged_config and merged_config.get('max_caracteres'):
+                try:
+                    mc = int(merged_config.get('max_caracteres'))
+                    estrategia = merged_config.get('truncar_estrategia', 'smart')
+                    contenido_proc = self._apply_max_caracteres(contenido_proc, mc, estrategia)
+                except Exception:
+                    pass
+            resultado['contenido'] = contenido_proc
+        except Exception as e:
+            print(f"[WARNING] Error post-procesando contenido temporal según configuración de salida: {e}")
         # Crear o actualizar NoticiaSalida
         if regenerar:
             noticia_salida = self.db.query(NoticiaSalida).filter(
